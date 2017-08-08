@@ -53,7 +53,7 @@ HRESULT CMainGame::Initialize(void)
 		return E_FAIL;
 	
 	CSceneMgr::GetInstance()->Initialize();
-	CSceneMgr::GetInstance()->SetChangeScene(SCENE_TEST);
+	CSceneMgr::GetInstance()->SetChangeScene(SCENE_STAGE);
 
 	return S_OK;
 }

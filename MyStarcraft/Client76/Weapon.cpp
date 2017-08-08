@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "Weapon.h"
 
+#include "GameEntity.h"
+
 
 CWeapon::CWeapon()
-	: m_pHitTexture(NULL)
 {
-	ZeroMemory( &this->m_tWeaonData, sizeof( WEAPON_DATA ) );
 }
 
 
@@ -16,21 +16,41 @@ CWeapon::~CWeapon()
 
 void CWeapon::SetAttInterval( const float & _fAttInterval )
 {
-	this->m_tWeaonData.fAttInterval = _fAttInterval;
+	if ( this->m_pWeaonData )
+		this->m_pWeaonData->fAttInterval = _fAttInterval;
 }
 
-const TEX_INFO * CWeapon::GetHitTexture() const
+void CWeapon::SetWeaponData( WEAPON_DATA * _pWeaponData )
 {
-	return this->m_pHitTexture;
+	if ( _pWeaponData )
+		this->m_pWeaonData = _pWeaponData;
 }
 
-const WEAPON_DATA * CWeapon::GetWeaponData()
+const vector<TEX_INFO*>* CWeapon::GetHitTexture() const
 {
-	return &this->m_tWeaonData;
+	if ( this->m_pWeaonData )
+		return &this->m_pWeaonData->vecHitTexture;
+}
+
+const WEAPON_DATA * CWeapon::GetWeaponData() const
+{
+	if ( this->m_pWeaonData )
+		return this->m_pWeaonData;
+}
+
+void CWeapon::Initialize()
+{
+	if ( this->m_pWeaonData )
+		m_fRestInterval = this->m_pWeaonData->fAttInterval;
 }
 
 void CWeapon::Release()
 {
+}
+
+void CWeapon::Attack( CGameEntity * _pAttTarget )
+{
+	
 }
 
 bool CWeapon::IsCanAttack()

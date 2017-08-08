@@ -2,14 +2,14 @@
 #include "Component.h"
 #include "Include.h"
 
+class CGameEntity;
 class CWeapon :
 	public CComponent
 {
 protected:
-	TEX_INFO*		m_pHitTexture;
-	WEAPON_DATA		m_tWeaonData;
+	WEAPON_DATA*			m_pWeaonData;			// 웨폰 매니저에서 받아올 것 ( 메모리 절약을 위해?? )..
 
-	float			m_fRestInterval;
+	float					m_fRestInterval;
 
 public:
 	CWeapon();
@@ -17,15 +17,18 @@ public:
 
 public:
 	void SetAttInterval( const float& _fAttInterval );
+	void SetWeaponData( WEAPON_DATA* _pWeaponData );
 
 public:
-	const TEX_INFO* GetHitTexture() const;
-	const WEAPON_DATA* GetWeaponData();
+	const vector<TEX_INFO*>* GetHitTexture() const;
+	const WEAPON_DATA* GetWeaponData() const;
 
 public:
 	// CComponent을(를) 통해 상속됨
-	virtual void Initialize() PURE;
-	virtual void Release() PURE;
+	virtual void Initialize();
+	virtual void Release();
+
+	void Attack( CGameEntity* _pAttTarget );
 
 	bool IsCanAttack();
 

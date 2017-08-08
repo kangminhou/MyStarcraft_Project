@@ -33,6 +33,7 @@ public:
 	const T* GetComponent( void ) const;
 	const CTransform*	GetTransform() const;
 	wstring GetObjKey( void ) const;
+	eObjectType GetObjectType() const;
 
 protected:
 	static D3DXVECTOR3 m_vScroll;
@@ -45,6 +46,7 @@ public:
 
 public:
 	void AddComponent( CComponent* _pComponent );
+	void Translate( const D3DXVECTOR3& _vMove );
 
 public:
 	CGameObject(void);

@@ -102,8 +102,8 @@ typedef struct tagTile
 
 typedef struct tagCommonData
 {
-	int iCurHp;
-	int iMaxHp;
+	float fCurHp;
+	float fMaxHp;
 
 	float fSpeed;
 
@@ -146,14 +146,29 @@ typedef struct tagImagePath
 /* 무기 데이터.. */
 typedef struct tagWeaponData
 {
-	int iDamage;
 	int iUpgradePlus;
 	int iMinAttRange;
 	int iMaxAttRange;
 
+	float fDamage;
 	float fAttInterval;
 
 	eWeaponUpgradeType eUpgradeType;
+
+	wstring				wstrWeaponName;
+	vector <TEX_INFO*>	vecHitTexture;
+
+	/* 스플래시 데미지 여부.. */
+	/*
+	 * 스플래시 정보 참고 : https://namu.wiki/w/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8%20%EC%8B%9C%EB%A6%AC%EC%A6%88/%EC%8B%9C%EC%8A%A4%ED%85%9C
+	 * 받는 데미지 : 안쪽 100%, 중간 50%, 바깥쪽 25%
+	 * 범위는 픽셀 단위 ( 32픽셀 == 타일1개 )
+	 */
+	bool bSplash;
+	int iInside;		// 안쪽 범위..
+	int iMiddle;		// 중간 범위..
+	int iOutSide;		// 바깥쪽 범위..
+	
 
 } WEAPON_DATA;
 

@@ -116,13 +116,16 @@
     <ClCompile Include="FileCopyScene.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GaussRifle.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Logo.cpp" />
     <ClCompile Include="MainGame.cpp" />
+    <ClCompile Include="Marine.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="MultiTexture.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
+    <ClCompile Include="Pattern_IdleAlert.cpp" />
+    <ClCompile Include="Pattern_Move.cpp" />
+    <ClCompile Include="Pattern_MoveAlert.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SingleTexture.cpp" />
@@ -138,8 +141,9 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="UnitFactory.cpp" />
-    <ClCompile Include="UnitPattern.cpp" />
+    <ClCompile Include="EntityPattern.cpp" />
     <ClCompile Include="Weapon.cpp" />
+    <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -151,13 +155,16 @@
     <ClInclude Include="FileCopyScene.h" />
     <ClInclude Include="GameEntity.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GaussRifle.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Logo.h" />
     <ClInclude Include="MainGame.h" />
+    <ClInclude Include="Marine.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="MultiTexture.h" />
     <ClInclude Include="ObjMgr.h" />
+    <ClInclude Include="Pattern_IdleAlert.h" />
+    <ClInclude Include="Pattern_Move.h" />
+    <ClInclude Include="Pattern_MoveAlert.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
@@ -172,8 +179,9 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Unit.h" />
     <ClInclude Include="UnitFactory.h" />
-    <ClInclude Include="UnitPattern.h" />
+    <ClInclude Include="EntityPattern.h" />
     <ClInclude Include="Weapon.h" />
+    <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client76.ico" />

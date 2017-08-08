@@ -5,10 +5,17 @@
 #include "Device.h"
 
 #include "Animation.h"
+#include "EntityPattern.h"
+#include "WeaponMgr.h"
+#include "Weapon.h"
+
+CWeaponMgr* CUnit::m_pWeaponMgr = NULL;
 
 
 CUnit::CUnit()
+	: m_pGroundAttWeapon(NULL), m_pAirAttWeapon(NULL)
 {
+	ZeroMemory( &m_tGenerateData, sizeof( UNIT_GENERATE_DATA ) );
 }
 
 
@@ -17,25 +24,16 @@ CUnit::~CUnit()
 	Release();
 }
 
+void CUnit::SetWeaponManager( CWeaponMgr * _pWeaponMgr )
+{
+	m_pWeaponMgr = _pWeaponMgr;
+}
+
 HRESULT CUnit::Initialize( void )
 {
-	this->m_wstrStateKey = L"Idle";
-
 	/* 무기 세팅.. */
 	//this->m_pGroundAttWeapon = NULL;
 	//this->m_pAirAttWeapon = NULL;
-
-	/* 유닛의 데이터 초기화.. */
-	this->m_tInfoData.iMaxHp = this->m_tInfoData.iCurHp = 50;
-	this->m_tInfoData.iDefense = 0;
-	this->m_tInfoData.fSpeed = 1.5f;
-	this->m_tInfoData.iScope = 7;
-
-	/* 생성 데이터 초기화.. */
-	this->m_tGenerateData.fGenerateTime = 1.f;
-	this->m_tGenerateData.iRequireMineral = 50;
-	this->m_tGenerateData.iRequireGas = 0;
-	this->m_tGenerateData.iRequirePopulation = 1;
 
 	CGameEntity::Initialize();
 
@@ -44,7 +42,7 @@ HRESULT CUnit::Initialize( void )
 
 int CUnit::Update( void )
 {
-	int iResult = 0;
+	int iResult = CGameEntity::Update();
 
 	return iResult;
 }
@@ -74,45 +72,14 @@ void CUnit::Render( void )
 
 void CUnit::Release( void )
 {
-	
-}
+	if ( this->m_pGroundAttWeapon )
+		safe_delete( this->m_pGroundAttWeapon );
 
-void CUnit::SetPattern( const eGameEntityPattern& _ePatternKind )
-{
-	switch ( _ePatternKind )
+	if ( this->m_pAirAttWeapon )
+		safe_delete( this->m_pAirAttWeapon );
+
+	for each (auto pPattern in m_mapPatterns)
 	{
-		case CGameEntity::Pattern_Idle:
-
-			break;
-
-		case CGameEntity::Pattern_Move:
-			break;
-
-		case CGameEntity::Pattern_Stop:
-			break;
-
-		case CGameEntity::Pattern_Hold:
-			break;
-
-		case CGameEntity::Pattern_Patrol:
-			break;
-
-		case CGameEntity::Pattern_Attack:
-			break;
-
-		default:
-			break;
-
+		safe_delete( pPattern.second );
 	}
-
-}
-
-void CUnit::InitAnimation()
-{
-	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_Loop );
-}
-
-void CUnit::InitPattern()
-{
-
 }

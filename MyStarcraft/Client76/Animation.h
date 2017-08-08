@@ -39,7 +39,7 @@ public:
 
 public:
 	void AddAnimation( const wstring& _wstrName, const FRAME& _tFrame, const eAnim_Kind& eAnimKind );
-	void ChangeAnimation( const wstring& _wstrName );
+	bool ChangeAnimation( const wstring& _wstrName );
 
 };
 

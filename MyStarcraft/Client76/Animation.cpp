@@ -70,14 +70,18 @@ void CAnimation::AddAnimation( const wstring& _wstrName, const FRAME& _tFrame, c
 	m_mapAnimation.insert( make_pair( _wstrName, pAnimData ) );
 }
 
-void CAnimation::ChangeAnimation( const wstring & _wstrName )
+bool CAnimation::ChangeAnimation( const wstring & _wstrName )
 {
 	auto iterFindAnimation = m_mapAnimation.find( _wstrName );
 
 	/* 찾는 애니메이션이 없는 애니메이션이라면.. */
 	if ( iterFindAnimation == m_mapAnimation.end() )
-		return;
+		return false;
+
+	if ( iterFindAnimation->second == m_pCurAnimation )
+		return false;
 
 	m_pCurAnimation = iterFindAnimation->second;
 	m_pCurAnimation->tFrame.fIndex = 0.f;
+	return true;
 }

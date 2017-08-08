@@ -85,54 +85,6 @@
     <Filter Include="03. Component\04. Skill">
       <UniqueIdentifier>{49d0d85e-620f-4658-97d0-24ff798cbeb4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="03. Component\02. ObjectFunction">
-      <UniqueIdentifier>{c97cd7c1-b8b7-4023-96ae-98c30657989a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\05. Bridge">
-      <UniqueIdentifier>{36def8d2-5833-4ae6-aeef-2d575b2b373a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\05. Bridge\00. Unit">
-      <UniqueIdentifier>{64dfe269-4c00-4884-be64-1bbd6e0608b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern">
-      <UniqueIdentifier>{0ad6feac-e503-4ccd-a87a-f6c3b61f6326}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit">
-      <UniqueIdentifier>{8e8b7fb3-8556-45ae-a50a-88f5621d9ae8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit\00. Idle">
-      <UniqueIdentifier>{a06d8ea3-b90c-4d43-b895-0eb615b39444}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit\01. Move">
-      <UniqueIdentifier>{417c5e19-3008-49bf-83a1-b33209f3df6e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit\02. Hold">
-      <UniqueIdentifier>{a28e7488-9ba2-4db1-bd47-48107f03cf69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit\03. Patrol">
-      <UniqueIdentifier>{76c6a77d-76ac-4a16-bb77-c25c228aff60}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\00. Unit\04. Stop">
-      <UniqueIdentifier>{175ee3c3-5c8a-4f11-9454-06bfc4ec6b62}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\03. ObjectPattern\01. Building">
-      <UniqueIdentifier>{2f3f4e78-1036-4854-866d-d2c55667235c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\02. ObjectFunction\00. Common">
-      <UniqueIdentifier>{2c72049e-b0a5-4df5-a130-064d31bcc582}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\02. ObjectFunction\01. Unit">
-      <UniqueIdentifier>{4826f342-a405-4ff5-a40b-d5984bc49e49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\02. ObjectFunction\02. Building">
-      <UniqueIdentifier>{63840091-1c20-4ffc-9245-4efdc047e06e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\06. Weapon">
-      <UniqueIdentifier>{ce2b1bca-4625-49f0-9da8-7b40776fd959}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="03. Component\05. Bridge\00. Unit\00. Marine">
-      <UniqueIdentifier>{3136ced0-d1a9-4620-82ca-e9e201b583db}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01. GameObject\00. GameEntity">
       <UniqueIdentifier>{d8b81409-b2f5-4124-bd13-14bb40f1fd2c}</UniqueIdentifier>
     </Filter>
@@ -141,6 +93,51 @@
     </Filter>
     <Filter Include="01. GameObject\00. GameEntity\00. Unit">
       <UniqueIdentifier>{6a0908dd-68a0-4b0a-b22a-39ba6b065e54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\05. Weapon">
+      <UniqueIdentifier>{ce2b1bca-4625-49f0-9da8-7b40776fd959}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\00. Marine">
+      <UniqueIdentifier>{2bd7be40-450f-496a-ab52-0041b49a7345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern">
+      <UniqueIdentifier>{0ad6feac-e503-4ccd-a87a-f6c3b61f6326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit">
+      <UniqueIdentifier>{8e8b7fb3-8556-45ae-a50a-88f5621d9ae8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\00. Idle">
+      <UniqueIdentifier>{a06d8ea3-b90c-4d43-b895-0eb615b39444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\01. Move">
+      <UniqueIdentifier>{417c5e19-3008-49bf-83a1-b33209f3df6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\02. Hold">
+      <UniqueIdentifier>{a28e7488-9ba2-4db1-bd47-48107f03cf69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\03. Patrol">
+      <UniqueIdentifier>{76c6a77d-76ac-4a16-bb77-c25c228aff60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\04. Stop">
+      <UniqueIdentifier>{175ee3c3-5c8a-4f11-9454-06bfc4ec6b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\01. Building">
+      <UniqueIdentifier>{2f3f4e78-1036-4854-866d-d2c55667235c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\02. EntityFunction">
+      <UniqueIdentifier>{c97cd7c1-b8b7-4023-96ae-98c30657989a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\02. EntityFunction\00. Common">
+      <UniqueIdentifier>{2c72049e-b0a5-4df5-a130-064d31bcc582}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\02. EntityFunction\01. Unit">
+      <UniqueIdentifier>{4826f342-a405-4ff5-a40b-d5984bc49e49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\02. EntityFunction\02. Building">
+      <UniqueIdentifier>{63840091-1c20-4ffc-9245-4efdc047e06e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\07. WeaponMgr">
+      <UniqueIdentifier>{ab18d38f-7453-4559-b842-24378f443ab1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -219,20 +216,32 @@
     <ClCompile Include="UnitFactory.cpp">
       <Filter>98. Manager\00. Factory</Filter>
     </ClCompile>
-    <ClCompile Include="UnitPattern.cpp">
-      <Filter>03. Component\03. ObjectPattern\00. Unit</Filter>
-    </ClCompile>
     <ClCompile Include="Building.cpp">
       <Filter>01. GameObject\00. GameEntity\01. Building</Filter>
     </ClCompile>
     <ClCompile Include="Weapon.cpp">
-      <Filter>03. Component\06. Weapon</Filter>
-    </ClCompile>
-    <ClCompile Include="GaussRifle.cpp">
-      <Filter>99. Default\소스 파일</Filter>
+      <Filter>03. Component\05. Weapon</Filter>
     </ClCompile>
     <ClCompile Include="GameEntity.cpp">
       <Filter>01. GameObject\00. GameEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="Marine.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\00. Marine</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityPattern.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_IdleAlert.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\00. Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_MoveAlert.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Move.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMgr.cpp">
+      <Filter>98. Manager\07. WeaponMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -317,20 +326,32 @@
     <ClInclude Include="UnitFactory.h">
       <Filter>98. Manager\00. Factory</Filter>
     </ClInclude>
-    <ClInclude Include="UnitPattern.h">
-      <Filter>03. Component\03. ObjectPattern\00. Unit</Filter>
-    </ClInclude>
     <ClInclude Include="Building.h">
       <Filter>01. GameObject\00. GameEntity\01. Building</Filter>
     </ClInclude>
     <ClInclude Include="Weapon.h">
-      <Filter>03. Component\06. Weapon</Filter>
-    </ClInclude>
-    <ClInclude Include="GaussRifle.h">
-      <Filter>99. Default\헤더 파일</Filter>
+      <Filter>03. Component\05. Weapon</Filter>
     </ClInclude>
     <ClInclude Include="GameEntity.h">
       <Filter>01. GameObject\00. GameEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="Marine.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\00. Marine</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityPattern.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_IdleAlert.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\00. Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_MoveAlert.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Move.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponMgr.h">
+      <Filter>98. Manager\07. WeaponMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

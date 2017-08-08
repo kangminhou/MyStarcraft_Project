@@ -1,9 +1,13 @@
 #pragma once
 #include "scene.h"
+#include "WeaponMgr.h"
 
 class CStage :
 	public CScene
 {
+private:
+	CWeaponMgr m_weaponManager;
+
 public:
 	virtual HRESULT	Initialize(void);
 	virtual int		Update(void);

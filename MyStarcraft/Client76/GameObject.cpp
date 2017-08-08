@@ -74,6 +74,11 @@ wstring CGameObject::GetObjKey( void ) const
 	return m_wstrObjKey;
 }
 
+eObjectType CGameObject::GetObjectType() const
+{
+	return this->m_eType;
+}
+
 
 
 HRESULT CGameObject::Initialize( void )
@@ -90,6 +95,11 @@ HRESULT CGameObject::Initialize( void )
 void CGameObject::AddComponent( CComponent * _pComponent )
 {
 	this->m_vecComponent.push_back( _pComponent );
+}
+
+void CGameObject::Translate( const D3DXVECTOR3 & _vMove )
+{
+	this->m_pTransform->Translate( _vMove, CTransform::Move_Local );
 }
 
 CGameObject::CGameObject(void)
