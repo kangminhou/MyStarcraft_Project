@@ -1,0 +1,29 @@
+Academy : 아카데미
+Barrack : 배럭
+Bunker : 벙커
+Chemlab : 아머리
+
+Control : 커멘드 센터
+Comsat : 컴샛(커멘드센터 부속)
+Nukelsilo : 핵 생산 건물
+
+Depot	: 서플라이 디폿
+
+Factory  : 팩토리
+Machines : 팩토리 부속
+
+Refinery : 가스
+
+Reserch : 사이언스 퍼실리티
+Genelab : 고스트건물(사이언스 퍼실리티 부속 건물)
+Physics : 배틀크루저 건물(사이언스 퍼실리티 부속 건물)
+
+Starport : 스타포트
+Drydocks : 스타포트 부속건물
+
+Turret : 미사일 터렛
+Weaponpl : 엔지니어링 베이
+
+Tbldlrg(96,96)1 : 건물 건설 밑바닥(사이즈)
+Tbldlrg(96,96)2 : 건물 건설 밑바닥(사이즈)
+Tbldlrg(160,128) : 건물 건설 밑바닥(사이즈)

@@ -1,0 +1,32 @@
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\bin\Debug\ToolTest.exe
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\bin\Debug\ToolTest.pdb
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ToolTest.Form1.resources
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ToolTest.Properties.Resources.resources
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ToolTest.csproj.GenerateResource.Cache
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ToolTest.exe
+C:\Users\Administrator\Desktop\이승준_수업소스\76기\4개월차\Tool76\ToolTest\obj\Debug\ToolTest.pdb
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\bin\Debug\ToolTest.exe
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\bin\Debug\ToolTest.pdb
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.Form1.resources
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.Properties.Resources.resources
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.csproj.GenerateResource.Cache
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.exe
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.pdb
+D:\VisualStudio_Project\수업, 숙제, 공부\4개월차\숙제\13일차 숙제\170720_Tool76\ToolTest\obj\Debug\ToolTest.csprojResolveAssemblyReference.cache
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\bin\Debug\ToolTest.exe
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\bin\Debug\ToolTest.pdb
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.csprojResolveAssemblyReference.cache
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.Form1.resources
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.Properties.Resources.resources
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.csproj.GenerateResource.Cache
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.exe
+C:\Users\kangm\Desktop\MyDirect2D\ToolTest\obj\Debug\ToolTest.pdb
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\bin\Debug\ToolTest.exe
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\bin\Debug\ToolTest.pdb
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.csprojResolveAssemblyReference.cache
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.Form1.resources
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.Properties.Resources.resources
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.csproj.GenerateResource.Cache
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.exe
+C:\Users\kangm\Desktop\Starcraft\trunk\MyDirect2D\ToolTest\obj\Debug\ToolTest.pdb

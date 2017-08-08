@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="00.MainFrame">
+      <UniqueIdentifier>{1c1d1bc3-7267-481a-b2de-335b396cc248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View">
+      <UniqueIdentifier>{82326636-6b3f-472d-9ec3-c900da333374}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\00.MyForm">
+      <UniqueIdentifier>{d1d31607-05f7-4a0d-b261-c632b74f9c96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\01.MiniView">
+      <UniqueIdentifier>{b5b0a184-e8d2-4e24-8ec7-a33a893caf4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\02.UnitTool">
+      <UniqueIdentifier>{f78dcdd3-17cc-4d43-9a3b-98d9ff86df09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\03.MapTool">
+      <UniqueIdentifier>{1e43209f-04b3-452a-a041-168af2158ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Default">
+      <UniqueIdentifier>{61d57073-9aa5-4ef7-b3d8-5cc716e938fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Default\리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="99.Default\소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="99.Default\헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="02.Manager">
+      <UniqueIdentifier>{13f7f991-1d4c-41ba-a81f-acfa0bad92c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Manager\00.Device">
+      <UniqueIdentifier>{e93fbc53-be71-48a2-8b56-e92fdea95b20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Manager\01.TextureMgr">
+      <UniqueIdentifier>{0e074705-1bfb-4c0a-864e-e9d522de1853}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Texture">
+      <UniqueIdentifier>{b0403090-b5c7-4b37-a706-2753c09eefde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Texture\01.SingleTexture">
+      <UniqueIdentifier>{d90491bc-bf7b-40b0-8ff1-7e39209b1951}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Texture\02.MultiTexture">
+      <UniqueIdentifier>{2d8b2917-f3b3-49ba-bb0e-302c46c521b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.GameObject">
+      <UniqueIdentifier>{9259d4fb-5fdb-4d7a-b1a3-3c8b469815df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\04. Popup">
+      <UniqueIdentifier>{4835ded1-d590-450f-a2c0-d52dfb91c5ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\05. PathFind">
+      <UniqueIdentifier>{d29b121f-cde9-47ed-bb40-c6b43d31888a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\04. Popup\00. Sheet">
+      <UniqueIdentifier>{11dcc1d5-cba2-4fd8-b517-8afc50d27ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\04. Popup\00. Sheet\02. ObjectPage">
+      <UniqueIdentifier>{be2c7bc9-601a-4e66-bc1b-856275ae28a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\04. Popup\00. Sheet\00. TerrainPage">
+      <UniqueIdentifier>{e9b4bc2e-733c-42dd-af1d-7ac6666a6e34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.View\04. Popup\00. Sheet\01. UnitPage">
+      <UniqueIdentifier>{aa00b533-99ca-4fae-b077-1adfa9829f1e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>00.MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool76View.cpp">
+      <Filter>01.View</Filter>
+    </ClCompile>
+    <ClCompile Include="MyForm.cpp">
+      <Filter>01.View\00.MyForm</Filter>
+    </ClCompile>
+    <ClCompile Include="MiniView.cpp">
+      <Filter>01.View\01.MiniView</Filter>
+    </ClCompile>
+    <ClCompile Include="MapTool.cpp">
+      <Filter>01.View\03.MapTool</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>99.Default\소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool76.cpp">
+      <Filter>99.Default\소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool76Doc.cpp">
+      <Filter>99.Default\소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>02.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Device.cpp">
+      <Filter>02.Manager\00.Device</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMgr.cpp">
+      <Filter>02.Manager\01.TextureMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>03.Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleTexture.cpp">
+      <Filter>03.Texture\01.SingleTexture</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiTexture.cpp">
+      <Filter>03.Texture\02.MultiTexture</Filter>
+    </ClCompile>
+    <ClCompile Include="BackGround.cpp">
+      <Filter>04.GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="PathFind.cpp">
+      <Filter>01.View\05. PathFind</Filter>
+    </ClCompile>
+    <ClCompile Include="MySheet.cpp">
+      <Filter>01.View\04. Popup\00. Sheet</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectPage.cpp">
+      <Filter>01.View\04. Popup\00. Sheet\02. ObjectPage</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPage.cpp">
+      <Filter>01.View\04. Popup\00. Sheet\00. TerrainPage</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitPage.cpp">
+      <Filter>01.View\04. Popup\00. Sheet\01. UnitPage</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainFrm.h">
+      <Filter>00.MainFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool76View.h">
+      <Filter>01.View</Filter>
+    </ClInclude>
+    <ClInclude Include="MyForm.h">
+      <Filter>01.View\00.MyForm</Filter>
+    </ClInclude>
+    <ClInclude Include="MiniView.h">
+      <Filter>01.View\01.MiniView</Filter>
+    </ClInclude>
+    <ClInclude Include="MapTool.h">
+      <Filter>01.View\03.MapTool</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool76.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool76Doc.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>02.Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>02.Manager\00.Device</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMgr.h">
+      <Filter>02.Manager\01.TextureMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>03.Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleTexture.h">
+      <Filter>03.Texture\01.SingleTexture</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiTexture.h">
+      <Filter>03.Texture\02.MultiTexture</Filter>
+    </ClInclude>
+    <ClInclude Include="BackGround.h">
+      <Filter>04.GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFind.h">
+      <Filter>01.View\05. PathFind</Filter>
+    </ClInclude>
+    <ClInclude Include="MySheet.h">
+      <Filter>01.View\04. Popup\00. Sheet</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPage.h">
+      <Filter>01.View\04. Popup\00. Sheet\02. ObjectPage</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPage.h">
+      <Filter>01.View\04. Popup\00. Sheet\00. TerrainPage</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitPage.h">
+      <Filter>01.View\04. Popup\00. Sheet\01. UnitPage</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Tool76.ico">
+      <Filter>99.Default\리소스 파일</Filter>
+    </Image>
+    <Image Include="res\Tool76Doc.ico">
+      <Filter>99.Default\리소스 파일</Filter>
+    </Image>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>99.Default\리소스 파일</Filter>
+    </Image>
+    <Image Include="res\Toolbar256.bmp">
+      <Filter>99.Default\리소스 파일</Filter>
+    </Image>
+    <Image Include="UserImages.bmp">
+      <Filter>99.Default\리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Tool76.rc">
+      <Filter>99.Default\리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Tool76.rc2">
+      <Filter>99.Default\리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>
