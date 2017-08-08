@@ -41,3 +41,4 @@ private:								\
 
 /* 움직일 수 있는 오브젝트의 스피드에 곱함.. */
 #define Object_Speed_Mul 10.f
+#define Object_Scope_Mul 10.f

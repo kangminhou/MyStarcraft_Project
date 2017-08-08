@@ -3,6 +3,12 @@
 class CBuilding :
 	public CGameObject
 {
+private:
+	/* 
+	 * 건물은 건설 시의 애니메이션을 가지고 있음..
+	 * 
+	 */
+
 public:
 	CBuilding();
 	virtual ~CBuilding();

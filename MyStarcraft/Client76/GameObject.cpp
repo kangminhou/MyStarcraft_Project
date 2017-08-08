@@ -46,6 +46,11 @@ void CGameObject::SetSize( const float & _fX, const float & _fY )
 	this->m_pTransform->SetSize( _fX, _fY );
 }
 
+void CGameObject::SetObjectType( const eObjectType & eType )
+{
+	this->m_eType = eType;
+}
+
 
 /* Getter.. */
 D3DXVECTOR3 CGameObject::GetPos() const
@@ -73,7 +78,7 @@ wstring CGameObject::GetObjKey( void ) const
 
 HRESULT CGameObject::Initialize( void )
 {
-	for ( int i = 0; i < m_vecComponent.size(); ++i )
+	for ( size_t i = 0; i < m_vecComponent.size(); ++i )
 	{
 		m_vecComponent[i]->SetGameObject( this );
 		m_vecComponent[i]->Initialize();

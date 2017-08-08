@@ -55,7 +55,7 @@ void CUnit::Render( void )
 	const FRAME* pCurAnimation = this->m_pAnimCom->GetCurAnimation();
 
 	if ( pCurAnimation && this->m_vecTexture.size() < (size_t)pCurAnimation->fIndex )
-		pDrawTexture = this->m_vecTexture[pCurAnimation->fIndex];
+		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
 
 	if ( pDrawTexture )
 	{
@@ -77,47 +77,42 @@ void CUnit::Release( void )
 	
 }
 
-void CUnit::DecideDirAnimIndex()
+void CUnit::SetPattern( const eGameEntityPattern& _ePatternKind )
 {
-	const FRAME* pTempCurFrame = this->m_pAnimCom->GetCurAnimation();
-	if ( pTempCurFrame )
+	switch ( _ePatternKind )
 	{
-		m_vecTexture.clear();
+		case CGameEntity::Pattern_Idle:
 
-		int iAnimLength = int( pTempCurFrame->fMax );
-		int iStart = iAnimLength * this->m_byDirAnimIndex;
-		int iEnd = iAnimLength + iStart;
+			break;
 
-		for ( ; iStart < iEnd; ++iStart )
-		{
-			const TEX_INFO* pAnimTex = CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), m_wstrStateKey.c_str(), iStart );
-			m_vecTexture.push_back( pAnimTex );
-		}
+		case CGameEntity::Pattern_Move:
+			break;
+
+		case CGameEntity::Pattern_Stop:
+			break;
+
+		case CGameEntity::Pattern_Hold:
+			break;
+
+		case CGameEntity::Pattern_Patrol:
+			break;
+
+		case CGameEntity::Pattern_Attack:
+			break;
+
+		default:
+			break;
+
 	}
+
 }
 
-void CUnit::UpdateDir()
+void CUnit::InitAnimation()
 {
-	D3DXVECTOR3 vUp( 0.f, -1.f, 0.f );
-	D3DXVECTOR3 vTempDir = this->GetTransform()->GetDir();
-	float fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
-	fAngle = acosf( fAngle );
+	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_Loop );
+}
 
-	if ( vTempDir.x < 0.f )
-		this->SetSize( -1.f, 0.f );
-	else
-		this->SetSize( 1.f, 0.f );
+void CUnit::InitPattern()
+{
 
-	fAngle /= (D3DX_PI / 17.f);
-
-	BYTE byDirAnimIndex = BYTE( fAngle );
-
-	if ( byDirAnimIndex == 17 )
-		byDirAnimIndex -= 1;
-
-	if ( byDirAnimIndex != this->m_byDirAnimIndex )
-	{
-		this->DecideDirAnimIndex();
-		this->m_byDirAnimIndex = byDirAnimIndex;
-	}
 }

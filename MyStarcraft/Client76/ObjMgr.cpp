@@ -6,6 +6,7 @@ IMPLEMENT_SINGLETON(CObjMgr);
 
 void CObjMgr::AddGameObject(CGameObject* pObject, eObjectType eType)
 {
+	pObject->SetObjectType( eType );
 	m_ObjList[eType].push_back(pObject);
 }
 

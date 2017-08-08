@@ -16,8 +16,6 @@ private:
 	map<wstring, CUnitPattern*>	m_mapPatterns;
 	CUnitPattern*			m_pCurActPattern;
 
-	BYTE					m_byDirAnimIndex;
-
 public:
 	CUnit();
 	virtual ~CUnit();
@@ -30,8 +28,12 @@ public:
 	virtual void Release( void ) override;
 
 public:
-	void DecideDirAnimIndex();
-	void UpdateDir();
+	// CGameEntity을(를) 통해 상속됨
+	virtual void SetPattern( const eGameEntityPattern& _ePatternKind ) override;
+
+public:
+	virtual void InitAnimation() override;
+	virtual void InitPattern() override;
 
 };
 

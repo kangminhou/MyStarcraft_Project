@@ -13,6 +13,8 @@ private:
 
 	wstring		m_wstrObjKey;
 
+	eObjectType	m_eType;
+
 public:
 	void SetPos( const D3DXVECTOR3& _vPos );
 	void SetPos( const float& _fX, const float& _fY );
@@ -22,6 +24,7 @@ public:
 	void SetDir( const float& _fX, const float& _fY );
 	void SetSize( const D3DXVECTOR3& _vSize );
 	void SetSize( const float& _fX, const float& _fY );
+	void SetObjectType( const eObjectType& eType );
 
 public:
 	D3DXVECTOR3 GetPos() const;
