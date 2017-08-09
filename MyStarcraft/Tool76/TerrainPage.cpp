@@ -6,6 +6,11 @@
 #include "TerrainPage.h"
 #include "afxdialogex.h"
 
+#include "MainFrm.h"
+#include "Tool76View.h"
+
+#include "BackGround.h"
+
 
 // CTerrainPage 대화 상자입니다.
 
@@ -48,6 +53,8 @@ void CTerrainPage::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CTerrainPage, CPropertyPage)
 	ON_CBN_SELCHANGE( IDC_COMBO_TILE_HEIGHT, &CTerrainPage::OnCbnSelchangeComboTileHeight )
 	ON_CBN_SELCHANGE( IDC_COMBO_TILE_STATE, &CTerrainPage::OnCbnSelchangeComboTileState )
+	ON_BN_CLICKED( IDC_BUTTON_SAVE_TILE, &CTerrainPage::OnBnClickedButtonSaveTile )
+	ON_BN_CLICKED( IDC_BUTTON_LOAD_TILE, &CTerrainPage::OnBnClickedButtonLoadTile )
 END_MESSAGE_MAP()
 
 
@@ -64,7 +71,24 @@ BOOL CTerrainPage::OnInitDialog()
 	m_TileHeightList.AddString( L"2" );
 
 	m_TileStateList.AddString( L"Idle" );
-	m_TileStateList.AddString( L"Can't Go" );
+	m_TileStateList.AddString( L"Can't GoXXXX" );
+
+	m_TileStateList.AddString( L"Can't GoOXXX" );
+	m_TileStateList.AddString( L"Can't GoXOXX" );
+	m_TileStateList.AddString( L"Can't GoXXOX" );
+	m_TileStateList.AddString( L"Can't GoXXXO" );
+
+	m_TileStateList.AddString( L"Can't GoOOXX" );
+	m_TileStateList.AddString( L"Can't GoOXOX" );
+	m_TileStateList.AddString( L"Can't GoXXOO" );
+	m_TileStateList.AddString( L"Can't GoXOXO" );
+	m_TileStateList.AddString( L"Can't GoOXXO" );
+	m_TileStateList.AddString( L"Can't GoXOOX" );
+
+	m_TileStateList.AddString( L"Can't GoOOOX" );
+	m_TileStateList.AddString( L"Can't GoOOXO" );
+	m_TileStateList.AddString( L"Can't GoOXOO" );
+	m_TileStateList.AddString( L"Can't GoXOOO" );
 
 	m_TileHeightList.SetCurSel( 0 );
 	m_TileStateList.SetCurSel( 0 );
@@ -93,4 +117,81 @@ void CTerrainPage::OnCbnSelchangeComboTileState()
 
 	m_iTileState = iIndex;
 
+}
+
+
+void CTerrainPage::OnBnClickedButtonSaveTile()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CMainFrame* pMainFrm = ((CMainFrame*)AfxGetMainWnd());
+	if ( !pMainFrm )
+		return;
+
+	CBackGround* pBackGround = pMainFrm->GetMainView()->GetBackGround();
+
+	vector<TILE*>* pVecTile = pBackGround->GetTile();
+
+	DWORD dwByte = 0;
+
+	HANDLE hFile = CreateFile(
+		L"../Data/Tile.dat",
+		GENERIC_WRITE,	
+		NULL,		
+		NULL,
+		CREATE_ALWAYS,	
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	for(size_t i = 0; i < pVecTile->size(); ++i)
+	{
+		WriteFile(hFile, (*pVecTile)[i] , sizeof(TILE), &dwByte, NULL);
+	}
+
+	CloseHandle(hFile);
+
+}
+
+
+void CTerrainPage::OnBnClickedButtonLoadTile()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	vector<TILE*>* pVecTile = ((CMainFrame*)AfxGetMainWnd())->GetMainView()->GetBackGround()->GetTile();
+
+	DWORD dwByte = 0;
+
+	HANDLE hFile = CreateFile(
+		L"../Data/Tile.dat",		
+		GENERIC_READ,	
+		NULL,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,		//기본값으로 파일을 생성하라는옵션.
+		NULL
+	);
+
+	for(size_t i = 0; i < pVecTile->size(); ++i)
+	{
+		safe_delete((*pVecTile)[i]);
+	}
+	pVecTile->clear();
+
+	while(true)
+	{
+		TILE* pTileData = new TILE;
+
+		ReadFile(hFile, pTileData, sizeof(TILE), &dwByte, NULL);
+
+		if(dwByte == 0)
+		{
+			safe_delete(pTileData);
+			break;
+		}
+
+		pVecTile->push_back(pTileData);
+	}
+
+	CloseHandle(hFile);
+
+	((CMainFrame*)AfxGetMainWnd())->GetMainView()->Invalidate(FALSE);
 }

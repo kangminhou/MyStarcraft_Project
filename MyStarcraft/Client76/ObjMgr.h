@@ -16,6 +16,9 @@ public:
 public:
 	list<CGameObject*>* GetList(eObjectType eType);
 
+	template<typename T>
+	T* FindGameObject( int iIndex = 0 );
+
 public:
 	HRESULT	Initialize(void);
 	int		Update(void);
@@ -30,3 +33,25 @@ private:
 public:
 	~CObjMgr(void);
 };
+
+template<typename T>
+inline T * CObjMgr::FindGameObject( int iIndex )
+{
+	for(size_t i = 0; i < OBJ_TYPE_MAX; ++i)
+	{
+		list<CGameObject*>::iterator iter = m_ObjList[i].begin();
+		list<CGameObject*>::iterator iter_end = m_ObjList[i].end();
+
+		for(iter; iter != iter_end; ++iter)
+		{
+			if( typeid(T) == typeid( *(*iter) ) )
+			{
+				if(iIndex == 0)
+					return dynamic_cast<T*>((*iter));
+				else
+					--iIndex;
+			}
+		}
+	}
+	return NULL;
+}

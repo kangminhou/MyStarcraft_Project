@@ -272,13 +272,14 @@ void CTool76View::OnInitialUpdate()
 		, L"Back",
 		TEX_MULTI,
 		L"Tile",
-		2,
+		16,
 		true,
 		D3DCOLOR_ARGB( 255, 255, 255, 255 ) )))
 	{
 		AfxMessageBox(L"싱글 이미지 로드 실패!");
 	}
 
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"BackGround", TEX_SINGLE ) ) )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/Map.png", L"BackGround", TEX_SINGLE ) ) )
 	{
 		AfxMessageBox( L"맵 이미지 로드 실패!" );

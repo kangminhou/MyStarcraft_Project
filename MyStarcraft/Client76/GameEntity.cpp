@@ -4,9 +4,11 @@
 #include "TextureMgr.h"
 #include "Device.h"
 #include "ObjMgr.h"
+#include "TimeMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
+#include "Astar.h"
 
 
 CGameEntity::CGameEntity()
@@ -45,16 +47,28 @@ float CGameEntity::GetSpeed() const
 
 HRESULT CGameEntity::Initialize( void )
 {
+	//this->m_pAStar = new CAStar;
+
 	this->m_pAnimCom = new CAnimation;
 	this->m_pAnimCom->Initialize();
+	this->AddComponent( this->m_pAnimCom );
 
 	this->InitAnimation();
 	this->InitPattern();
 
-	for each ( auto pPattern in m_mapPatterns )
+	for each (auto pPattern in m_mapPatterns)
 	{
-		pPattern.second->SetGameEntity( this );
+		if ( pPattern.second )
+		{
+			pPattern.second->SetGameEntity( this );
+			this->AddComponent( pPattern.second );
+		}
 	}
+
+	this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey );
+	this->UpdateDirAnimIndex();
+
+	CGameObject::Initialize();
 
 	return S_OK;
 }
@@ -64,34 +78,41 @@ int CGameEntity::Update( void )
 	if ( this->m_pCurActPattern )
 		this->m_pCurActPattern->Update();
 
+	if ( this->m_pAnimCom )
+		this->m_pAnimCom->UpdateAnim();
+
 	return 0;
 }
 
 void CGameEntity::Render( void )
 {
-	const FRAME* pCurPlayAnim = this->m_pAnimCom->GetCurAnimation();
+	const TEX_INFO* pDrawTexture = NULL;
+	const FRAME* pCurAnimation = this->m_pAnimCom->GetCurAnimation();
 
-	if ( pCurPlayAnim )
+	size_t u = (size_t)pCurAnimation->fIndex;
+	if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
+		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
+
+	if ( pDrawTexture )
 	{
-		const TEX_INFO* pDrawTexture = this->m_vecTexture[(unsigned int)(pCurPlayAnim->fIndex)];
+		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
 
-		D3DXVECTOR3 vCenter( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f );
+		CDevice::GetInstance()->GetSprite()->SetTransform( &this->GetWorldMatrix() );
 
 		CDevice::GetInstance()->GetSprite()->Draw(
 			pDrawTexture->pTexture,
 			NULL,
-			&vCenter,
+			&D3DXVECTOR3( fX, fY, 0.f ),
+			//NULL,
 			NULL,
 			D3DCOLOR_ARGB( 255, 255, 255, 255 )
 		);
-
 	}
 }
 
 void CGameEntity::Release( void )
 {
-	if ( this->m_pAnimCom )
-		safe_delete( this->m_pAnimCom );
 }
 
 bool CGameEntity::CheckAlertEntity( const eObjectType & eObjectType, vector<CGameEntity*>* pVecEntitys /*= NULL*/ )
@@ -133,7 +154,50 @@ bool CGameEntity::CheckAlertEntity( const eObjectType & eObjectType, vector<CGam
 
 void CGameEntity::MoveEntity()
 {
-	this->Translate( D3DXVECTOR3( this->m_tInfoData.fSpeed, 0.f, 0.f ) );
+	this->Translate( this->m_tInfoData.fSpeed * GET_TIME );
+}
+
+void CGameEntity::UpdateDirAnimIndex()
+{
+	D3DXVECTOR3 vUp( 0.f, -1.f, 0.f );
+	D3DXVECTOR3 vTempDir = this->GetTransform()->GetDir();
+	float fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
+	fAngle = acosf( fAngle );
+
+	if ( vTempDir.x < 0.f )
+		this->SetSize( -1.f, 1.f );
+	else
+		this->SetSize( 1.f, 1.f );
+
+	fAngle /= (D3DX_PI / 17.f);
+
+	BYTE byDirAnimIndex = BYTE( fAngle );
+
+	if ( byDirAnimIndex == 17 )
+		byDirAnimIndex -= 1;
+	else if ( byDirAnimIndex > 17 )
+	{
+		int a = 10;
+	}
+	else if ( byDirAnimIndex < 0 )
+	{
+		int a = 10;
+	}
+
+	if ( byDirAnimIndex != this->m_byDirAnimIndex )
+	{
+		this->m_byDirAnimIndex = byDirAnimIndex;
+		this->ChangeDirAnimTexture();
+	}
+}
+
+void CGameEntity::LookPos( const D3DXVECTOR3 & _vPos )
+{
+	D3DXVECTOR3 vTempDir;
+	D3DXVec3Normalize( &vTempDir, &(_vPos - this->GetPos()) );
+	
+	this->SetDir( vTempDir );
+	this->UpdateDirAnimIndex();
 }
 
 void CGameEntity::ChangeDirAnimTexture()
@@ -152,31 +216,5 @@ void CGameEntity::ChangeDirAnimTexture()
 			const TEX_INFO* pAnimTex = CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), m_wstrStateKey.c_str(), iStart );
 			m_vecTexture.push_back( pAnimTex );
 		}
-	}
-}
-
-void CGameEntity::UpdateDirAnimIndex()
-{
-	D3DXVECTOR3 vUp( 0.f, -1.f, 0.f );
-	D3DXVECTOR3 vTempDir = this->GetTransform()->GetDir();
-	float fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
-	fAngle = acosf( fAngle );
-
-	if ( vTempDir.x < 0.f )
-		this->SetSize( -1.f, 0.f );
-	else
-		this->SetSize( 1.f, 0.f );
-
-	fAngle /= (D3DX_PI / 17.f);
-
-	BYTE byDirAnimIndex = BYTE( fAngle );
-
-	if ( byDirAnimIndex == 17 )
-		byDirAnimIndex -= 1;
-
-	if ( byDirAnimIndex != this->m_byDirAnimIndex )
-	{
-		this->ChangeDirAnimTexture();
-		this->m_byDirAnimIndex = byDirAnimIndex;
 	}
 }

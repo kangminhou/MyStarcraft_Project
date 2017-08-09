@@ -3,6 +3,7 @@
 
 class CAnimation;
 class CEntityPattern;
+class CAStar;
 
 class CGameEntity :
 	public CGameObject
@@ -32,6 +33,8 @@ protected:
 
 	BYTE					m_byDirAnimIndex;
 
+	CAStar*					m_pAStar;
+
 	map<wstring, CEntityPattern*>	m_mapPatterns;
 	CEntityPattern*					m_pCurActPattern;
 
@@ -46,6 +49,7 @@ public:
 public:
 	float GetCurHp() const;
 	float GetSpeed() const;
+	CAStar*	GetAStar() const { return m_pAStar; }
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -57,6 +61,8 @@ public:
 public:
 	bool CheckAlertEntity( const eObjectType& eObjectType, vector<CGameEntity*>* pVecEntitys = NULL );
 	void MoveEntity();
+	void UpdateDirAnimIndex();
+	void LookPos( const D3DXVECTOR3& _vPos );
 
 protected:
 	virtual void InitAnimation() PURE;
@@ -68,7 +74,6 @@ protected:
 	 * UpdateDirAnimIndex : 현재 오브젝트의 방향에 따른 인덱스를 결정해줌..
 	 */
 	void ChangeDirAnimTexture();
-	void UpdateDirAnimIndex();
 
 };
 

@@ -30,12 +30,16 @@ const vector<TEX_INFO*>* CWeapon::GetHitTexture() const
 {
 	if ( this->m_pWeaonData )
 		return &this->m_pWeaonData->vecHitTexture;
+
+	return NULL;
 }
 
 const WEAPON_DATA * CWeapon::GetWeaponData() const
 {
 	if ( this->m_pWeaonData )
 		return this->m_pWeaonData;
+
+	return NULL;
 }
 
 void CWeapon::Initialize()

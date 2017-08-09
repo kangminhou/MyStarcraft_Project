@@ -19,7 +19,7 @@ void CPattern_IdleAlert::Initialize()
 
 void CPattern_IdleAlert::OnEnable()
 {
-	m_eEnemyType = ((this->m_pGameEntity->GetObjectType()) ? OBJ_TYPE_USER : OBJ_TYPE_USER2);
+	m_eEnemyType = ((this->m_pGameEntity->GetObjectType() == OBJ_TYPE_USER) ? OBJ_TYPE_USER2 : OBJ_TYPE_USER);
 }
 
 int CPattern_IdleAlert::Update()

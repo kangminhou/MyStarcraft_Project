@@ -34,7 +34,7 @@ void CMainGame::FPS_Render(void)
 		lstrlen(m_szFps),
 		NULL,
 		NULL,
-		D3DCOLOR_ARGB(255, 255, 255, 255)
+		D3DCOLOR_ARGB(255, 255, 0, 0)
 		);
 }
 
@@ -50,10 +50,13 @@ HRESULT CMainGame::Initialize(void)
 	}
 	
 	if ( !InitResource() )
+	{
+		ERROR_MSG( L"Image Load Failed" );
 		return E_FAIL;
+	}
 	
 	CSceneMgr::GetInstance()->Initialize();
-	CSceneMgr::GetInstance()->SetChangeScene(SCENE_STAGE);
+	CSceneMgr::GetInstance()->SetChangeScene(SCENE_ASTAR_TEST);
 
 	return S_OK;
 }
@@ -92,17 +95,28 @@ bool CMainGame::InitResource( void )
 		 , L"Back"
 		 , TEX_MULTI
 		 , L"Tile"
-		 , 2 ) ) )
-	{
-		ERROR_MSG( L"타일 이미지 로드 실패!" );
+		 , 2
+		 , true
+		 , D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
 		return false;
-	}
 
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/Map.png", L"BackGround", TEX_SINGLE ) ) )
-	{
-		ERROR_MSG( L"타일 이미지 로드 실패!" );
 		return false;
-	}
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Idle/marine%d.png", L"Marine", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Work/marine%d.png", L"Marine", TEX_MULTI, L"Move", 153, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Attack/marine%d.png", L"Marine", TEX_MULTI, L"Attack", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Die/marine%d.png", L"Marine", TEX_MULTI, L"Die", 8, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"Map", TEX_SINGLE ) ) )
+		return false;
 
 	return true;
 

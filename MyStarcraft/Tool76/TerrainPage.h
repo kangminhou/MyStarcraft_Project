@@ -39,4 +39,6 @@ public:
 	CComboBox m_TileStateList;
 	virtual BOOL OnInitDialog();
 	afx_msg void OnCbnSelchangeComboTileState();
+	afx_msg void OnBnClickedButtonSaveTile();
+	afx_msg void OnBnClickedButtonLoadTile();
 };

@@ -12,8 +12,11 @@ const WORD MAX_STR	  = 256;
 const int TILECX = 32;
 const int TILECY = 32;
 
-const int TILEX = 128;
-const int TILEY = 96;
+//const int TILEX = 128;
+//const int TILEY = 96;
+
+const int TILEX = WINCX / TILECX;
+const int TILEY = WINCY / TILECY;
 
 const DWORD ITEM_WEAPON = 0x00000001;
 const DWORD ITEM_ARMOR	= 0x00000002;

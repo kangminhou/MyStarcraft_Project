@@ -31,13 +31,13 @@ void CMiniView::MoveMapScroll( CPoint ptMouse )
 
 	CTool76View* pMainView = m_pBackground->GetMainView();
 
-	float fMaxX = pMainView->GetScrollLimit( 0 );
-	float fMaxY = pMainView->GetScrollLimit( 1 );
+	float fMaxX = (float)pMainView->GetScrollLimit( 0 );
+	float fMaxY = (float)pMainView->GetScrollLimit( 1 );
 	float fScrollX = (float( fMaxX ) / 300.f) * ptMouse.x;
 	float fScrollY = (float( fMaxY ) / 200.f) * ptMouse.y;
 
-	pMainView->SetScrollPos( 0, fScrollX );
-	pMainView->SetScrollPos( 1, fScrollY );
+	pMainView->SetScrollPos( 0, (int)fScrollX );
+	pMainView->SetScrollPos( 1, (int)fScrollY );
 
 	pMainView->Invalidate( FALSE );
 	Invalidate( FALSE );

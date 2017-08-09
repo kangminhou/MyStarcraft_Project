@@ -17,18 +17,18 @@ CKeyMgr::~CKeyMgr(void)
 
 void CKeyMgr::Initialize()
 {
-	this->m_vecCheckKey.push_back( VK_UP );
-	this->m_vecCheckKey.push_back( VK_DOWN );
-	this->m_vecCheckKey.push_back( VK_RIGHT );
-	this->m_vecCheckKey.push_back( VK_LEFT );
+	//this->m_vecCheckKey.push_back( VK_UP );
+	//this->m_vecCheckKey.push_back( VK_DOWN );
+	//this->m_vecCheckKey.push_back( VK_RIGHT );
+	//this->m_vecCheckKey.push_back( VK_LEFT );
+	//
+	//this->m_vecCheckKey.push_back( VK_LBUTTON );
+	//this->m_vecCheckKey.push_back( VK_RBUTTON );
 
-	this->m_vecCheckKey.push_back( VK_LBUTTON );
-	this->m_vecCheckKey.push_back( VK_RBUTTON );
-
-	for ( byte i = 'A'; i <= 'Z'; ++i )
-	{
+	for ( int i = 0; i < 255; ++i )
 		this->m_vecCheckKey.push_back( i );
-	}
+
+	//this->m_vecCheckKey.push_back( 'S' );
 
 	int a = 10;
 }
@@ -60,7 +60,7 @@ void CKeyMgr::KeyCheck( int vKey )
 {
 	if(GetAsyncKeyState(vKey))
 	{
-		if ( this->m_bOnceDownKey[vKey] ) // 전에 이미 누른 키라면..
+		if ( this->m_bStayDownKey[vKey] ) // 전에 이미 누른 키라면..
 			this->m_bOnceDownKey[vKey] = false;
 		else{ // 전에 안 누른 키라면..
 			this->m_bStayDownKey[vKey] = true;
@@ -71,7 +71,7 @@ void CKeyMgr::KeyCheck( int vKey )
 	{
 		if(this->m_bStayDownKey[vKey]) // 현재 키가 눌렸다가 땐 상태라면..
 		{
-			this->m_bUpKey[vKey];
+			this->m_bUpKey[vKey] = true;
 			this->m_bStayDownKey[vKey] = false;
 			this->m_bOnceDownKey[vKey] = false;
 

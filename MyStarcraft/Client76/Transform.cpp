@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Transform.h"
 
+#include "GameObject.h"
+
 
 CTransform::CTransform()
 {
@@ -85,18 +87,12 @@ D3DXVECTOR3 CTransform::GetSize() const
 	return m_tInfo.vSize;
 }
 
-D3DXMATRIX CTransform::GetWorldMatrix() const
-{
-	return m_tInfo.matWorld;
-}
-
 
 
 
 void CTransform::Initialize()
 {
 	memset( &m_tInfo, 0, sizeof( INFO ) );
-	D3DXMatrixIdentity( &m_tInfo.matWorld );
 	m_tInfo.vLook = D3DXVECTOR3( 1.f, 0.f, 0.f );
 	m_tInfo.vSize = D3DXVECTOR3( 1.f, 1.f, 1.f );
 }
@@ -105,31 +101,27 @@ void CTransform::Release()
 {
 }
 
-void CTransform::Translate( D3DXVECTOR3 vMove, eMoveKind eMoveKind )
+void CTransform::Translate( float _fSpeed, eMoveKind _eMoveKind )
 {
-	switch ( eMoveKind )
+	switch ( _eMoveKind )
 	{
 		case Move_World:
-			m_tInfo.vPos += vMove;
+			m_tInfo.vPos += D3DXVECTOR3( 1.f, 1.f, 0.f ) * _fSpeed;
 			break;
 		case Move_Local:
-			m_tInfo.vPos += D3DXVECTOR3( vMove.x * m_tInfo.vDir.x, vMove.y * m_tInfo.vDir.y, 0.f );
+			m_tInfo.vPos += m_tInfo.vDir * _fSpeed;
 			break;
 	}
 
 	this->UpdateTransform();
 }
 
-void CTransform::UpdateMatrix()
-{
-	D3DXMATRIX matTrans, matScale;
-
-	D3DXMatrixScaling( &matScale, m_tInfo.vSize.x, m_tInfo.vSize.y, m_tInfo.vSize.z );
-	D3DXMatrixTranslation( &matTrans, m_tInfo.vPos.x, m_tInfo.vPos.y, m_tInfo.vPos.z );
-
-	m_tInfo.matWorld = matScale * matTrans;
-}
-
 void CTransform::UpdateTransform()
 {
+	if ( this->GetGameObject() )
+		const_cast<CGameObject*>(this->GetGameObject())->UpdateMatrix();
+
+	/* 공간 분할을 하게 할 예정.. */
+
+
 }

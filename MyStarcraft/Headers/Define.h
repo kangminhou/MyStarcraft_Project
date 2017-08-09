@@ -32,6 +32,10 @@ private:								\
 	MessageBox(g_hWnd, Text, L"Error!", MB_OK)
 
 #define GET_TIME CTimeMgr::GetInstance()->GetTime()
+#define RANDOM_INTERGER(value) CRandom::GetInstance()->GetValue(value)
+#define RANDOM_RANGE_INTERGER(minValue, maxValue) CRandom::GetInstance()->GetValue(minValue, maxValue)
+#define RANDOM_FLOAT(value) CRandom::GetInstance()->GetFloatValue(value)
+#define RANDOM_RANGE_FLOAT(minValue, maxValue) CRandom::GetInstance()->GetFloatValue(minValue, maxValue)
 
 #define MY_VK_HOLD 'H'
 #define MY_VK_STOP 'S'
@@ -40,6 +44,6 @@ private:								\
 #define MY_VK_PATROL 'P'
 
 /* 움직일 수 있는 오브젝트의 스피드에 곱함.. */
-#define Object_Speed_Mul 10.f
+#define Calc_Entity_Speed(speed) (speed * 50.f)
 #define Object_Scope_Mul 10.f
 #define Calc_Weapon_Interval(fInverval) (fInverval / 15.f)

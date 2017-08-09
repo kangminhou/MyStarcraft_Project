@@ -5,6 +5,7 @@
 #include "Stage.h"
 #include "TestScene.h"
 #include "FileCopyScene.h"
+#include "AStarTestScene.h"
 
 IMPLEMENT_SINGLETON(CSceneMgr);
 
@@ -28,6 +29,10 @@ void CSceneMgr::SetScene(eSceneType eType)
 
 	case SCENE_FILECOPY:
 		m_pScene = new CFileCopyScene;
+		break;
+
+	case SCENE_ASTAR_TEST:
+		m_pScene = new CAStarTestScene;
 		break;
 	}
 

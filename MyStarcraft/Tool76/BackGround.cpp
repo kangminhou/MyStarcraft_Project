@@ -35,10 +35,11 @@ void CBackGround::TileChange(const D3DXVECTOR3& vMousePos
 	m_vecTile[iTileIndex]->byOption = iOption;		//갈수 없다.
 	m_vecTile[iTileIndex]->byHeight = iHeight;
 	
-	if ( iOption == 0 )
-		m_vecTile[iTileIndex]->byDrawID = 0;
-	else
-		m_vecTile[iTileIndex]->byDrawID = 1;
+	//if ( iOption == 0 )
+	//	m_vecTile[iTileIndex]->byDrawID = 0;
+	//else
+	//	m_vecTile[iTileIndex]->byDrawID = 1;
+	m_vecTile[iTileIndex]->byDrawID = iOption;
 }
 
 bool CBackGround::Picking(const D3DXVECTOR3& vMousePos,
@@ -46,8 +47,8 @@ bool CBackGround::Picking(const D3DXVECTOR3& vMousePos,
 {
 	//타일의 위치벡터
 	POINT ptIndex;
-	ptIndex.x = vMousePos.x / TILECX;
-	ptIndex.y = vMousePos.y / TILECY;
+	ptIndex.x = (LONG)(vMousePos.x / TILECX);
+	ptIndex.y = (LONG)(vMousePos.y / TILECY);
 
 	if ( iIndex != ptIndex.x + ptIndex.y * TILEX )
 		return false;
@@ -189,10 +190,13 @@ void CBackGround::Render(void)
 		for(int j = iStartX; j < iEndX + 1; ++j)
 		{
 			int iIndex = i * TILEX + j;
-	
+
 			if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
 				continue;
-	
+
+			if ( this->m_vecTile[iIndex]->byDrawID == 0 )
+				continue;
+
 			const TEX_INFO* pTileTex = 
 				CTextureMgr::GetInstance()->GetTexture(L"Back",
 														L"Tile",

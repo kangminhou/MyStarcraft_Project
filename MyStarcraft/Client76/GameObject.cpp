@@ -51,6 +51,11 @@ void CGameObject::SetObjectType( const eObjectType & eType )
 	this->m_eType = eType;
 }
 
+void CGameObject::SetObjKey( const wstring & _wstrObjKey )
+{
+	this->m_wstrObjKey = _wstrObjKey;
+}
+
 
 /* Getter.. */
 D3DXVECTOR3 CGameObject::GetPos() const
@@ -79,6 +84,11 @@ eObjectType CGameObject::GetObjectType() const
 	return this->m_eType;
 }
 
+D3DXMATRIX CGameObject::GetWorldMatrix() const
+{
+	return this->m_matWorld;
+}
+
 
 
 HRESULT CGameObject::Initialize( void )
@@ -97,9 +107,22 @@ void CGameObject::AddComponent( CComponent * _pComponent )
 	this->m_vecComponent.push_back( _pComponent );
 }
 
-void CGameObject::Translate( const D3DXVECTOR3 & _vMove )
+void CGameObject::Translate( const float & _fSpeed )
 {
-	this->m_pTransform->Translate( _vMove, CTransform::Move_Local );
+	this->m_pTransform->Translate( _fSpeed, CTransform::Move_Local );
+}
+
+void CGameObject::UpdateMatrix( void )
+{
+	D3DXMATRIX matTrans, matScale;
+
+	D3DXVECTOR3 vSize = this->m_pTransform->GetSize();
+	D3DXVECTOR3 vPos = this->m_pTransform->GetPos();
+
+	D3DXMatrixScaling( &matScale, vSize.x, vSize.y, vSize.z );
+	D3DXMatrixTranslation( &matTrans, vPos.x + m_vScroll.x, vPos.y + m_vScroll.y, 0.f );
+
+	m_matWorld = matScale * matTrans;
 }
 
 CGameObject::CGameObject(void)
@@ -107,6 +130,7 @@ CGameObject::CGameObject(void)
 {
 	m_pTransform = new CTransform;
 	m_vecComponent.push_back( m_pTransform );
+	D3DXMatrixIdentity( &m_matWorld );
 }
 
 CGameObject::~CGameObject(void)

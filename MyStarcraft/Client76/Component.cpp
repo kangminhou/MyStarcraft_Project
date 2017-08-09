@@ -3,6 +3,7 @@
 
 
 CComponent::CComponent()
+	: m_pGameObject(NULL)
 {
 }
 

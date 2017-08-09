@@ -5,9 +5,7 @@ typedef struct tagInfo
 	D3DXVECTOR3 vPos;
 	D3DXVECTOR3 vDir;
 	D3DXVECTOR3 vLook;
-	D3DXVECTOR3 vSize;	
-
-	D3DXMATRIX matWorld;
+	D3DXVECTOR3 vSize;
 	
 	tagInfo(void){}
 
@@ -82,6 +80,19 @@ struct DeleteMap
 	}
 };
 
+//##[17.08.02_04] : 리스트원소 삭제
+struct DeleteObj 
+{
+	template<typename T>
+	void operator() (T& rData)
+	{
+		if(rData)
+		{
+			safe_delete(rData);
+		}
+	}
+};
+
 
 //타일 정보를 보관할 구조체.
 typedef struct tagTile
@@ -98,6 +109,14 @@ typedef struct tagTile
 	{}
 
 }TILE, *PTILE, *pTILE;
+
+//A* Node 구조체를 선언하자.
+typedef struct tagAStarNode 
+{
+	float		  fCost;
+	int			  iIndex;
+	tagAStarNode* pParent;
+}NODE;
 
 
 typedef struct tagCommonData

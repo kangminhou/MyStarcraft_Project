@@ -139,6 +139,21 @@
     <Filter Include="98. Manager\07. WeaponMgr">
       <UniqueIdentifier>{ab18d38f-7453-4559-b842-24378f443ab1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\99. Test">
+      <UniqueIdentifier>{32fca420-e868-4a79-a8dd-6f353ea67488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\01. Background">
+      <UniqueIdentifier>{5a6c4a78-f02b-4952-8270-dea259aa921a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\08, AStar">
+      <UniqueIdentifier>{ae569c65-7a91-4f52-837b-cbd4ec19a604}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\09. Random">
+      <UniqueIdentifier>{6cca3ee4-6150-424b-8f7f-a0b7c399c0c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\04. AStarTest">
+      <UniqueIdentifier>{52ff68b9-b4fd-4b7f-b7bb-9eb164a7bc20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -242,6 +257,27 @@
     </ClCompile>
     <ClCompile Include="WeaponMgr.cpp">
       <Filter>98. Manager\07. WeaponMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="TestUnit.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\99. Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>01. GameObject\01. Background</Filter>
+    </ClCompile>
+    <ClCompile Include="Astar.cpp">
+      <Filter>98. Manager\08, AStar</Filter>
+    </ClCompile>
+    <ClCompile Include="Move.cpp">
+      <Filter>03. Component\02. EntityFunction\00. Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>98. Manager\09. Random</Filter>
+    </ClCompile>
+    <ClCompile Include="AStarTestScene.cpp">
+      <Filter>02. Scene\04. AStarTest</Filter>
+    </ClCompile>
+    <ClCompile Include="TestAStar.cpp">
+      <Filter>02. Scene\04. AStarTest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -352,6 +388,27 @@
     </ClInclude>
     <ClInclude Include="WeaponMgr.h">
       <Filter>98. Manager\07. WeaponMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="TestUnit.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\99. Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>01. GameObject\01. Background</Filter>
+    </ClInclude>
+    <ClInclude Include="Astar.h">
+      <Filter>98. Manager\08, AStar</Filter>
+    </ClInclude>
+    <ClInclude Include="Move.h">
+      <Filter>03. Component\02. EntityFunction\00. Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>98. Manager\09. Random</Filter>
+    </ClInclude>
+    <ClInclude Include="AStarTestScene.h">
+      <Filter>02. Scene\04. AStarTest</Filter>
+    </ClInclude>
+    <ClInclude Include="TestAStar.h">
+      <Filter>02. Scene\04. AStarTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

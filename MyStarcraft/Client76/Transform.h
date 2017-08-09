@@ -21,7 +21,6 @@ public:
 	D3DXVECTOR3 GetDir() const;
 	D3DXVECTOR3 GetLook() const;
 	D3DXVECTOR3 GetSize() const;
-	D3DXMATRIX GetWorldMatrix() const;
 
 public:
 	void SetPos( const D3DXVECTOR3& _vPos );
@@ -39,8 +38,7 @@ public:
 	virtual void Release() override;
 
 public:
-	void Translate( D3DXVECTOR3 vMove, eMoveKind eMoveKind );
-	void UpdateMatrix();
+	void Translate( float _fSpeed, eMoveKind _eMoveKind );
 	void UpdateTransform();
 
 };

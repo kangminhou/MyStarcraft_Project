@@ -108,6 +108,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Astar.cpp" />
+    <ClCompile Include="AStarTestScene.cpp" />
+    <ClCompile Include="Background.cpp" />
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Client76.cpp" />
     <ClCompile Include="Component.cpp" />
@@ -121,11 +124,13 @@
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Marine.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="Move.cpp" />
     <ClCompile Include="MultiTexture.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
     <ClCompile Include="Pattern_IdleAlert.cpp" />
     <ClCompile Include="Pattern_Move.cpp" />
     <ClCompile Include="Pattern_MoveAlert.cpp" />
+    <ClCompile Include="Random.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SingleTexture.cpp" />
@@ -134,7 +139,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TestAStar.cpp" />
     <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="TestUnit.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="TimeMgr.cpp" />
@@ -147,6 +154,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Astar.h" />
+    <ClInclude Include="AStarTestScene.h" />
+    <ClInclude Include="Background.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="Client76.h" />
     <ClInclude Include="Component.h" />
@@ -160,11 +170,13 @@
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Marine.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Move.h" />
     <ClInclude Include="MultiTexture.h" />
     <ClInclude Include="ObjMgr.h" />
     <ClInclude Include="Pattern_IdleAlert.h" />
     <ClInclude Include="Pattern_Move.h" />
     <ClInclude Include="Pattern_MoveAlert.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
@@ -172,7 +184,9 @@
     <ClInclude Include="Stage.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TestAStar.h" />
     <ClInclude Include="TestScene.h" />
+    <ClInclude Include="TestUnit.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="TimeMgr.h" />

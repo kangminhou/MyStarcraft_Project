@@ -1,12 +1,13 @@
 #pragma once
 #include "EntityPattern.h"
 
+class CMove;
 /* 주변의 적을 검사하여 적이 시야 안에 왔다면 적 추적 패턴으로 바뀜.. */
 class CPattern_Move :
 	public CEntityPattern
 {
 private:
-	D3DXVECTOR3 m_vDestination;
+	CMove*	m_pMoveComponent;
 
 public:
 	CPattern_Move();
