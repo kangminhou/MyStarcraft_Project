@@ -1,7 +1,6 @@
 #pragma once
 #include "GameEntity.h"
 
-class CWeapon;
 class CEntityPattern;
 class CWeaponMgr;
 
@@ -9,9 +8,6 @@ class CUnit :
 	public CGameEntity
 {
 protected:
-	CWeapon*				m_pGroundAttWeapon;			// 지상 유닛을 공격할 무기..
-	CWeapon*				m_pAirAttWeapon;			// 공중 유닛을 공격할 무기..
-
 	UNIT_GENERATE_DATA		m_tGenerateData;			// 유닛 생성 시 필요한 데이터..
 
 	static CWeaponMgr*		m_pWeaponMgr;

@@ -16,7 +16,11 @@ CGameEntity::CGameEntity()
 	, m_pAnimCom(NULL)
 	, m_pCurActPattern(NULL)
 {
-	ZeroMemory( &m_tInfoData, sizeof( COMMON_DATA ) );
+	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
+	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
+	ZeroMemory( &this->m_tAirAttWeapon, sizeof( ATTACK_DATA ) );
+
+	this->m_tGroundAttWeapon.pAttackEntity = this->m_tAirAttWeapon.pAttackEntity = this;
 }
 
 
@@ -45,6 +49,11 @@ float CGameEntity::GetSpeed() const
 	return m_tInfoData.fSpeed;
 }
 
+RECT CGameEntity::GetColRect() const
+{
+	return this->m_tColRect;
+}
+
 HRESULT CGameEntity::Initialize( void )
 {
 	//this->m_pAStar = new CAStar;
@@ -68,6 +77,8 @@ HRESULT CGameEntity::Initialize( void )
 	this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey );
 	this->UpdateDirAnimIndex();
 
+	this->CollisionUpdate();
+
 	CGameObject::Initialize();
 
 	return S_OK;
@@ -75,17 +86,24 @@ HRESULT CGameEntity::Initialize( void )
 
 int CGameEntity::Update( void )
 {
+	if ( this->m_bScrollMove )
+		this->UpdateMatrix();
+
 	if ( this->m_pCurActPattern )
 		this->m_pCurActPattern->Update();
 
 	if ( this->m_pAnimCom )
 		this->m_pAnimCom->UpdateAnim();
+	
+	this->CollisionUpdate();
+	this->CollisionCheck();
 
 	return 0;
 }
 
 void CGameEntity::Render( void )
 {
+	/* 그릴 텍스쳐를 찾아냄.. */
 	const TEX_INFO* pDrawTexture = NULL;
 	const FRAME* pCurAnimation = this->m_pAnimCom->GetCurAnimation();
 
@@ -93,22 +111,16 @@ void CGameEntity::Render( void )
 	if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
 		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
 
+	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
 	if ( pDrawTexture )
 	{
 		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
 		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
-
-		CDevice::GetInstance()->GetSprite()->SetTransform( &this->GetWorldMatrix() );
-
-		CDevice::GetInstance()->GetSprite()->Draw(
-			pDrawTexture->pTexture,
-			NULL,
-			&D3DXVECTOR3( fX, fY, 0.f ),
-			//NULL,
-			NULL,
-			D3DCOLOR_ARGB( 255, 255, 255, 255 )
-		);
+		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
+
+	this->DrawRect( this->m_tColRect );
+
 }
 
 void CGameEntity::Release( void )
@@ -200,6 +212,22 @@ void CGameEntity::LookPos( const D3DXVECTOR3 & _vPos )
 	this->UpdateDirAnimIndex();
 }
 
+void CGameEntity::RenderSelectTexture( bool _bPlayer )
+{
+	if ( _bPlayer )
+	{
+		float fX = this->m_pSelectTexture[0]->ImageInfo.Width * 0.5f;
+		float fY = this->m_pSelectTexture[0]->ImageInfo.Height * 0.5f;
+		this->DrawTexture( this->m_pSelectTexture[0], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+	}
+	else
+	{
+		float fX = this->m_pSelectTexture[0]->ImageInfo.Width * 0.5f;
+		float fY = this->m_pSelectTexture[0]->ImageInfo.Height * 0.5f;
+		this->DrawTexture( this->m_pSelectTexture[1], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+	}
+}
+
 void CGameEntity::ChangeDirAnimTexture()
 {
 	const FRAME* pTempCurFrame = this->m_pAnimCom->GetCurAnimation();
@@ -217,4 +245,16 @@ void CGameEntity::ChangeDirAnimTexture()
 			m_vecTexture.push_back( pAnimTex );
 		}
 	}
+}
+
+void CGameEntity::CollisionUpdate()
+{
+	this->m_tColRect.left = this->GetPos().x + m_tOriginColRect.left;
+	this->m_tColRect.top = this->GetPos().y + m_tOriginColRect.top;
+	this->m_tColRect.right = this->GetPos().x + m_tOriginColRect.right;
+	this->m_tColRect.bottom = this->GetPos().y + m_tOriginColRect.bottom;
+}
+
+void CGameEntity::CollisionCheck()
+{
 }

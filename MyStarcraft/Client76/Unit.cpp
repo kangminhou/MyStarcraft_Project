@@ -13,7 +13,6 @@ CWeaponMgr* CUnit::m_pWeaponMgr = NULL;
 
 
 CUnit::CUnit()
-	: m_pGroundAttWeapon(NULL), m_pAirAttWeapon(NULL)
 {
 	ZeroMemory( &m_tGenerateData, sizeof( UNIT_GENERATE_DATA ) );
 }
@@ -35,8 +34,8 @@ HRESULT CUnit::Initialize( void )
 	//this->m_pGroundAttWeapon = NULL;
 	//this->m_pAirAttWeapon = NULL;
 
-	AddComponent( this->m_pGroundAttWeapon );
-	AddComponent( this->m_pAirAttWeapon );
+	AddComponent( this->m_tGroundAttWeapon.pWeapon );
+	AddComponent( this->m_tAirAttWeapon.pWeapon );
 
 	CGameEntity::Initialize();
 

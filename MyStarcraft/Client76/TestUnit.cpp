@@ -32,8 +32,8 @@ HRESULT CTestUnit::Initialize( void )
 	this->m_tGenerateData.iRequirePopulation = 1;
 
 	/* 유닛 무기 초기화.. */
-	this->m_pGroundAttWeapon = NULL;
-	this->m_pAirAttWeapon = NULL;
+	/*this->m_tGroundAttWeapon = NULL;
+	this->m_tAirAttWeapon = NULL;*/
 
 	CUnit::Initialize();
 

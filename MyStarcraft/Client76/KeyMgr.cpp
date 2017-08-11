@@ -40,6 +40,8 @@ void CKeyMgr::Update()
 	{
 		int iUpKeyDownIndex = m_queueUpKeyDownIndex.back();
 
+		if ( iUpKeyDownIndex == VK_LBUTTON )
+			int a = 10;
 		this->m_bUpKey[iUpKeyDownIndex] = false;
 
 		m_queueUpKeyDownIndex.pop();

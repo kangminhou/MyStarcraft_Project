@@ -41,3 +41,7 @@
 ////##[17.07.18_01]
 
 #include <fstream>
+
+#ifdef _DEBUG
+#include <vld.h>
+#endif

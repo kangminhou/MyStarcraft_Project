@@ -51,6 +51,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	CMainGame MainGame;
 	MainGame.Initialize();
 
+	DWORD dwOldTime, dwCurTime;
+	DWORD dwFramePerSec = 1000 / 100;
+
+	dwCurTime = dwOldTime = GetTickCount();
+
 	while(msg.message != WM_QUIT)
 	{
 		if( PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE) )
@@ -60,10 +65,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		}
 		else
 		{
-			if(MainGame.Update() != 0)
-				break;
+			dwCurTime = GetTickCount();
+			//if ( dwCurTime >= dwOldTime + dwFramePerSec )
+			{
+				if(MainGame.Update() != 0)
+					break;
 
-			MainGame.Render();
+				MainGame.Render();
+
+				dwOldTime = dwCurTime;
+			}
 		}
 	}
 

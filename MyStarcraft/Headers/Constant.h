@@ -12,11 +12,19 @@ const WORD MAX_STR	  = 256;
 const int TILECX = 32;
 const int TILECY = 32;
 
-//const int TILEX = 128;
-//const int TILEY = 96;
+const int TILEX = 128;
+const int TILEY = 96;
 
-const int TILEX = WINCX / TILECX;
-const int TILEY = WINCY / TILECY;
+const int SPACECX = 100;
+const int SPACECY = 100;
+
+const int SPACEX = (TILEX * TILECX + (TILECX - 1)) / SPACECX;
+const int SPACEY = (TILEY * TILECY + (TILECY - 1)) / SPACECY;
+
+const int TOTAL_SPACE_NUM = SPACEX * SPACEY;
+
+//const int TILEX = WINCX / TILECX;
+//const int TILEY = WINCY / TILECY;
 
 const DWORD ITEM_WEAPON = 0x00000001;
 const DWORD ITEM_ARMOR	= 0x00000002;

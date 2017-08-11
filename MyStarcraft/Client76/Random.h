@@ -8,6 +8,8 @@
 
 class CRandom
 {
+	DECLARE_SINGLETON(CRandom)
+
 private:
 	enum
 	{
@@ -17,10 +19,12 @@ private:
 protected:
 	unsigned long	state[16];
 	unsigned int	index;
-	static CRandom* m_pInstance;
 
-	explicit CRandom() {
+	explicit CRandom() {}
 
+public:
+	void Initialize()
+	{
 		// 시드 값 자동 생성..
 		index = 0;
 		unsigned int curTime = static_cast<unsigned int>(time(NULL));
@@ -31,10 +35,9 @@ protected:
 			curTime += curTime + DIFFER_VALUE;
 
 		}
-
 	}
 
-	explicit CRandom(unsigned int seed)
+	void Initialize( unsigned int seed )
 	{
 		// 시드 값을 받아 초기화..
 		index = 0;
@@ -45,24 +48,6 @@ protected:
 			state[i] = s;
 			s += s + DIFFER_VALUE;
 
-		}
-
-	}
-
-public:									
-	static CRandom* GetInstance()
-	{
-		if(NULL == m_pInstance)
-			m_pInstance = new CRandom;
-		return m_pInstance;
-	}
-
-	void DestroyInstance()
-	{
-		if(m_pInstance)					
-		{
-			delete m_pInstance;
-			m_pInstance = NULL;
 		}
 	}
 

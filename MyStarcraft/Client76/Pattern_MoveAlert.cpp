@@ -29,7 +29,7 @@ void CPattern_MoveAlert::OnEnable()
 		return;
 	}
 
-	m_vDestination = CMouse::GetMousePos();
+	m_vDestination = CMouse::GetInstance()->GetPos();
 	D3DXVECTOR3 vGameEntityPos = this->m_pGameEntity->GetPos();
 
 	D3DXVECTOR3 vTempDir;

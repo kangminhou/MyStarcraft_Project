@@ -6,6 +6,7 @@
 #include "KeyMgr.h"
 #include "Random.h"
 #include "Mouse.h"
+#include "TimeMgr.h"
 
 
 CTestAStar::CTestAStar()
@@ -57,8 +58,13 @@ HRESULT CTestAStar::Initialize( void )
 		}
 	}
 
-	m_iStartIndex = RANDOM_INTERGER( TILEX * TILEY );
-	m_iEndIndex = RANDOM_INTERGER( TILEX * TILEY );
+	//m_iStartIndex = RANDOM_INTERGER( TILEX * TILEY );
+	//m_iEndIndex = RANDOM_INTERGER( TILEX * TILEY );
+
+	//m_iStartIndex = 0;
+	//m_iEndIndex = TILECX * TILECY - 1;
+	m_iStartIndex = TILEX * 6 + 11;
+	m_iEndIndex = (WINCX / TILECX) + ((WINCY / TILECY) * TILEX) - 1;
 
 	m_vecTile[m_iStartIndex]->byDrawID = TILE_STARTINDEX;
 	m_vecTile[m_iEndIndex]->byDrawID = TILE_ENDINDEX;
@@ -75,7 +81,7 @@ int CTestAStar::Update( void )
 {
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'S' ) )
 	{
-		//for(int i = 0; i < 300; ++i )
+		for(int i = 0; i < 300; ++i )
 			this->AStarStart();
 	}
 	else if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'D' ) )
@@ -83,9 +89,27 @@ int CTestAStar::Update( void )
 		this->ReleaseAStarData();
 	}
 
+	if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_LEFT ) )
+	{
+		this->m_vScroll.x -= 1000 * GET_TIME;
+	}
+	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_RIGHT ) )
+	{
+		this->m_vScroll.x += 1000 * GET_TIME;
+	}
+
+	if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_UP ) )
+	{
+		this->m_vScroll.y -= 1000 * GET_TIME;
+	}
+	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_DOWN ) )
+	{
+		this->m_vScroll.y += 1000 * GET_TIME;
+	}
+
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )
 	{
-		D3DXVECTOR3 vMouse = CMouse::GetMousePos();
+		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos() + m_vScroll;
 		int iIndex = int(vMouse.x / TILECX) + int(vMouse.y / TILECY) * TILEX;
 
 		if ( iIndex >= 0 && iIndex < this->m_vecTile.size() )
@@ -114,7 +138,7 @@ int CTestAStar::Update( void )
 
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RBUTTON ) )
 	{
-		D3DXVECTOR3 vMouse = CMouse::GetMousePos();
+		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
 		int iIndex = int(vMouse.x / TILECX) + int(vMouse.y / TILECY) * TILEX;
 
 		if ( iIndex >= 0 && iIndex < this->m_vecTile.size() )
@@ -129,7 +153,7 @@ int CTestAStar::Update( void )
 
 	if ( CKeyMgr::GetInstance()->GetKeyUp( VK_LBUTTON ) )
 	{
-		D3DXVECTOR3 vMouse = CMouse::GetMousePos();
+		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos() + m_vScroll;
 		int iIndex = int(vMouse.x / TILECX) + int(vMouse.y / TILECY) * TILEX;
 
 		if ( iIndex >= 0 && iIndex < this->m_vecTile.size() )
@@ -172,7 +196,7 @@ void CTestAStar::Render( void )
 	//
 	//CDevice::GetInstance()->GetSprite()->Draw( m_pBackgroundTexture->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
-	int iStartY = (LONG)((m_vScroll.x) / TILECY);
+	int iStartY = (LONG)((m_vScroll.y) / TILECY);
 	int iEndY = (LONG)((m_vScroll.y + WINCY) / TILECY);
 
 	int iStartX = (LONG)((m_vScroll.x) / (TILECX));
@@ -241,6 +265,9 @@ void CTestAStar::ReleaseAStarData()
 {
 	for each (auto iter in m_openList)
 	{
+		if ( m_vecTile[iter->iIndex]->byDrawID == TILE_CHECK )
+			m_vecTile[iter->iIndex]->byDrawID = TILE_IDLE;
+
 		safe_delete( iter );
 	}
 
@@ -414,7 +441,14 @@ void CTestAStar::PathFind()
 			//m_bestList.pop_back();
 			for ( auto iter : m_openList )
 			{
-				m_vecTile[iter->iIndex]->byDrawID = TILE_CHECK;
+				if ( m_vecTile[iter->iIndex]->byDrawID == TILE_IDLE )
+					m_vecTile[iter->iIndex]->byDrawID = TILE_CHECK;
+			}
+
+			for ( auto iter : m_closeList )
+			{
+				if(m_vecTile[iter]->byDrawID == TILE_IDLE )
+					m_vecTile[iter]->byDrawID = TILE_CHECK;
 			}
 
 			for ( auto iter : m_bestList )
@@ -435,7 +469,12 @@ NODE * CTestAStar::MakeNode( const int & _iIndex, NODE * _pParent )
 
 	float fHCost = D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[m_iEndIndex]->vPos) );
 	float fGCost = ((_pParent) ? D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[_pParent->iIndex]->vPos) ) : 0.f);
-	pNode->fCost = fHCost + fGCost;
+
+	//if ( fHCost <= 100.f )
+		//pNode->fCost = fHCost + fGCost + ((_pParent) ? _pParent->fCost : 0.f);
+	//else
+		pNode->fCost = fHCost + fGCost;
+	//pNode->fCost = fHCost + fGCost * 1.f;
 
 	pNode->iIndex = _iIndex;
 	pNode->pParent = _pParent;

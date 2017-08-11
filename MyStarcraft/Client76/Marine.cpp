@@ -6,6 +6,9 @@
 #include "Animation.h"
 #include "WeaponMgr.h"
 #include "Device.h"
+#include "TimeMgr.h"
+#include "TextureMgr.h"
+#include "KeyMgr.h"
 
 #include "Pattern_IdleAlert.h"
 #include "Pattern_Move.h"
@@ -42,33 +45,50 @@ HRESULT CMarine::Initialize( void )
 	this->m_tGenerateData.iRequirePopulation = 1;
 
 	/* 유닛 무기 초기화.. */
-	this->m_pGroundAttWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
-	this->m_pAirAttWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
+	this->m_tGroundAttWeapon.byAttackNum = 1;
+
+	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
+	this->m_tAirAttWeapon.byAttackNum = 1;
+
+	RECT tRect = { -8, -11, 8, 11 };
+	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
 
 	CUnit::Initialize();
+
+	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
+	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );
 
 	return S_OK;
 }
 
 int CMarine::Update( void )
 {
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) || CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SPACE ) )
+	{
+		int iPlus = ((CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) ? 1 : -1));
+
+		if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'A' ) )
+		{
+			this->m_tOriginColRect.left += iPlus;
+		}
+		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'D' ) )
+		{
+			this->m_tOriginColRect.right += iPlus;
+		}
+		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'W' ) )
+		{
+			this->m_tOriginColRect.top += iPlus;
+		}
+		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'S' ) )
+		{
+			this->m_tOriginColRect.bottom += iPlus;
+		}
+	}
+
 	CUnit::Update();
-
-	if ( GetAsyncKeyState( VK_RBUTTON ) )
-	{
-		this->SetPattern( CGameEntity::Pattern_Move );
-	}
-
-	if ( GetAsyncKeyState( VK_RIGHT ) )
-	{
-		this->m_vScroll.x += 10;
-	}
-	else if ( GetAsyncKeyState( VK_LEFT ) )
-	{
-		this->m_vScroll.x -= 10;
-	}
 
 	return 0;
 }

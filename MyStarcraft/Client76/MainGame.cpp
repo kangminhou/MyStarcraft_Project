@@ -6,6 +6,9 @@
 #include "TextureMgr.h"
 #include "TimeMgr.h"
 #include "KeyMgr.h"
+#include "Mouse.h"
+#include "ObjMgr.h"
+#include "Random.h"
 
 void CMainGame::FPS_Render(void)
 {
@@ -55,8 +58,11 @@ HRESULT CMainGame::Initialize(void)
 		return E_FAIL;
 	}
 	
+	CMouse::GetInstance()->Initialize();
+	CRandom::GetInstance()->Initialize();
+
 	CSceneMgr::GetInstance()->Initialize();
-	CSceneMgr::GetInstance()->SetChangeScene(SCENE_ASTAR_TEST);
+	CSceneMgr::GetInstance()->SetChangeScene(SCENE_STAGE);
 
 	return S_OK;
 }
@@ -65,6 +71,7 @@ int CMainGame::Update(void)
 {
 	CKeyMgr::GetInstance()->Update();
 	CTimeMgr::GetInstance()->SetTime();
+	CMouse::GetInstance()->Update();
 	CSceneMgr::GetInstance()->Update();
 
 	return 0;
@@ -76,6 +83,8 @@ void CMainGame::Render(void)
 
 	CSceneMgr::GetInstance()->Render();
 
+	CMouse::GetInstance()->Render();
+
 	FPS_Render();
 	
 	m_pDevice->Render_End();
@@ -84,13 +93,26 @@ void CMainGame::Render(void)
 void CMainGame::Release(void)
 {
 	m_pDevice->DestroyInstance();
+	CMouse::GetInstance()->DestroyInstance();
 	CKeyMgr::GetInstance()->DestroyInstance();
 	CSceneMgr::GetInstance()->DestroyInstance();
 	CTextureMgr::GetInstance()->DestroyInstance();
+	CObjMgr::GetInstance()->DestroyInstance();
+	CTimeMgr::GetInstance()->DestroyInstance();
+	CRandom::GetInstance()->DestroyInstance();
 }
 
 bool CMainGame::InitResource( void )
 {
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/DragArea.png", L"Drag", TEX_SINGLE, L"", 1, true, D3DCOLOR_ARGB(255,0,0,0) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/PSelect/PSelect%d.png", L"SelectArea", TEX_MULTI, L"Player", 10, true, D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/ESelect/ESelect%d.png", L"SelectArea", TEX_MULTI, L"Enemy", 10, true, D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
+		return false;
+
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/Tile%d.png"
 		 , L"Back"
 		 , TEX_MULTI

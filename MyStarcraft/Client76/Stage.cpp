@@ -7,6 +7,7 @@
 #include "Marine.h"
 #include "TestUnit.h"
 #include "Background.h"
+#include "Player.h"
 
 #include "Include.h"
 #include "Random.h"
@@ -19,10 +20,11 @@ HRESULT CStage::Initialize(void)
 	CObjMgr::GetInstance()->Initialize();
 
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CBackground>::CreateGameObject(), OBJ_TYPE_BACKGROUND );
+	CObjMgr::GetInstance()->AddGameObject( CFactory<CPlayer>::CreateGameObject(), OBJ_TYPE_USER );
 	
-	for ( int i = 0; i < 300; ++i )
+	for ( int i = 0; i < 1; ++i )
 	{
-		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 400), RANDOM_RANGE_INTERGER(0, 100)), OBJ_TYPE_USER );
+		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
 	}
 
 	return S_OK;

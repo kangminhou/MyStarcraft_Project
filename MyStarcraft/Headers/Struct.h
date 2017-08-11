@@ -17,6 +17,12 @@ typedef struct tagInfo
 
 }INFO, *PINFO, *pINFO;
 
+typedef struct tagMouseDragData
+{
+	D3DXVECTOR3 vStartPos;
+	D3DXVECTOR3 vEndPos;
+}MOUSE_DRAG_DATA;
+
 /*
 INFO tInfo;
 

@@ -12,6 +12,7 @@ CBackground::CBackground()
 
 CBackground::~CBackground()
 {
+	Release();
 }
 
 void CBackground::SetScroll( int iScrollX, int iScrollY )
@@ -191,7 +192,7 @@ void CBackground::Render(void)
 
 	CDevice::GetInstance()->GetSprite()->Draw( m_pBackgroundTexture->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
-	int iStartY = (LONG)((m_vScroll.x) / TILECY);
+	int iStartY = (LONG)((m_vScroll.y) / TILECY);
 	int iEndY = (LONG)((m_vScroll.y + WINCY) / TILECY);
 
 	int iStartX = (LONG)((m_vScroll.x) / (TILECX));

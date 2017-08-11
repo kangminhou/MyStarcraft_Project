@@ -114,6 +114,7 @@
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Client76.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Corps.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="FileCopyScene.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="Pattern_IdleAlert.cpp" />
     <ClCompile Include="Pattern_Move.cpp" />
     <ClCompile Include="Pattern_MoveAlert.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
@@ -160,6 +162,7 @@
     <ClInclude Include="Building.h" />
     <ClInclude Include="Client76.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Corps.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="FileCopyScene.h" />
@@ -176,6 +179,7 @@
     <ClInclude Include="Pattern_IdleAlert.h" />
     <ClInclude Include="Pattern_Move.h" />
     <ClInclude Include="Pattern_MoveAlert.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />

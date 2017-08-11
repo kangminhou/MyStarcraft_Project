@@ -3,6 +3,8 @@
 
 #include "GameObject.h"
 
+#include "ObjMgr.h"
+
 
 CTransform::CTransform()
 {
@@ -17,7 +19,12 @@ CTransform::~CTransform()
 /* ================================ Setter.. ================================ */
 void CTransform::SetPos( const D3DXVECTOR3 & _vPos )
 {
+	D3DXVECTOR3 vPrevPos = m_tInfo.vPos;
+
 	m_tInfo.vPos = _vPos;
+
+	if ( this->GetGameObject() )
+		CObjMgr::GetInstance()->ReAdjustmentSpace( vPrevPos, const_cast<CGameObject*>(this->GetGameObject()) );
 
 	this->UpdateTransform();
 }
@@ -106,10 +113,10 @@ void CTransform::Translate( float _fSpeed, eMoveKind _eMoveKind )
 	switch ( _eMoveKind )
 	{
 		case Move_World:
-			m_tInfo.vPos += D3DXVECTOR3( 1.f, 1.f, 0.f ) * _fSpeed;
+			SetPos(m_tInfo.vPos + D3DXVECTOR3( 1.f, 1.f, 0.f ) * _fSpeed);
 			break;
 		case Move_Local:
-			m_tInfo.vPos += m_tInfo.vDir * _fSpeed;
+			SetPos(m_tInfo.vPos + m_tInfo.vDir * _fSpeed);
 			break;
 	}
 
@@ -120,8 +127,5 @@ void CTransform::UpdateTransform()
 {
 	if ( this->GetGameObject() )
 		const_cast<CGameObject*>(this->GetGameObject())->UpdateMatrix();
-
-	/* 공간 분할을 하게 할 예정.. */
-
 
 }

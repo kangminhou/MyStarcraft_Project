@@ -27,7 +27,7 @@ void CPattern_Move::Initialize()
 
 void CPattern_Move::OnEnable()
 {
-	D3DXVECTOR3 vMouse = CMouse::GetMousePos();
+	D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
 	vMouse += this->m_pGameEntity->GetScroll();
 
 	this->m_pMoveComponent->SetDestination( vMouse );

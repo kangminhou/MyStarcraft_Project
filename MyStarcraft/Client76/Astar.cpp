@@ -37,13 +37,11 @@ bool CAStar::AStarStart(const int& iStartIndex,
 
 	vecGetData.clear();
 
-	MakeRoute(vecGetData);
-
-	return true;
+	return MakeRoute(vecGetData);
 
 }
 
-void CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
+bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 {
 	NODE* pFirstNode = new NODE;
 
@@ -61,7 +59,7 @@ void CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 	const vector<TILE*>* pVecTile = m_pBackground->GetTile();
 
 	if(pVecTile == NULL)
-		return;
+		return false;
 
 	NODE* pMakeNode = NULL;
 	int   iIndex = 0;
@@ -218,24 +216,27 @@ void CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 				//도착지점에서부터 시작지점까지 Node...
 				pFirstNode = pFirstNode->pParent;
 
-				if(pFirstNode->iIndex == m_iStartIndex)
+				if ( pFirstNode->iIndex == m_iStartIndex )
+				{
+					D3DXVECTOR3 vPlusPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
+
+					for each (auto iter in bestList)
+					{
+						vecGetData.push_back( (*pVecTile)[iter]->vPos + vPlusPos );
+					}
+
 					break;
+				}
 			}
 
 			//원소를 반전시킨다.
 			//bestList.reverse();
-			break;
+			return true;
 		}
 
 	}//While문 끝.
 
-	D3DXVECTOR3 vPlusPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
-
-	for each (auto iter in bestList)
-	{
-		vecGetData.push_back( (*pVecTile)[iter]->vPos + vPlusPos );
-	}
-
+	return false;
 }
 
 NODE* CAStar::MakeNode(int iIndex, 
@@ -261,6 +262,7 @@ NODE* CAStar::MakeNode(int iIndex,
 
 	//플레이어위치에서 도착지점까지의 거리.
 	pNode->fCost = fPlayerCost + fEndCost;
+	//pNode->fCost = fPlayerCost + fEndCost + ((pParent) ? pParent->fCost : 0.f);
 
 	return pNode;
 }

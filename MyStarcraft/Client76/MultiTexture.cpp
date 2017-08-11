@@ -99,4 +99,5 @@ CMultiTexture::CMultiTexture(void)
 
 CMultiTexture::~CMultiTexture(void)
 {
+	Release();
 }

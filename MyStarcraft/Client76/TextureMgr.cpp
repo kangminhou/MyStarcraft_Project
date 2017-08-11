@@ -138,4 +138,5 @@ CTextureMgr::CTextureMgr(void)
 
 CTextureMgr::~CTextureMgr(void)
 {
+	Release();
 }

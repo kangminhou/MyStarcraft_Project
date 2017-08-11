@@ -24,12 +24,10 @@ private:
 					  ,const int& iEndIndex
 					  , vector<D3DXVECTOR3>& vecGetData);
 
-	void MakeRoute(vector<D3DXVECTOR3>& vecGetData);
+	bool MakeRoute(vector<D3DXVECTOR3>& vecGetData);
 	NODE* MakeNode(int iIndex, NODE* pParent, const vector<TILE*>* pTile);
 
 	bool ListCheck(const int& iIndex);
-
-
 
 	void Release(void);
 

@@ -46,9 +46,6 @@
     <Filter Include="98. Manager\02. ObjMgr">
       <UniqueIdentifier>{90f7eb0b-10db-44c2-8b55-fbd66eca71de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="98. Manager\01. Mouse">
-      <UniqueIdentifier>{0343519c-417a-48d7-baa1-50105003c1b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="98. Manager\03. SceneMgr">
       <UniqueIdentifier>{6eeb3e7c-b346-4f6c-8709-d93ef9c2bb75}</UniqueIdentifier>
     </Filter>
@@ -154,6 +151,15 @@
     <Filter Include="02. Scene\04. AStarTest">
       <UniqueIdentifier>{52ff68b9-b4fd-4b7f-b7bb-9eb164a7bc20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\02. Player">
+      <UniqueIdentifier>{a3fed9ca-23e5-4123-980f-fc6e3040be83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\06. PlayerFunction">
+      <UniqueIdentifier>{a3fc488b-7864-4d9f-8e7c-5d6c1c72e655}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\02. Mouse">
+      <UniqueIdentifier>{68ea502d-2be1-4adb-b165-518886df475f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -185,9 +191,6 @@
     </ClCompile>
     <ClCompile Include="Factory.cpp">
       <Filter>98. Manager\00. Factory</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>98. Manager\01. Mouse</Filter>
     </ClCompile>
     <ClCompile Include="ObjMgr.cpp">
       <Filter>98. Manager\02. ObjMgr</Filter>
@@ -279,6 +282,15 @@
     <ClCompile Include="TestAStar.cpp">
       <Filter>02. Scene\04. AStarTest</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>01. GameObject\02. Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Corps.cpp">
+      <Filter>99. Default\소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -316,9 +328,6 @@
     </ClInclude>
     <ClInclude Include="Factory.h">
       <Filter>98. Manager\00. Factory</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse.h">
-      <Filter>98. Manager\01. Mouse</Filter>
     </ClInclude>
     <ClInclude Include="ObjMgr.h">
       <Filter>98. Manager\02. ObjMgr</Filter>
@@ -409,6 +418,15 @@
     </ClInclude>
     <ClInclude Include="TestAStar.h">
       <Filter>02. Scene\04. AStarTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>01. GameObject\02. Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Corps.h">
+      <Filter>99. Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

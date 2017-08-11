@@ -68,7 +68,8 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 		/* AStar 로 최단거리 타일 인덱스 찾기.. */
 		int iEndIndex = m_pBackground->GetTileIndex( _vDestination );
 		//vector<int> vBestIndex;
-		this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), _vDestination, this->m_vecMovePath );
+		if ( !this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), _vDestination, this->m_vecMovePath ) )
+			return;
 
 		TILE* pEndTile = (*m_pBackground->GetTile())[iEndIndex];
 

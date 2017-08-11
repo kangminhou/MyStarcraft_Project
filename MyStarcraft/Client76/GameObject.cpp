@@ -1,8 +1,12 @@
 #include "StdAfx.h"
 #include "GameObject.h"
 
+#include "Device.h"
+#include "TextureMgr.h"
+
 //D3DXVECTOR3 CGameObject::m_vScroll;
 D3DXVECTOR3 CGameObject::m_vScroll = D3DXVECTOR3(0.f, 0.f, 0.f);
+bool CGameObject::m_bScrollMove = false;
 
 
 /* Setter.. */
@@ -95,9 +99,13 @@ HRESULT CGameObject::Initialize( void )
 {
 	for ( size_t i = 0; i < m_vecComponent.size(); ++i )
 	{
-		m_vecComponent[i]->SetGameObject( this );
-		m_vecComponent[i]->Initialize();
+		this->m_vecComponent[i]->SetGameObject( this );
+		this->m_vecComponent[i]->Initialize();
 	}
+
+	this->m_pDragTexture = CTextureMgr::GetInstance()->GetTexture( L"Drag" );
+
+	this->m_pTempSprite = CDevice::GetInstance()->GetSprite();
 
 	return S_OK;
 }
@@ -120,9 +128,56 @@ void CGameObject::UpdateMatrix( void )
 	D3DXVECTOR3 vPos = this->m_pTransform->GetPos();
 
 	D3DXMatrixScaling( &matScale, vSize.x, vSize.y, vSize.z );
-	D3DXMatrixTranslation( &matTrans, vPos.x + m_vScroll.x, vPos.y + m_vScroll.y, 0.f );
+	D3DXMatrixTranslation( &matTrans, vPos.x - m_vScroll.x, vPos.y - m_vScroll.y, 0.f );
 
 	m_matWorld = matScale * matTrans;
+}
+
+void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX & _matWorld, const D3DXVECTOR3 & _vCenterPos, const D3DCOLOR _color )
+{
+	if ( _pDrawTexture )
+	{
+		this->m_pTempSprite->SetTransform( &this->GetWorldMatrix() );
+
+		this->m_pTempSprite->Draw(
+			_pDrawTexture->pTexture,
+			NULL,
+			&_vCenterPos,
+			NULL,
+			_color
+		);
+	}
+}
+
+void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
+{
+	D3DXMATRIX matTrans, matScale, matWorld;
+
+	D3DXVECTOR3 vPoint[4];
+
+	vPoint[0] = D3DXVECTOR3( _rc.left, _rc.top, 0.f );
+	vPoint[1] = D3DXVECTOR3( _rc.left, _rc.top, 0.f );
+	vPoint[2] = D3DXVECTOR3( _rc.left, _rc.bottom, 0.f );
+	vPoint[3] = D3DXVECTOR3( _rc.right, _rc.top, 0.f );
+
+	for ( int i = 0; i < 4; ++i )
+	{
+		D3DXMatrixTranslation( &matTrans, vPoint[i].x, vPoint[i].y, vPoint[i].z );
+		if ( i % 2 )
+			D3DXMatrixScaling( &matScale, 1.f, _rc.bottom - _rc.top, 1.f );
+		else
+			D3DXMatrixScaling( &matScale, _rc.right - _rc.left, 1.f, 1.f );
+
+		matWorld = matScale * matTrans;	
+		CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
+		CDevice::GetInstance()->GetSprite()->Draw(
+			m_pDragTexture->pTexture,
+			NULL,
+			NULL,
+			NULL,
+			D3DCOLOR_ARGB( 255, 255, 255, 255 )
+		);
+	}
 }
 
 CGameObject::CGameObject(void)
