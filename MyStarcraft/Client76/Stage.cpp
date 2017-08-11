@@ -11,6 +11,7 @@
 
 #include "Include.h"
 #include "Random.h"
+#include "Device.h"
 
 HRESULT CStage::Initialize(void)
 {
@@ -22,10 +23,13 @@ HRESULT CStage::Initialize(void)
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CBackground>::CreateGameObject(), OBJ_TYPE_BACKGROUND );
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CPlayer>::CreateGameObject(), OBJ_TYPE_USER );
 	
-	for ( int i = 0; i < 1; ++i )
+	for ( int i = 0; i < 10000; ++i )
 	{
+		++nCnt;
 		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
 	}
+
+	nCnt = 0;
 
 	return S_OK;
 }
@@ -34,6 +38,11 @@ int CStage::Update(void)
 {
 	CObjMgr::GetInstance()->Update();
 
+	if ( GetAsyncKeyState( VK_SPACE ) )
+	{
+		++nCnt;
+		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
+	}
 
 	return 0;
 }
@@ -41,6 +50,21 @@ int CStage::Update(void)
 void CStage::Render(void)
 {
 	CObjMgr::GetInstance()->Render();
+
+	TCHAR str[128] = L"";
+	swprintf_s( str, L"%d", nCnt );
+
+	D3DXMATRIX matTrans;
+	D3DXMatrixTranslation( &matTrans, 700.f, 100.f, 0.f );
+	CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+	CDevice::GetInstance()->GetFont()->DrawTextW(
+		CDevice::GetInstance()->GetSprite(),
+		str,
+		lstrlen( str ),
+		NULL,
+		NULL,
+		D3DCOLOR_ARGB( 255, 255, 255, 255 )
+	);
 }
 
 void CStage::Release(void)

@@ -7,6 +7,7 @@ class CStage :
 {
 private:
 	CWeaponMgr m_weaponManager;
+	int nCnt;
 
 public:
 	virtual HRESULT	Initialize(void);

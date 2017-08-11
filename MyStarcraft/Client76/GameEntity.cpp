@@ -257,4 +257,5 @@ void CGameEntity::CollisionUpdate()
 
 void CGameEntity::CollisionCheck()
 {
+	//CObjMgr::GetInstance()->CheckNearEntitys()
 }
