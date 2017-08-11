@@ -110,14 +110,24 @@ HRESULT CGameObject::Initialize( void )
 	return S_OK;
 }
 
+void CGameObject::UpdatePosition()
+{
+	this->UpdateMatrix();
+}
+
 void CGameObject::AddComponent( CComponent * _pComponent )
 {
 	this->m_vecComponent.push_back( _pComponent );
 }
 
-void CGameObject::Translate( const float & _fSpeed )
+void CGameObject::Translate( const float& _fSpeed )
 {
-	this->m_pTransform->Translate( _fSpeed, CTransform::Move_Local );
+	this->m_pTransform->Translate( _fSpeed);
+}
+
+void CGameObject::Translate(const D3DXVECTOR3& _vMove)
+{
+	this->m_pTransform->Translate(_vMove);
 }
 
 void CGameObject::UpdateMatrix( void )
@@ -155,18 +165,18 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 
 	D3DXVECTOR3 vPoint[4];
 
-	vPoint[0] = D3DXVECTOR3( _rc.left, _rc.top, 0.f );
-	vPoint[1] = D3DXVECTOR3( _rc.left, _rc.top, 0.f );
-	vPoint[2] = D3DXVECTOR3( _rc.left, _rc.bottom, 0.f );
-	vPoint[3] = D3DXVECTOR3( _rc.right, _rc.top, 0.f );
+	vPoint[0] = D3DXVECTOR3( FLOAT(_rc.left), FLOAT(_rc.top), 0.f );
+	vPoint[1] = D3DXVECTOR3( FLOAT(_rc.left), FLOAT(_rc.top), 0.f );
+	vPoint[2] = D3DXVECTOR3( FLOAT(_rc.left), FLOAT(_rc.bottom), 0.f );
+	vPoint[3] = D3DXVECTOR3( FLOAT(_rc.right), FLOAT(_rc.top), 0.f );
 
 	for ( int i = 0; i < 4; ++i )
 	{
 		D3DXMatrixTranslation( &matTrans, vPoint[i].x, vPoint[i].y, vPoint[i].z );
 		if ( i % 2 )
-			D3DXMatrixScaling( &matScale, 1.f, _rc.bottom - _rc.top, 1.f );
+			D3DXMatrixScaling( &matScale, 1.f, FLOAT(_rc.bottom - _rc.top), 1.f );
 		else
-			D3DXMatrixScaling( &matScale, _rc.right - _rc.left, 1.f, 1.f );
+			D3DXMatrixScaling( &matScale, FLOAT( _rc.right - _rc.left), 1.f, 1.f );
 
 		matWorld = matScale * matTrans;	
 		CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );

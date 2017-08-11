@@ -64,10 +64,26 @@ void CPlayer::KeyCheck( void )
 	{
 		for ( BYTE i = '0'; i <= '9'; ++i )
 		{
-			if ( m_pCurCorps )
-				m_hotKeyCorps[i - '0'] = (*m_pCurCorps);
-			else
-				m_hotKeyCorps[i - '0'].ResetCorps();
+			if (CKeyMgr::GetInstance()->GetKeyOnceDown(i))
+			{
+				if (m_pCurCorps)
+					m_hotKeyCorps[i - '0'] = (*m_pCurCorps);
+				else
+					m_hotKeyCorps[i - '0'].ResetCorps();
+			}
+		}
+	}
+	else
+	{
+		for (BYTE i = '0'; i <= '9'; ++i)
+		{
+			if (CKeyMgr::GetInstance()->GetKeyOnceDown(i))
+			{
+				if (m_hotKeyCorps[i - '0'].GetCurUnitNum() > 0)
+					m_pCurCorps = &m_hotKeyCorps[i - '0'];
+				else
+					m_pCurCorps = NULL;
+			}
 		}
 	}
 

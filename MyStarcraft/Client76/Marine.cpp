@@ -34,8 +34,8 @@ HRESULT CMarine::Initialize( void )
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 50.f;
 	this->m_tInfoData.iDefense = 0;
-	//this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
-	this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
+	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
+	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 7;
 
 	/* 생성 데이터 초기화.. */
@@ -66,27 +66,27 @@ HRESULT CMarine::Initialize( void )
 
 int CMarine::Update( void )
 {
-	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) || CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SPACE ) )
-	{
-		int iPlus = ((CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) ? 1 : -1));
-
-		if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'A' ) )
-		{
-			this->m_tOriginColRect.left += iPlus;
-		}
-		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'D' ) )
-		{
-			this->m_tOriginColRect.right += iPlus;
-		}
-		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'W' ) )
-		{
-			this->m_tOriginColRect.top += iPlus;
-		}
-		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'S' ) )
-		{
-			this->m_tOriginColRect.bottom += iPlus;
-		}
-	}
+	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) || CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SPACE ) )
+	//{
+	//	int iPlus = ((CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) ? 1 : -1));
+	//
+	//	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'A' ) )
+	//	{
+	//		this->m_tOriginColRect.left += iPlus;
+	//	}
+	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'D' ) )
+	//	{
+	//		this->m_tOriginColRect.right += iPlus;
+	//	}
+	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'W' ) )
+	//	{
+	//		this->m_tOriginColRect.top += iPlus;
+	//	}
+	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'S' ) )
+	//	{
+	//		this->m_tOriginColRect.bottom += iPlus;
+	//	}
+	//}
 
 	CUnit::Update();
 

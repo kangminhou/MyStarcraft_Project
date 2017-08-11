@@ -18,6 +18,9 @@ public:
 	virtual ~CCorps();
 
 public:
+	BYTE GetCurUnitNum() const;
+
+public:
 	// CComponent을(를) 통해 상속됨
 	virtual void Initialize() override;
 	virtual void Release() override;

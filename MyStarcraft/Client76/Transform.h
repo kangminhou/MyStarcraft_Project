@@ -38,7 +38,8 @@ public:
 	virtual void Release() override;
 
 public:
-	void Translate( float _fSpeed, eMoveKind _eMoveKind );
+	void Translate( const float& _fSpeed );
+	void Translate(const D3DXVECTOR3& _vMove);
 	void UpdateTransform();
 
 };

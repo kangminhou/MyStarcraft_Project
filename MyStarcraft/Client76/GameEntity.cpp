@@ -96,7 +96,7 @@ int CGameEntity::Update( void )
 		this->m_pAnimCom->UpdateAnim();
 	
 	this->CollisionUpdate();
-	this->CollisionCheck();
+	//this->CollisionCheck();
 
 	return 0;
 }
@@ -125,6 +125,14 @@ void CGameEntity::Render( void )
 
 void CGameEntity::Release( void )
 {
+}
+
+void CGameEntity::UpdatePosition()
+{
+	this->CollisionUpdate();
+	this->CollisionCheck();
+
+	CGameObject::UpdatePosition();
 }
 
 bool CGameEntity::CheckAlertEntity( const eObjectType & eObjectType, vector<CGameEntity*>* pVecEntitys /*= NULL*/ )
@@ -222,8 +230,8 @@ void CGameEntity::RenderSelectTexture( bool _bPlayer )
 	}
 	else
 	{
-		float fX = this->m_pSelectTexture[0]->ImageInfo.Width * 0.5f;
-		float fY = this->m_pSelectTexture[0]->ImageInfo.Height * 0.5f;
+		float fX = this->m_pSelectTexture[1]->ImageInfo.Width * 0.5f;
+		float fY = this->m_pSelectTexture[1]->ImageInfo.Height * 0.5f;
 		this->DrawTexture( this->m_pSelectTexture[1], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 }
@@ -249,13 +257,48 @@ void CGameEntity::ChangeDirAnimTexture()
 
 void CGameEntity::CollisionUpdate()
 {
-	this->m_tColRect.left = this->GetPos().x + m_tOriginColRect.left;
-	this->m_tColRect.top = this->GetPos().y + m_tOriginColRect.top;
-	this->m_tColRect.right = this->GetPos().x + m_tOriginColRect.right;
-	this->m_tColRect.bottom = this->GetPos().y + m_tOriginColRect.bottom;
+	this->m_tColRect.left = (LONG)(this->GetPos().x + m_tOriginColRect.left);
+	this->m_tColRect.top = (LONG)(this->GetPos().y + m_tOriginColRect.top);
+	this->m_tColRect.right = (LONG)(this->GetPos().x + m_tOriginColRect.right);
+	this->m_tColRect.bottom = (LONG)(this->GetPos().y + m_tOriginColRect.bottom);
 }
 
 void CGameEntity::CollisionCheck()
 {
-	//CObjMgr::GetInstance()->CheckNearEntitys()
+	vector<CGameEntity*> vColEntity;
+	
+	CObjMgr::GetInstance()->CheckNearEntitys(&vColEntity, this);
+	
+	if (vColEntity.empty())
+		return;
+	
+	auto SortEntityToPos = [&](CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity) {
+		return D3DXVec3Length(&(_pDstEntity->GetPos() - this->GetPos())) > D3DXVec3Length(&(_pSrcEntity->GetPos() - this->GetPos()));
+	};
+	
+	sort(vColEntity.begin(), vColEntity.end(), SortEntityToPos);
+	
+	CGameEntity* pEntity = vColEntity.front();
+	RECT rcCheckEntity = pEntity->GetColRect();
+
+	D3DXVECTOR3 vDir = -this->GetTransform()->GetDir();
+	D3DXVECTOR3 vColDir, vMove;
+
+	D3DXVec3Normalize(&vColDir, &(this->GetPos() - pEntity->GetPos()));
+	D3DXVec3Normalize(&vMove, &(vDir + vColDir));
+	
+	//D3DXVECTOR3 vMove(0.f, 0.f, 0.f);
+	//
+	//if (rcCheckEntity.left < m_tColRect.left)
+	//	vMove.x = rcCheckEntity.right - m_tColRect.left;
+	//else
+	//	vMove.x = m_tColRect.right - rcCheckEntity.left;
+	//
+	//if(rcCheckEntity.top < m_tColRect.top)
+	//	vMove.y = rcCheckEntity.bottom - m_tColRect.top;
+	//else
+	//	vMove.y = m_tColRect.bottom - rcCheckEntity.top;
+	
+	this->Translate(vMove * GET_TIME);
+
 }

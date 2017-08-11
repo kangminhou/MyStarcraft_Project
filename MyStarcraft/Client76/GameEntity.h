@@ -75,6 +75,9 @@ public:
 	virtual void Release( void ) override;
 
 public:
+	virtual void UpdatePosition() override;
+
+public:
 	bool CheckAlertEntity( const eObjectType& eObjectType, vector<CGameEntity*>* pVecEntitys = NULL );
 	void MoveEntity();
 	void UpdateDirAnimIndex();

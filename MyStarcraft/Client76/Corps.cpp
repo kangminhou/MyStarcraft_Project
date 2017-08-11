@@ -11,8 +11,17 @@ CCorps::~CCorps()
 {
 }
 
+BYTE CCorps::GetCurUnitNum() const
+{
+	return this->m_byCurUnitNum;
+}
+
 void CCorps::Initialize()
 {
+	m_byCurUnitNum = 0;
+
+	for (int i = 0; i < MAX_UNIT; ++i)
+		m_pEntityArr[i] = NULL;
 }
 
 void CCorps::Release()

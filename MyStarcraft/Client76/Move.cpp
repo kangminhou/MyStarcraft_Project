@@ -42,6 +42,7 @@ int CMove::Update()
 		return 1;
 
 	/* 이동할 경로로 이동.. */
+	this->m_pGameEntity->LookPos( m_vTilePos );
 	this->m_pGameEntity->MoveEntity();
 
 	D3DXVECTOR3 vEntityPos = this->m_pGameEntity->GetPos();
@@ -95,5 +96,4 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 void CMove::SettingMoveData()
 {
 	m_vTilePos = m_vecMovePath[this->m_iCurIndexNum];
-	this->m_pGameEntity->LookPos( m_vTilePos );
 }

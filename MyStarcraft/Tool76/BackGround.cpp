@@ -194,8 +194,8 @@ void CBackGround::Render(void)
 			if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
 				continue;
 
-			if ( this->m_vecTile[iIndex]->byDrawID == 0 )
-				continue;
+			//if ( this->m_vecTile[iIndex]->byDrawID == 0 )
+			//	continue;
 
 			const TEX_INFO* pTileTex = 
 				CTextureMgr::GetInstance()->GetTexture(L"Back",

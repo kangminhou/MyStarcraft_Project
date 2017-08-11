@@ -59,34 +59,57 @@ void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _p
 	}
 }
 
-bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const RECT & _rcCol, int iVecLimitSize )
+bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize )
 {
 	bool bFind = false;
 
-	//for ( int k = OBJ_TYPE_USER; k <= OBJ_TYPE_USER2; ++k )
-	//{
-	//	int iStartX = int( _rcCol.left ) / SPACECX;
-	//	int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
-	//
-	//	int iStartY = int( _rcCol.top ) / SPACECY;
-	//	int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
-	//
-	//	for ( int i = iStartY; i < iEndY; ++i )
-	//	{
-	//		for ( int j = iStartX; j < iEndX; ++j )
-	//		{
-	//			int iIndex = j + i * SPACEX;
-	//
-	//			for each (auto iter in this->m_EntitySpaceList[k][iIndex])
-	//			{
-	//				
-	//
-	//			}
-	//
-	//		}
-	//	}
-	//
-	//}
+	RECT _rcCol = _pGameEntity->GetColRect();
+
+	for ( int k = OBJ_TYPE_USER; k <= OBJ_TYPE_USER2; ++k )
+	{
+		int iStartX = int( _rcCol.left ) / SPACECX;
+		int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
+	
+		int iStartY = int( _rcCol.top ) / SPACECY;
+		int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
+	
+		for ( int i = iStartY; i < iEndY; ++i )
+		{
+			for ( int j = iStartX; j < iEndX; ++j )
+			{
+				int iIndex = j + i * SPACEX;
+
+				if (i < 0 || i >= SPACEY ||
+					j < 0 || j >= SPACEX)
+					continue;
+	
+				auto& checkList = this->m_EntitySpaceList[k][iIndex];
+
+				for each (auto iter in checkList)
+				{
+					if (iter == _pGameEntity)
+						continue;
+
+					RECT rcCheckEntity = iter->GetColRect();
+					RECT rc = { 0, 0, 0, 0 };
+	
+					if (IntersectRect(&rc, &rcCheckEntity, &_rcCol))
+					{
+						if (iVecLimitSize == 0)
+							return true;
+						if (iter && _pOut)
+						{
+							_pOut->push_back(iter);
+							iVecLimitSize--;
+						}
+					}
+
+				}
+	
+			}
+		}
+	
+	}
 	
 	return bFind;
 }
@@ -110,108 +133,115 @@ bool CObjMgr::CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_
 	if ( rcMouse.top == rcMouse.bottom )
 		++rcMouse.bottom;
 	
-	///* 드래그 범위 내의 공간 리스트들 가져와서 검사.. */
-	//for ( int i = iStartY; i < iEndY; ++i )
-	//{
-	//	for ( int j = iStartX; j < iEndX; ++j )
-	//	{
-	//		int iIndex = j + i * SPACEX;
-	//
-	//		for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
-	//		{
-	//			RECT rcCheckEntity = iter->GetColRect();
-	//			RECT rc = { 0, 0, 0, 0 };
-	//
-	//			if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
-	//			{
-	//				CGameEntity* pPushEntity = dynamic_cast<CGameEntity*>(iter);
-	//				if ( pPushEntity )
-	//				{
-	//					_vecOut.push_back( pPushEntity );
-	//					bFind = true;
-	//					if ( _vecOut.size() == 12 )
-	//						return true;
-	//				}
-	//			}
-	//
-	//		}
-	//	}
-	//}
+	/* 드래그 범위 내의 공간 리스트들 가져와서 검사.. */
+	for ( int i = iStartY; i < iEndY; ++i )
+	{
+		for ( int j = iStartX; j < iEndX; ++j )
+		{
+			int iIndex = j + i * SPACEX;
+	
+			for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
+			{
+				RECT rcCheckEntity = iter->GetColRect();
+				RECT rc = { 0, 0, 0, 0 };
+	
+				if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
+				{
+					CGameEntity* pPushEntity = dynamic_cast<CGameEntity*>(iter);
+					if ( pPushEntity )
+					{
+						_vecOut.push_back( pPushEntity );
+						bFind = true;
+						if ( _vecOut.size() == 12 )
+							return true;
+					}
+				}
+	
+			}
+		}
+	}
 
 	/* 시간 계산 ( 마린 50000개 기준 : 공간분한 0ms, 단순 for문 15ms.. */
 	/* 공간 분할.. */
-	WORD dwResult1, dwResult3, dwResult2, dwResult4;
-	
-	SYSTEMTIME cur_time, end_Time;
-	GetLocalTime(&cur_time);
-	
-	//dwStart = GetTickCount();
-	for ( int k = 0; k < 1; ++k )
-	{
-		for ( int i = iStartY; i < iEndY; ++i )
-		{
-			for ( int j = iStartX; j < iEndX; ++j )
-			{
-				int iIndex = j + i * SPACEX;
-	
-				for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
-				{
-					RECT rcCheckEntity = iter->GetColRect();
-					RECT rc = { 0, 0, 0, 0 };
+	//WORD dwResult1, dwResult3, dwResult2, dwResult4;
+	//int cnt2 = 0;
+	//
+	//SYSTEMTIME cur_time, end_Time;
+	//GetLocalTime(&cur_time);
+	//
+	////dwStart = GetTickCount();
+	//for ( int k = 0; k < 1; ++k )
+	//{
+	//	for ( int i = iStartY; i < iEndY; ++i )
+	//	{
+	//		for ( int j = iStartX; j < iEndX; ++j )
+	//		{
+	//			int iIndex = j + i * SPACEX;
+	//
+	//			for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
+	//			{
+	//				++cnt2;
+	//				RECT rcCheckEntity = iter->GetColRect();
+	//				RECT rc = { 0, 0, 0, 0 };
+	//
+	//				if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
+	//				{
+	//					if ( iter )
+	//					{
+	//						_vecOut.push_back( iter );
+	//						bFind = true;
+	//						if ( _vecOut.size() == 12 )
+	//							break;
+	//					}
+	//				}
+	//
+	//			}
+	//		}
+	//	}
+	//
+	//	_vecOut.clear();
+	//}
+	////dwEnd = GetTickCount();
+	//GetLocalTime(&end_Time);
+	//dwResult1 = end_Time.wSecond - cur_time.wSecond;
+	//dwResult3 = end_Time.wMilliseconds - cur_time.wMilliseconds;
+	//
+	//list<CGameObject*>* pCheckList = &this->m_ObjList[eID];
+	//
+	//GetLocalTime(&cur_time);
 
-					if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
-					{
-						if ( iter )
-						{
-							_vecOut.push_back( iter );
-							bFind = true;
-							if ( _vecOut.size() == 12 )
-								return true;
-						}
-					}
-
-				}
-			}
-		}
-	
-		_vecOut.clear();
-	}
-	//dwEnd = GetTickCount();
-	GetLocalTime(&end_Time);
-	dwResult1 = end_Time.wSecond - cur_time.wSecond;
-	dwResult3 = end_Time.wMilliseconds - cur_time.wMilliseconds;
-	
-	list<CGameObject*>* pCheckList = this->m_ObjList;
-
-	GetLocalTime(&cur_time);
 	/* 그냥 단순 for문.. */
-	for ( int k = 0; k < 1; ++k )
-	{
-		for each (auto iter in (*pCheckList))
-		{
-			D3DXVECTOR3 vCheckObjectPos = iter->GetPos();
-	
-			if ( vCheckObjectPos.x >= _tDragData.vStartPos.x && vCheckObjectPos.y >= _tDragData.vStartPos.y &&
-				 vCheckObjectPos.x <= _tDragData.vEndPos.x && vCheckObjectPos.y <= _tDragData.vEndPos.y )
-			{
-				CGameEntity* pPushEntity = (CGameEntity*)(iter);
-				if ( pPushEntity )
-				{
-					_vecOut.push_back( pPushEntity );
-					bFind = true;
-					if ( _vecOut.size() == 12 )
-						break;
-				}
-			}
-		}
-		_vecOut.clear();
-	}
-	//dwEnd = GetTickCount();
-	//dwResult2 = dwEnd - dwStart;
-	
-	GetLocalTime(&end_Time);
-	dwResult2 = end_Time.wSecond - cur_time.wSecond;
-	dwResult4 = end_Time.wMilliseconds - cur_time.wMilliseconds;
+	//int cnt = 0;
+	//for ( int k = 0; k < 1; ++k )
+	//{
+	//	for each (auto iter in (*pCheckList))
+	//	{
+	//		++cnt;
+	//		CGameEntity* pPushEntity = (CGameEntity*)(iter);
+	//		if (pPushEntity)
+	//		{
+	//			RECT rcCheckEntity = pPushEntity->GetColRect();
+	//			RECT rc = { 0, 0, 0, 0 };
+	//
+	//			if (IntersectRect(&rc, &rcCheckEntity, &rcMouse))
+	//			{
+	//				_vecOut.push_back(pPushEntity);
+	//				bFind = true;
+	//				if (_vecOut.size() == 12)
+	//					break;
+	//			}
+	//		}
+	//	}
+	//	_vecOut.clear();
+	//}
+	////dwEnd = GetTickCount();
+	////dwResult2 = dwEnd - dwStart;
+	//
+	//GetLocalTime(&end_Time);
+	//dwResult2 = end_Time.wSecond - cur_time.wSecond;
+	//dwResult4 = end_Time.wMilliseconds - cur_time.wMilliseconds;
+	//
+	//int bbbb = cnt2;
 
 	return bFind;
 }

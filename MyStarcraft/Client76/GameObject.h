@@ -61,6 +61,9 @@ public:
 	virtual void	Release(void)PURE;
 
 public:
+	virtual void UpdatePosition();
+
+public:
 	/*
 	* AddComponent : 컴포넌트 추가해주는 함수..
 
@@ -75,7 +78,8 @@ public:
 	 * 매개변수
 	  - _fSpeed : 이동할 스피드 ( 양 )..
 	 */
-	void Translate( const float& _fSpeed );
+	void Translate(const float& _fSpeed);
+	void Translate(const D3DXVECTOR3& _vMove);
 
 	/*
 	* UpdateMatrix : 현재 오브젝트의 Transform 정보를 바탕으로 최종 행렬 갱신..
