@@ -3,17 +3,18 @@
 #include "GameObject.h"
 
 #include "GameEntity.h"
+#include "Background.h"
 
 IMPLEMENT_SINGLETON(CObjMgr);
 
 void CObjMgr::AddGameObject(CGameObject* pObject, eObjectType eType)
 {
 	pObject->SetObjectType( eType );
-	this->AdjustmentSpace( pObject );
+	this->ReAdjustmentSpace( D3DXVECTOR3( 0.f, 0.f, 0.f ), pObject, true );
 	m_ObjList[eType].push_back(pObject);
 }
 
-void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _pGameObject )
+void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _pGameObject, const bool& _bFirst /*= false*/ )
 {
 	CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(_pGameObject);
 
@@ -24,39 +25,42 @@ void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _p
 	int iPrevSpaceIndex = this->GetSpaceIndex( _vPrevPos );
 	int iCurSpaceIndex = this->GetSpaceIndex( pGameEntity->GetPos() );
 
-	/* 현재 있는 공간과 전에 있던 공간이 같을 경우 ( 예외처리.. ) */
-	if ( iPrevSpaceIndex == iCurSpaceIndex )
-		return;
-
-	/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
-	if ( iPrevSpaceIndex < 0 || iPrevSpaceIndex > TOTAL_SPACE_NUM ||
-		 iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
-		return;
-
-	list<CGameEntity*>& curCheckList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iPrevSpaceIndex];
-	
-	/* 전에 있던 공간리스트에서 삭제.. */
-	auto iter_end = curCheckList.end();
-	for ( auto iter = curCheckList.begin(); iter != iter_end; ++iter )
+	if ( !_bFirst )
 	{
-		if ( (*iter) == pGameEntity )
+		/* 현재 있는 공간과 전에 있던 공간이 같을 경우 ( 예외처리.. ) */
+		if ( iPrevSpaceIndex == iCurSpaceIndex )
+			return;
+
+		/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
+		if ( iPrevSpaceIndex < 0 || iPrevSpaceIndex > TOTAL_SPACE_NUM ||
+			 iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
+			return;
+
+		list<CGameEntity*>& curCheckList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iPrevSpaceIndex];
+
+		/* 전에 있던 공간리스트에서 삭제.. */
+		auto iter_end = curCheckList.end();
+		for ( auto iter = curCheckList.begin(); iter != iter_end; ++iter )
 		{
-			curCheckList.erase( iter );
-			break;
+			if ( (*iter) == pGameEntity )
+			{
+				curCheckList.erase( iter );
+				break;
+			}
 		}
+	}
+	else
+	{
+		if ( !m_pBackground )
+			m_pBackground = (CBackground*)m_ObjList[OBJ_TYPE_BACKGROUND].front();
+
+		m_pBackground->UpdateUnitPosData( pGameEntity );
 	}
 
 	/* 현재 자신이 있는 공간리스트에 새로 삽입.. */
 	list<CGameEntity*>& curInsertList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iCurSpaceIndex];
 
 	curInsertList.push_back( pGameEntity );
-
-	static int a = 0;
-	++a;
-	if ( a == 10 )
-	{
-		int f = 0;
-	}
 }
 
 bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize )
@@ -69,10 +73,10 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* 
 	{
 		int iStartX = int( _rcCol.left ) / SPACECX;
 		int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
-	
+
 		int iStartY = int( _rcCol.top ) / SPACECY;
 		int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
-	
+
 		for ( int i = iStartY; i < iEndY; ++i )
 		{
 			for ( int j = iStartX; j < iEndX; ++j )
@@ -152,8 +156,8 @@ bool CObjMgr::CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_
 					{
 						_vecOut.push_back( pPushEntity );
 						bFind = true;
-						if ( _vecOut.size() == 12 )
-							return true;
+						//if ( _vecOut.size() == 12 )
+						//	return true;
 					}
 				}
 	
@@ -253,6 +257,8 @@ list<CGameObject*>* CObjMgr::GetList( eObjectType eType )
 
 HRESULT CObjMgr::Initialize(void)
 {
+	m_pBackground = NULL;
+
 	return S_OK;
 }
 
@@ -323,21 +329,6 @@ void CObjMgr::Release(eObjectType eType)
 		}
 		m_ObjList[i].clear();
 	}
-}
-
-void CObjMgr::AdjustmentSpace( CGameObject * _pGameObject )
-{
-	CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(_pGameObject);
-
-	if ( !pGameEntity )
-		return;
-
-	int iCurSpaceIndex = this->GetSpaceIndex( pGameEntity->GetPos() );
-	if ( iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
-		return;
-	list<CGameEntity*>& curInsertList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iCurSpaceIndex];
-
-	curInsertList.push_back( pGameEntity );
 }
 
 int CObjMgr::GetSpaceIndex( const D3DXVECTOR3 & _vPos )

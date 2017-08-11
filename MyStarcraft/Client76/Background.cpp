@@ -4,6 +4,8 @@
 #include "Device.h"
 #include "TextureMgr.h"
 
+#include "GameEntity.h"
+
 
 CBackground::CBackground()
 {
@@ -136,6 +138,76 @@ bool CBackground::Picking(const D3DXVECTOR3& vMousePos,
 	return true;
 }
 
+void CBackground::UpdateUnitPosData( const CGameEntity * _pEntity, bool bErase )
+{
+	if ( bErase )
+	{
+		D3DXVECTOR3 vEntityPos = _pEntity->GetPos();
+		RECT rcEntityOriginCol = _pEntity->GetOriginColRect();
+
+		int iStartX = int(vEntityPos.x + rcEntityOriginCol.left) / TILECX;
+		int iEndX = int(vEntityPos.x + rcEntityOriginCol.right) / TILECX;
+
+		int iStartY = int(vEntityPos.y + rcEntityOriginCol.top) / TILECY;
+		int iEndY = int(vEntityPos.y + rcEntityOriginCol.bottom) / TILECY;
+
+		for ( int i = iStartY; i <= iEndY; ++i )
+		{
+			for ( int j = iStartX; j <= iEndX; ++j )
+			{
+				if ( i < 0 || i >= TILEY ||
+					 j < 0 || j >= TILEX )
+					continue;
+
+				int iIndex = j + i * TILEX;
+
+				auto& checkList = m_entityTileData[iIndex].entityList;
+				auto iter_end = checkList.end();
+				for ( auto iter = checkList.begin(); iter != iter_end; ++iter )
+				{
+					if ( (*iter) == _pEntity )
+					{
+						checkList.erase( iter );
+						if ( checkList.empty() )
+							m_entityTileData[iIndex].byTileOption = 0;
+
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		RECT rcEntityCurCol = _pEntity->GetColRect();
+
+		int iStartX = (rcEntityCurCol.left) / TILECX;
+		int iEndX = (rcEntityCurCol.right) / TILECX;
+
+		int iStartY = (rcEntityCurCol.top) / TILECY;
+		int iEndY = (rcEntityCurCol.bottom) / TILECY;
+
+		for ( int i = iStartY; i <= iEndY; ++i )
+		{
+			for ( int j = iStartX; j <= iEndX; ++j )
+			{
+				if ( i < 0 || i >= TILEY ||
+					 j < 0 || j >= TILEX )
+					continue;
+
+				int iIndex = j + i * TILEX;
+
+				m_entityTileData[iIndex].byTileOption = 2;
+
+				auto& checkList = m_entityTileData[iIndex].entityList;
+				if ( checkList.empty() )
+					m_entityTileData[iIndex].byTileOption = 1;
+				checkList.push_back( _pEntity );
+			}
+		}
+	}
+}
+
 HRESULT CBackground::Initialize(void)
 {
 	//int iA = 20;
@@ -143,31 +215,31 @@ HRESULT CBackground::Initialize(void)
 	//{
 	//}
 
-	this->LoadTileData();
+	//this->LoadTileData();
 
 	m_pBackgroundTexture = CTextureMgr::GetInstance()->GetTexture( L"Map" );
 
-	//for(int i = 0; i < TILEY; ++i)	
-	//{
-	//	for(int j = 0; j < TILEX; ++j)
-	//	{
-	//		TILE* pTile = new TILE;
-	//
-	//		//float fX = j * TILECX + ((i % 2) * (TILECX / 2.f));
-	//		//float fY = i * (TILECY * 0.5f);
-	//
-	//		float fX = float(j * TILECX);
-	//		float fY = float(i * TILECY);
-	//
-	//		pTile->vPos = D3DXVECTOR3(fX, fY, 0.f);
-	//		pTile->vSize = D3DXVECTOR3( (float)TILECX, (float)TILECY, 0.f );
-	//
-	//		pTile->byOption = 0;
-	//		pTile->byDrawID = 0;
-	//
-	//		m_vecTile.push_back(pTile);
-	//	}
-	//}
+	for(int i = 0; i < TILEY; ++i)	
+	{
+		for(int j = 0; j < TILEX; ++j)
+		{
+			TILE* pTile = new TILE;
+	
+			//float fX = j * TILECX + ((i % 2) * (TILECX / 2.f));
+			//float fY = i * (TILECY * 0.5f);
+	
+			float fX = float(j * TILECX);
+			float fY = float(i * TILECY);
+	
+			pTile->vPos = D3DXVECTOR3(fX, fY, 0.f);
+			pTile->vSize = D3DXVECTOR3( (float)TILECX, (float)TILECY, 0.f );
+	
+			pTile->byOption = 0;
+			pTile->byDrawID = 0;
+	
+			m_vecTile.push_back(pTile);
+		}
+	}
 
 	return S_OK;
 }
@@ -213,8 +285,8 @@ void CBackground::Render(void)
 														L"Tile",
 														m_vecTile[iIndex]->byDrawID);
 
-			if ( m_vecTile[iIndex]->byDrawID == 0 )
-				continue;
+			//if ( m_vecTile[iIndex]->byDrawID == 0 )
+			//	continue;
 
 			D3DXMatrixTranslation(&matTrans
 								   , m_vecTile[iIndex]->vPos.x - m_vScroll.x	//0 : x

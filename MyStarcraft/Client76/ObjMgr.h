@@ -4,6 +4,7 @@
 
 class CGameObject;
 class CGameEntity;
+class CBackground;
 class CObjMgr
 {
 	DECLARE_SINGLETON( CObjMgr );
@@ -11,10 +12,11 @@ class CObjMgr
 private:
 	list<CGameObject*>	m_ObjList[OBJ_TYPE_MAX];
 	list<CGameEntity*>	m_EntitySpaceList[OBJ_TYPE_MAX][TOTAL_SPACE_NUM];
+	CBackground*	m_pBackground;
 
 public:
 	void AddGameObject( CGameObject* pObject, eObjectType eType );
-	void ReAdjustmentSpace( const D3DXVECTOR3& _vPrevPos, CGameObject* _pGameObject );
+	void ReAdjustmentSpace( const D3DXVECTOR3& _vPrevPos, CGameObject* _pGameObject, const bool& _bFirst = false );
 	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize = -1 );
 	bool CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_DATA& _tDragData, const eObjectType& eID );
 
@@ -33,7 +35,6 @@ public:
 	void	Release( eObjectType eType );
 
 private:
-	void AdjustmentSpace( CGameObject* _pGameObject );
 	int GetSpaceIndex( const D3DXVECTOR3& _vPos );
 
 private:

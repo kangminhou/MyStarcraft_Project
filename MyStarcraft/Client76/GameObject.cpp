@@ -147,7 +147,7 @@ void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX 
 {
 	if ( _pDrawTexture )
 	{
-		this->m_pTempSprite->SetTransform( &this->GetWorldMatrix() );
+		this->m_pTempSprite->SetTransform( &_matWorld );
 
 		this->m_pTempSprite->Draw(
 			_pDrawTexture->pTexture,

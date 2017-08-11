@@ -53,6 +53,9 @@ protected:
 	RECT							m_tColRect;
 	RECT							m_tOriginColRect;
 
+	D3DXVECTOR3						m_vPrevIdlePos;		// Idle Pos 였을 때의 좌표 ( AStar 때 가만히 있는 유닛의 좌표의 맵을 못가게 하기 위해 )..
+	bool							m_bInitPrevIdlePos;
+
 public:
 	CGameEntity();
 	virtual ~CGameEntity();
@@ -66,6 +69,7 @@ public:
 	float GetSpeed() const;
 	CAStar*	GetAStar() const { return m_pAStar; }
 	RECT GetColRect() const;
+	RECT GetOriginColRect() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨

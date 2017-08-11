@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Astar.cpp" />
+    <ClCompile Include="AStarManager.cpp" />
     <ClCompile Include="AStarTestScene.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="Building.cpp" />
@@ -133,6 +134,9 @@
     <ClCompile Include="Pattern_MoveAlert.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="RayObject.cpp" />
+    <ClCompile Include="RayTestBackground.cpp" />
+    <ClCompile Include="RayTestScene.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SingleTexture.cpp" />
@@ -157,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Astar.h" />
+    <ClInclude Include="AStarManager.h" />
     <ClInclude Include="AStarTestScene.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="Building.h" />
@@ -181,6 +186,9 @@
     <ClInclude Include="Pattern_MoveAlert.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="RayObject.h" />
+    <ClInclude Include="RayTestBackground.h" />
+    <ClInclude Include="RayTestScene.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />

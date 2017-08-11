@@ -53,7 +53,8 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 	pFirstNode->fCost = 0.f;
 
 	//시작지점을 CloseList에 담고 시작을 하자.
-	m_CloseList.push_back(pFirstNode);
+	m_OpenList.push_back( pFirstNode );
+	//m_CloseList.push_back( pFirstNode );
 
 
 	const vector<TILE*>* pVecTile = m_pBackground->GetTile();
@@ -64,9 +65,12 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 	NODE* pMakeNode = NULL;
 	int   iIndex = 0;
 	forward_list<int> bestList;
+	BYTE byCheckSuccess = 0;
+	NODE* pCheckNode = pFirstNode;
 
-	while(true)
+	while(!m_OpenList.empty())
 	{
+		byCheckSuccess = 0;
 		/*
 		 * 타일 검사 성공 시 비트 단위로 체크 후 저장..
 		 * 저장 하는 이유는 대각선의 위치를 검사할 때 편의를 위해
@@ -74,7 +78,6 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		 *											오른		왼		아래		위
 		 * 0		0		0		0		0		0		0		0		0
 		 */
-		BYTE byCheckSuccess = 0;
 
 		//여기서 실제 탐색을 시작한다.
 		//1.Index가 맵상에 존재는 Index인지를?
@@ -82,141 +85,144 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		//3.Open Or Close List에 있는 노드인가?
 
 		//##위쪽 타일..
-		iIndex = pFirstNode->iIndex - TILEX;
+		iIndex = pCheckNode->iIndex - TILEX;
 
-		if( pFirstNode->iIndex >= TILEX			&&
+		if( pCheckNode->iIndex >= TILEX			&&
 			(*pVecTile)[iIndex]->byOption == 0  &&
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 			byCheckSuccess |= (1 << 0);
 		}
 
 
 		//##아래쪽 타일..
-		iIndex = pFirstNode->iIndex + TILEX;
+		iIndex = pCheckNode->iIndex + TILEX;
 
-		if( pFirstNode->iIndex < (TILEX * TILEY) - (TILEX) &&
+		if( pCheckNode->iIndex < (TILEX * TILEY) - (TILEX) &&
 			(*pVecTile)[iIndex]->byOption == 0  && 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 			byCheckSuccess |= (1 << 1);
 		}
 
 
 		//##왼쪽 타일..
-		iIndex = pFirstNode->iIndex - 1;
+		iIndex = pCheckNode->iIndex - 1;
 
-		if( pFirstNode->iIndex % TILEX != 0  &&
+		if( pCheckNode->iIndex % TILEX != 0  &&
 			(*pVecTile)[iIndex]->byOption == 0  && 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 			byCheckSuccess |= (1 << 2);
 		}
 
 
 		//##오른쪽 타일..
-		iIndex = pFirstNode->iIndex + 1;
+		iIndex = pCheckNode->iIndex + 1;
 
-		if( pFirstNode->iIndex % TILEX != TILEX - 1  &&
+		if( pCheckNode->iIndex % TILEX != TILEX - 1  &&
 			(*pVecTile)[iIndex]->byOption == 0  && 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 			byCheckSuccess |= (1 << 3);
 		}
 
-
 		//##오른쪽 위 타일..
-		iIndex = pFirstNode->iIndex - (TILEX - 1);
+		iIndex = pCheckNode->iIndex - (TILEX - 1);
 		
 		//예외처리가 추가적으로 더 필요하다.
-		if( pFirstNode->iIndex >= TILEX - 1				&&
-			pFirstNode->iIndex % (TILEX) != (TILEX - 1) &&
+		if( pCheckNode->iIndex >= TILEX - 1				&&
+			pCheckNode->iIndex % (TILEX) != (TILEX - 1) &&
 			byCheckSuccess & (1 << 0)					&&
 			byCheckSuccess & (1 << 3)					&&
 			(*pVecTile)[iIndex]->byOption == 0			&& 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 		}
 		
 		
 		//##오른쪽 아래 타일..
-		iIndex = pFirstNode->iIndex + (TILEX + 1);
+		iIndex = pCheckNode->iIndex + (TILEX + 1);
 		
 		//예외처리가 추가적으로 더 필요하다.
-		if( pFirstNode->iIndex < (TILEX * TILEY) - TILEX	&&
-			pFirstNode->iIndex % (TILEX) != (TILEX - 1)		&&
+		if( pCheckNode->iIndex < (TILEX * TILEY) - TILEX	&&
+			pCheckNode->iIndex % (TILEX) != (TILEX - 1)		&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 3)						&&
 			(*pVecTile)[iIndex]->byOption == 0				&& 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 		}
 		
 		
 		//##왼쪽 아래 타일..
-		iIndex = pFirstNode->iIndex + (TILEX - 1);
+		iIndex = pCheckNode->iIndex + (TILEX - 1);
 		
 		//예외처리가 추가적으로 더 필요하다.
-		if( pFirstNode->iIndex < (TILEX * TILEY) - TILEX	&&
-			pFirstNode->iIndex % (TILEX) != 0				&&
+		if( pCheckNode->iIndex < (TILEX * TILEY) - TILEX	&&
+			pCheckNode->iIndex % (TILEX) != 0				&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 2)						&&
 			(*pVecTile)[iIndex]->byOption == 0				&& 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 		}
 		
 		
 		//##왼쪽 위 타일..
-		iIndex = pFirstNode->iIndex - (TILEX + 1);
+		iIndex = pCheckNode->iIndex - (TILEX + 1);
 		
 		//예외처리가 추가적으로 더 필요하다.
-		if( pFirstNode->iIndex >= TILEX - 1		&&
-			pFirstNode->iIndex % (TILEX) != 0	&&
+		if( pCheckNode->iIndex >= TILEX - 1		&&
+			pCheckNode->iIndex % (TILEX) != 0	&&
 			byCheckSuccess & (1 << 0)			&&
 			byCheckSuccess & (1 << 2)			&&
 			(*pVecTile)[iIndex]->byOption == 0  && 
+			m_pBackground->GetUnitTileData(iIndex) == 0 &&
 			ListCheck(iIndex)						)
 		{
-			pMakeNode = MakeNode(iIndex, pFirstNode, pVecTile);
+			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
 			m_OpenList.push_back(pMakeNode);
 		}
 
-		//OpenList에 담긴 비용을 정렬한다.
-		m_OpenList.sort( Compare );
+		auto iter = m_OpenList.begin();
+		pCheckNode = (*iter);
 
-		//가장 적은 비용의 노드(타일을)
-		list<NODE*>::iterator iter = m_OpenList.begin();
-		pFirstNode = *iter;
+		m_CloseList.push_back( pCheckNode );
+		m_OpenList.erase( iter );
 
-		m_CloseList.push_back(*iter);
-		m_OpenList.erase(iter);
-
-		if(pFirstNode->iIndex == m_iEndIndex)
+		if(pCheckNode->iIndex == m_iEndIndex)
 		{
 			//BestList를 얻어내자.
 			while(true)
 			{
-				bestList.push_front( pFirstNode->iIndex );
+				bestList.push_front( pCheckNode->iIndex );
 
 				//도착지점에서부터 시작지점까지 Node...
-				pFirstNode = pFirstNode->pParent;
+				pCheckNode = pCheckNode->pParent;
 
-				if ( pFirstNode->iIndex == m_iStartIndex )
+				if ( pCheckNode->iIndex == m_iStartIndex )
 				{
 					D3DXVECTOR3 vPlusPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
 
@@ -233,6 +239,9 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			//bestList.reverse();
 			return true;
 		}
+
+		//OpenList에 담긴 비용을 정렬한다.
+		m_OpenList.sort( Compare );
 
 	}//While문 끝.
 

@@ -9,11 +9,13 @@
 #include "TimeMgr.h"
 #include "TextureMgr.h"
 #include "KeyMgr.h"
+#include "ObjMgr.h"
 
 #include "Pattern_IdleAlert.h"
 #include "Pattern_Move.h"
 #include "Pattern_MoveAlert.h"
 #include "Move.h"
+#include "Background.h"
 
 
 CMarine::CMarine()
@@ -125,9 +127,20 @@ void CMarine::SetPattern( const eGameEntityPattern& _ePatternKind )
 	switch ( _ePatternKind )
 	{
 		case CGameEntity::Pattern_Idle:
+		{
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Idle" )->second;
 			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Idle" );
 			this->m_wstrStateKey = L"Idle";
+
+			//if ( !m_bInitPrevIdlePos )
+			//{
+			//	m_vPrevIdlePos = this->GetPos();
+			//	m_bInitPrevIdlePos = true;
+			//}
+			//
+			//CObjMgr::GetInstance()->FindGameObject<CBackground>()->UpdateUnitPosData( m_vPrevIdlePos, this );
+			//m_vPrevIdlePos = this->GetPos();
+		}
 			break;
 
 		case CGameEntity::Pattern_Move:

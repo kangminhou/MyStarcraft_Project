@@ -7,7 +7,7 @@ class CCorps :
 	public CComponent
 {
 public:
-	enum { MAX_UNIT = 12 };
+	enum { MAX_UNIT = 200 };
 
 private:
 	CGameEntity*	m_pEntityArr[MAX_UNIT];	// ºÎ´ë¿ø..

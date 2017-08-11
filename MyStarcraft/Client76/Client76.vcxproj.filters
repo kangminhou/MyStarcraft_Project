@@ -160,6 +160,9 @@
     <Filter Include="01. GameObject\00. GameEntity\02. Mouse">
       <UniqueIdentifier>{68ea502d-2be1-4adb-b165-518886df475f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Scene\05. RayTestScene">
+      <UniqueIdentifier>{8c99fa05-4275-4e4a-b0e5-cfe220c7287f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -290,6 +293,18 @@
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="RayTestScene.cpp">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClCompile>
+    <ClCompile Include="RayObject.cpp">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClCompile>
+    <ClCompile Include="RayTestBackground.cpp">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClCompile>
+    <ClCompile Include="AStarManager.cpp">
+      <Filter>98. Manager\08, AStar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -427,6 +442,18 @@
     </ClInclude>
     <ClInclude Include="Mouse.h">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTestScene.h">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClInclude>
+    <ClInclude Include="RayObject.h">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTestBackground.h">
+      <Filter>02. Scene\05. RayTestScene</Filter>
+    </ClInclude>
+    <ClInclude Include="AStarManager.h">
+      <Filter>98. Manager\08, AStar</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

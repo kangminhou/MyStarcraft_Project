@@ -39,7 +39,10 @@ int CMove::Update()
 {
 	/* 더 이상 이동할 경로가 없다 == 도착했다.. */
 	if ( (unsigned int)(this->m_iCurIndexNum) >= this->m_vecMovePath.size() )
+	{
+		m_pBackground->UpdateUnitPosData( this->m_pGameEntity);
 		return 1;
+	}
 
 	/* 이동할 경로로 이동.. */
 	this->m_pGameEntity->LookPos( m_vTilePos );
@@ -64,6 +67,8 @@ int CMove::Update()
 
 void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 {
+	m_pBackground->UpdateUnitPosData( this->m_pGameEntity, true );
+
 	if ( true )
 	{
 		/* AStar 로 최단거리 타일 인덱스 찾기.. */

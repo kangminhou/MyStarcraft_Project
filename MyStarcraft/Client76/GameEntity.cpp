@@ -15,6 +15,8 @@ CGameEntity::CGameEntity()
 	: m_wstrStateKey(L"")
 	, m_pAnimCom(NULL)
 	, m_pCurActPattern(NULL)
+	, m_vPrevIdlePos(0.f, 0.f, 0.f)
+	, m_bInitPrevIdlePos(false)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
@@ -52,6 +54,11 @@ float CGameEntity::GetSpeed() const
 RECT CGameEntity::GetColRect() const
 {
 	return this->m_tColRect;
+}
+
+RECT CGameEntity::GetOriginColRect() const
+{
+	return this->m_tOriginColRect;
 }
 
 HRESULT CGameEntity::Initialize( void )
@@ -96,7 +103,7 @@ int CGameEntity::Update( void )
 		this->m_pAnimCom->UpdateAnim();
 	
 	this->CollisionUpdate();
-	//this->CollisionCheck();
+	this->CollisionCheck();
 
 	return 0;
 }
@@ -265,6 +272,7 @@ void CGameEntity::CollisionUpdate()
 
 void CGameEntity::CollisionCheck()
 {
+	return;
 	vector<CGameEntity*> vColEntity;
 	
 	CObjMgr::GetInstance()->CheckNearEntitys(&vColEntity, this);
