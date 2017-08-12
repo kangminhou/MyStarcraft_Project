@@ -88,7 +88,7 @@ int CRayTestBackground::Update( void )
 		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos() + m_vScroll;
 		int iIndex = int(vMouse.x / TILECX) + int(vMouse.y / TILECY) * TILEX;
 
-		if ( iIndex >= 0 && iIndex < this->m_vecTile.size() )
+		if ( iIndex >= 0 && (unsigned int)iIndex < this->m_vecTile.size() )
 		{
 			/* 갈 수 있는 타일 갈 수 없게끔.. */
 			if ( this->m_vecTile[iIndex]->byDrawID == TILE_IDLE )

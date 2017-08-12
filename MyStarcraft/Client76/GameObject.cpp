@@ -110,7 +110,7 @@ HRESULT CGameObject::Initialize( void )
 	return S_OK;
 }
 
-void CGameObject::UpdatePosition()
+void CGameObject::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 {
 	this->UpdateMatrix();
 }

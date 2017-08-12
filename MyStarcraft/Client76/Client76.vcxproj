@@ -129,6 +129,7 @@
     <ClCompile Include="Move.cpp" />
     <ClCompile Include="MultiTexture.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
+    <ClCompile Include="Pattern_ChaseTarget.cpp" />
     <ClCompile Include="Pattern_IdleAlert.cpp" />
     <ClCompile Include="Pattern_Move.cpp" />
     <ClCompile Include="Pattern_MoveAlert.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Move.h" />
     <ClInclude Include="MultiTexture.h" />
     <ClInclude Include="ObjMgr.h" />
+    <ClInclude Include="Pattern_ChaseTarget.h" />
     <ClInclude Include="Pattern_IdleAlert.h" />
     <ClInclude Include="Pattern_Move.h" />
     <ClInclude Include="Pattern_MoveAlert.h" />

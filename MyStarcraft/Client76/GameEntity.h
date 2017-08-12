@@ -5,6 +5,8 @@ class CAnimation;
 class CEntityPattern;
 class CAStar;
 class CWeapon;
+class CCorps;
+class CBackground;
 
 class CGameEntity :
 	public CGameObject
@@ -18,7 +20,7 @@ public:
 		Pattern_Hold,
 		Pattern_Patrol,
 		Pattern_Attack,
-		Pattern_AttackTarget,
+		Pattern_ChaseTarget,
 		Pattern_Hit,
 	};
 
@@ -43,6 +45,8 @@ protected:
 
 	eGameEntityPattern		m_curActPatternKind;		// 현재 실행 중인 패턴..
 
+	CCorps*					m_pEntityBelongToCorps;		// 현재 부대..
+
 	BYTE					m_byDirAnimIndex;
 
 	CAStar*					m_pAStar;
@@ -50,11 +54,14 @@ protected:
 	map<wstring, CEntityPattern*>	m_mapPatterns;
 	CEntityPattern*					m_pCurActPattern;
 
-	RECT							m_tColRect;
-	RECT							m_tOriginColRect;
+	RECT					m_tColRect;
+	RECT					m_tOriginColRect;
 
-	D3DXVECTOR3						m_vPrevIdlePos;		// Idle Pos 였을 때의 좌표 ( AStar 때 가만히 있는 유닛의 좌표의 맵을 못가게 하기 위해 )..
-	bool							m_bInitPrevIdlePos;
+	bool					m_bCollision;
+
+	static CBackground*				m_pBackground;
+
+	list<pair<int, BYTE>>		m_standTileIndexList;
 
 public:
 	CGameEntity();
@@ -63,13 +70,23 @@ public:
 public:
 	virtual void SetPattern( const eGameEntityPattern& _ePatternKind ) PURE;
 	void SetCurHp( const float& fHp );
+	void SetEntityBelongToCorps( CCorps* _pEntityBelongToCorps );
+	static void SetBackground(CBackground* pBackground)
+	{
+		m_pBackground = pBackground;
+	}
+	void SetStandTileIndexList( const list<pair<int, BYTE>>& _standTileIndexList );
 
 public:
 	float GetCurHp() const;
 	float GetSpeed() const;
+	int GetScope() const;
+	const CCorps* GetEntityBelongToCorps() const;
 	CAStar*	GetAStar() const { return m_pAStar; }
 	RECT GetColRect() const;
 	RECT GetOriginColRect() const;
+	bool GetIsCollision() const;
+	const list<pair<int, BYTE>>* GetStandTileIndexList();
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -79,10 +96,10 @@ public:
 	virtual void Release( void ) override;
 
 public:
-	virtual void UpdatePosition() override;
+	virtual void UpdatePosition( const D3DXVECTOR3& vPrevPos ) override;
 
 public:
-	bool CheckAlertEntity( const eObjectType& eObjectType, vector<CGameEntity*>* pVecEntitys = NULL );
+	bool CheckAlertEntity( const eObjectType& _eObjectType, vector<CGameEntity*>* pVecEntitys = NULL );
 	void MoveEntity();
 	void UpdateDirAnimIndex();
 	void LookPos( const D3DXVECTOR3& _vPos );

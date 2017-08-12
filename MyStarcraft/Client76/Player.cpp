@@ -60,6 +60,7 @@ void CPlayer::KeyCheck( void )
 		this->MakeDragUnitCorps();
 	}
 
+	/* 부대 매크로 키 관련.. */
 	if ( GetAsyncKeyState( VK_CONTROL ) )
 	{
 		for ( BYTE i = '0'; i <= '9'; ++i )
@@ -91,7 +92,7 @@ void CPlayer::KeyCheck( void )
 	if ( GetAsyncKeyState( VK_RBUTTON ) )
 	{
 		if ( this->m_pCurCorps )
-			this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_Move );
+			this->UnitMove();
 	}
 
 	if ( this->m_bScrollMove )
@@ -137,4 +138,9 @@ void CPlayer::MakeDragUnitCorps()
 		this->m_clickCorps.AddUnit( vecEntity[i] );
 
 	this->m_pCurCorps = &this->m_clickCorps;
+}
+
+void CPlayer::UnitMove()
+{
+	this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_Move );
 }

@@ -51,10 +51,10 @@ void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _p
 	}
 	else
 	{
-		if ( !m_pBackground )
-			m_pBackground = (CBackground*)m_ObjList[OBJ_TYPE_BACKGROUND].front();
-
-		m_pBackground->UpdateUnitPosData( pGameEntity );
+		//if ( !m_pBackground )
+		//	m_pBackground = (CBackground*)m_ObjList[OBJ_TYPE_BACKGROUND].front();
+		//
+		//m_pBackground->UpdateUnitData( pGameEntity );
 	}
 
 	/* 현재 자신이 있는 공간리스트에 새로 삽입.. */
@@ -63,14 +63,14 @@ void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _p
 	curInsertList.push_back( pGameEntity );
 }
 
-bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize )
+bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize )
 {
 	bool bFind = false;
 
-	RECT _rcCol = _pGameEntity->GetColRect();
-
 	for ( int k = OBJ_TYPE_USER; k <= OBJ_TYPE_USER2; ++k )
 	{
+		RECT _rcCol = _pGameEntity->GetColRect();
+
 		int iStartX = int( _rcCol.left ) / SPACECX;
 		int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
 
@@ -83,38 +83,95 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* 
 			{
 				int iIndex = j + i * SPACEX;
 
-				if (i < 0 || i >= SPACEY ||
-					j < 0 || j >= SPACEX)
+				if ( i < 0 || i >= SPACEY ||
+					 j < 0 || j >= SPACEX )
 					continue;
-	
+
 				auto& checkList = this->m_EntitySpaceList[k][iIndex];
 
 				for each (auto iter in checkList)
 				{
-					if (iter == _pGameEntity)
+					if ( iter == _pGameEntity )
 						continue;
 
 					RECT rcCheckEntity = iter->GetColRect();
 					RECT rc = { 0, 0, 0, 0 };
-	
-					if (IntersectRect(&rc, &rcCheckEntity, &_rcCol))
+
+					if ( IntersectRect( &rc, &rcCheckEntity, &_rcCol ) )
 					{
-						if (iVecLimitSize == 0)
+						if ( iVecLimitSize == 0 )
 							return true;
-						if (iter && _pOut)
+						if ( iter && _pOut )
 						{
-							_pOut->push_back(iter);
+							_pOut->push_back( iter );
 							iVecLimitSize--;
 						}
 					}
 
 				}
-	
+
 			}
 		}
-	
 	}
 	
+	return bFind;
+}
+
+bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity * _pGameEntity, eObjectType _eCheckID, int iVecLimitSize )
+{
+	bool bFind = false;
+
+	D3DXVECTOR3 vEntityPos = _pGameEntity->GetPos();
+
+	float fScope = _pGameEntity->GetScope() * Object_Scope_Mul;
+
+	RECT _rcCol = { vEntityPos.x - fScope * 0.5f, vEntityPos.y - fScope * 0.5f, vEntityPos.x + fScope * 0.5f, vEntityPos.y + fScope * 0.5f };
+
+	int iStartX = int( _rcCol.left ) / SPACECX;
+	int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
+
+	int iStartY = int( _rcCol.top ) / SPACECY;
+	int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
+
+	for ( int i = iStartY; i < iEndY; ++i )
+	{
+		for ( int j = iStartX; j < iEndX; ++j )
+		{
+			int iIndex = j + i * SPACEX;
+
+			if ( i < 0 || i >= SPACEY ||
+				 j < 0 || j >= SPACEX )
+				continue;
+
+			auto& checkList = this->m_EntitySpaceList[_eCheckID][iIndex];
+
+			for each (auto iter in checkList)
+			{
+				if ( iter == _pGameEntity )
+					continue;
+
+				D3DXVECTOR3 vCheckEntityPos = iter->GetPos();
+
+				if ( vCheckEntityPos.x >= _rcCol.left && vCheckEntityPos.x <= _rcCol.right &&
+					 vCheckEntityPos.y >= _rcCol.top && vCheckEntityPos.y <= _rcCol.bottom )
+				{
+					if ( !bFind )
+						bFind = true;
+
+					if ( iVecLimitSize == 0 )
+						return true;
+					if ( iter && _pOut )
+					{
+						_pOut->push_back( iter );
+						iVecLimitSize--;
+					}
+				}
+
+			}
+
+		}
+	}
+
 	return bFind;
 }
 

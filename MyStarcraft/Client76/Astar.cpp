@@ -8,6 +8,11 @@ void CAStar::SetBackground( CBackground * _pBackground )
 	this->m_pBackground = _pBackground;
 }
 
+void CAStar::SetEntity( CGameEntity * _pEntity )
+{
+	this->m_pCheckEntity = _pEntity;
+}
+
 bool CAStar::AStarStartPos(const D3DXVECTOR3& vStartPos
 							, const D3DXVECTOR3& vEndPos
 							, vector<D3DXVECTOR3>& vecGetData)
@@ -88,8 +93,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex - TILEX;
 
 		if( pCheckNode->iIndex >= TILEX			&&
-			(*pVecTile)[iIndex]->byOption == 0  &&
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 1, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -102,8 +106,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex + TILEX;
 
 		if( pCheckNode->iIndex < (TILEX * TILEY) - (TILEX) &&
-			(*pVecTile)[iIndex]->byOption == 0  && 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 2, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -116,8 +119,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex - 1;
 
 		if( pCheckNode->iIndex % TILEX != 0  &&
-			(*pVecTile)[iIndex]->byOption == 0  && 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 3, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -130,8 +132,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex + 1;
 
 		if( pCheckNode->iIndex % TILEX != TILEX - 1  &&
-			(*pVecTile)[iIndex]->byOption == 0  && 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 4, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -147,8 +148,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != (TILEX - 1) &&
 			byCheckSuccess & (1 << 0)					&&
 			byCheckSuccess & (1 << 3)					&&
-			(*pVecTile)[iIndex]->byOption == 0			&& 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 5, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -164,8 +164,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != (TILEX - 1)		&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 3)						&&
-			(*pVecTile)[iIndex]->byOption == 0				&& 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 6, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -181,8 +180,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != 0				&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 2)						&&
-			(*pVecTile)[iIndex]->byOption == 0				&& 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 7, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -198,8 +196,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != 0	&&
 			byCheckSuccess & (1 << 0)			&&
 			byCheckSuccess & (1 << 2)			&&
-			(*pVecTile)[iIndex]->byOption == 0  && 
-			m_pBackground->GetUnitTileData(iIndex) == 0 &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 8, this->m_pCheckEntity) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -214,13 +211,11 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 
 		if(pCheckNode->iIndex == m_iEndIndex)
 		{
+			pCheckNode = pCheckNode->pParent;
 			//BestList를 얻어내자.
-			while(true)
+			while( pCheckNode )
 			{
 				bestList.push_front( pCheckNode->iIndex );
-
-				//도착지점에서부터 시작지점까지 Node...
-				pCheckNode = pCheckNode->pParent;
 
 				if ( pCheckNode->iIndex == m_iStartIndex )
 				{
@@ -233,6 +228,9 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 
 					break;
 				}
+
+				//도착지점에서부터 시작지점까지 Node...
+				pCheckNode = pCheckNode->pParent;
 			}
 
 			//원소를 반전시킨다.

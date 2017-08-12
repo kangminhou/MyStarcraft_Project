@@ -31,7 +31,7 @@ void CTransform::SetPos( const D3DXVECTOR3 & _vPos )
 	if ( this->GetGameObject() )
 		CObjMgr::GetInstance()->ReAdjustmentSpace( vPrevPos, const_cast<CGameObject*>(this->GetGameObject()) );
 
-	this->UpdateTransform();
+	this->UpdateTransform( vPrevPos );
 }
 
 void CTransform::SetPos( const float & _fX, const float & _fY )
@@ -63,7 +63,7 @@ void CTransform::SetSize( const D3DXVECTOR3 & _vSize )
 {
 	m_tInfo.vSize = _vSize;
 
-	this->UpdateTransform();
+	this->UpdateTransform( m_tInfo.vPos );
 }
 
 void CTransform::SetSize( const float & _fX, const float & _fY )
@@ -115,23 +115,25 @@ void CTransform::Release()
 
 void CTransform::Translate(const float & _fSpeed)
 {
+	D3DXVECTOR3 vPrevPos = m_tInfo.vPos;
 	this->SetPos(m_tInfo.vPos + m_tInfo.vDir * _fSpeed);
 
-	this->UpdateTransform();
+	this->UpdateTransform( vPrevPos );
 }
 
 void CTransform::Translate(const D3DXVECTOR3 & _vMove)
 {
+	D3DXVECTOR3 vPrevPos = m_tInfo.vPos;
 	this->SetPos(m_tInfo.vPos + _vMove);
 
-	this->UpdateTransform();
+	this->UpdateTransform( vPrevPos );
 }
 
-void CTransform::UpdateTransform()
+void CTransform::UpdateTransform( const D3DXVECTOR3& _vPrevPos )
 {
 	if (this->GetGameObject())
 	{
-		const_cast<CGameObject*>(this->GetGameObject())->UpdatePosition();
+		const_cast<CGameObject*>(this->GetGameObject())->UpdatePosition( _vPrevPos );
 	}
 
 }

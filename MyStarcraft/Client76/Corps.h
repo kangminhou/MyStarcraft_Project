@@ -12,6 +12,10 @@ public:
 private:
 	CGameEntity*	m_pEntityArr[MAX_UNIT];	// 부대원..
 	BYTE			m_byCurUnitNum;			// 부대원 개수..
+	CGameEntity::eGameEntityPattern	m_eCurPattern;
+
+	D3DXVECTOR3		m_vCenterPos;
+	bool			m_bGatherEntitys;		// 모여 있나??..
 
 public:
 	CCorps();
@@ -19,6 +23,8 @@ public:
 
 public:
 	BYTE GetCurUnitNum() const;
+	D3DXVECTOR3 GetCenterPos() const;
+	bool GetGatherEntitys() const;
 
 public:
 	// CComponent을(를) 통해 상속됨
@@ -26,6 +32,7 @@ public:
 	virtual void Release() override;
 
 public:
+	void Update();
 	void Render();
 
 public:

@@ -288,9 +288,6 @@
     <ClCompile Include="Player.cpp">
       <Filter>01. GameObject\02. Player</Filter>
     </ClCompile>
-    <ClCompile Include="Corps.cpp">
-      <Filter>99. Default\소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Mouse.cpp">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
     </ClCompile>
@@ -305,6 +302,12 @@
     </ClCompile>
     <ClCompile Include="AStarManager.cpp">
       <Filter>98. Manager\08, AStar</Filter>
+    </ClCompile>
+    <ClCompile Include="Corps.cpp">
+      <Filter>03. Component\06. PlayerFunction</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_ChaseTarget.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -437,9 +440,6 @@
     <ClInclude Include="Player.h">
       <Filter>01. GameObject\02. Player</Filter>
     </ClInclude>
-    <ClInclude Include="Corps.h">
-      <Filter>99. Default\헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Mouse.h">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
     </ClInclude>
@@ -454,6 +454,12 @@
     </ClInclude>
     <ClInclude Include="AStarManager.h">
       <Filter>98. Manager\08, AStar</Filter>
+    </ClInclude>
+    <ClInclude Include="Corps.h">
+      <Filter>03. Component\06. PlayerFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_ChaseTarget.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

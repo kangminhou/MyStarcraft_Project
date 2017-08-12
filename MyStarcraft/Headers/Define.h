@@ -45,5 +45,5 @@ private:								\
 
 /* 움직일 수 있는 오브젝트의 스피드에 곱함.. */
 #define Calc_Entity_Speed(speed) (speed * 50.f)
-#define Object_Scope_Mul 10.f
+#define Object_Scope_Mul 50.f
 #define Calc_Weapon_Interval(fInverval) (fInverval / 15.f)

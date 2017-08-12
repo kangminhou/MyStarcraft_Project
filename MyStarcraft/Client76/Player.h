@@ -41,5 +41,7 @@ private:
 	void KeyCheck( void );
 	void MakeDragUnitCorps();
 
+	void UnitMove();
+
 };
 

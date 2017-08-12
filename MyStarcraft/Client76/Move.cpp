@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "GameEntity.h"
 #include "Astar.h"
+#include "Corps.h"
 
 
 CMove::CMove()
@@ -28,6 +29,7 @@ void CMove::Initialize()
 
 	this->m_pAStar = new CAStar;
 	this->m_pAStar->SetBackground( this->m_pBackground );
+	this->m_pAStar->SetEntity( this->m_pGameEntity );
 }
 
 void CMove::Release()
@@ -40,8 +42,14 @@ int CMove::Update()
 	/* 더 이상 이동할 경로가 없다 == 도착했다.. */
 	if ( (unsigned int)(this->m_iCurIndexNum) >= this->m_vecMovePath.size() )
 	{
-		m_pBackground->UpdateUnitPosData( this->m_pGameEntity);
+		//m_pBackground->UpdateUnitPosData( this->m_pGameEntity);
 		return 1;
+	}
+
+	if ( this->m_pGameEntity->GetIsCollision() )
+	{
+		this->SetDestination( this->m_vDestination );
+		return 0;
 	}
 
 	/* 이동할 경로로 이동.. */
@@ -67,15 +75,31 @@ int CMove::Update()
 
 void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 {
-	m_pBackground->UpdateUnitPosData( this->m_pGameEntity, true );
+	//m_pBackground->UpdateUnitPosData( this->m_pGameEntity, true );
 
 	if ( true )
 	{
+		const CCorps* pBelongToCorps = this->m_pGameEntity->GetEntityBelongToCorps();
+
+		if ( pBelongToCorps && pBelongToCorps->GetCurUnitNum() > 1 )
+		{
+			if ( pBelongToCorps->GetGatherEntitys() )
+				this->m_vDestination = _vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
+			else
+				this->m_vDestination = _vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
+		}
+		else
+			this->m_vDestination = _vDestination;
+
+		this->m_vDestination.z = 0.f;
 		/* AStar 로 최단거리 타일 인덱스 찾기.. */
-		int iEndIndex = m_pBackground->GetTileIndex( _vDestination );
+		int iEndIndex = m_pBackground->GetTileIndex( m_vDestination );
 		//vector<int> vBestIndex;
-		if ( !this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), _vDestination, this->m_vecMovePath ) )
+		if ( !this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath ) )
+		{
+			//ERROR_MSG( L"이동 경로를 못찾음.." );
 			return;
+		}
 
 		TILE* pEndTile = (*m_pBackground->GetTile())[iEndIndex];
 
@@ -92,7 +116,7 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 
 	}
 
-	this->m_vecMovePath.push_back( _vDestination );
+	this->m_vecMovePath.push_back( m_vDestination );
 
 	this->m_iCurIndexNum = 0;
 	this->SettingMoveData();

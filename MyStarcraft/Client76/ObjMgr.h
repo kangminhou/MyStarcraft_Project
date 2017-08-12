@@ -17,7 +17,8 @@ private:
 public:
 	void AddGameObject( CGameObject* pObject, eObjectType eType );
 	void ReAdjustmentSpace( const D3DXVECTOR3& _vPrevPos, CGameObject* _pGameObject, const bool& _bFirst = false );
-	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize = -1 );
+	bool CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize = -1 );
+	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, eObjectType _eCheckID, int iVecLimitSize = -1 );
 	bool CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_DATA& _tDragData, const eObjectType& eID );
 
 public:

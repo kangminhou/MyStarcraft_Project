@@ -26,7 +26,7 @@ int CPattern_IdleAlert::Update()
 {
 	if ( this->m_pGameEntity->CheckAlertEntity( m_eEnemyType, NULL ) )
 	{
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_AttackTarget );
+		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_ChaseTarget );
 		return Event_Pattern_Change;
 	}
 

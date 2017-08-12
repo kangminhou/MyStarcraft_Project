@@ -2,6 +2,8 @@
 #include "Include.h"
 
 class CBackground;
+class CGameEntity;
+
 class CAStar
 {
 private:
@@ -9,12 +11,15 @@ private:
 	list<NODE*>		m_CloseList;	//조사한 대상
 	CBackground*	m_pBackground;
 
+	CGameEntity*	m_pCheckEntity;
+
 private:
 	int		m_iStartIndex;
 	int		m_iEndIndex;
 
 public:
 	void SetBackground( CBackground* _pBackground );
+	void SetEntity( CGameEntity* _pEntity );
 
 public:
 	bool AStarStartPos(const D3DXVECTOR3& vStartPos, const D3DXVECTOR3& vEndPos, vector<D3DXVECTOR3>& vecGetData);

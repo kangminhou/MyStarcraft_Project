@@ -22,17 +22,21 @@ HRESULT CStage::Initialize(void)
 
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CBackground>::CreateGameObject(), OBJ_TYPE_BACKGROUND );
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CPlayer>::CreateGameObject(), OBJ_TYPE_USER );
+
+	CGameEntity::SetBackground( CObjMgr::GetInstance()->FindGameObject<CBackground>() );
 	
 	nCnt = 0;
 
-	for ( int i = 0; i < 50; ++i )
-	{
-		++nCnt;
-		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
-	}
+	//for ( int i = 0; i < 50; ++i )
+	//{
+	//	++nCnt;
+	//	CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
+	//}
 
-	//CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(100, 100), OBJ_TYPE_USER);
-	//CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(200, 150), OBJ_TYPE_USER);
+	CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(100, 100), OBJ_TYPE_USER);
+	CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(200, 200), OBJ_TYPE_USER);
+
+	CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject( 400, 100 ), OBJ_TYPE_USER2 );
 
 	return S_OK;
 }

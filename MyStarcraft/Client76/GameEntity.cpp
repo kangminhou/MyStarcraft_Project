@@ -9,14 +9,17 @@
 #include "Animation.h"
 #include "EntityPattern.h"
 #include "Astar.h"
+#include "Background.h"
+
+CBackground* CGameEntity::m_pBackground = NULL;
 
 
 CGameEntity::CGameEntity()
 	: m_wstrStateKey(L"")
 	, m_pAnimCom(NULL)
 	, m_pCurActPattern(NULL)
-	, m_vPrevIdlePos(0.f, 0.f, 0.f)
-	, m_bInitPrevIdlePos(false)
+	, m_bCollision(false)
+	, m_pEntityBelongToCorps(NULL)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
@@ -41,6 +44,20 @@ void CGameEntity::SetCurHp( const float & fHp )
 		this->m_tInfoData.fCurHp = fHp;
 }
 
+void CGameEntity::SetEntityBelongToCorps( CCorps * _pEntityBelongToCorps )
+{
+	this->m_pEntityBelongToCorps = _pEntityBelongToCorps;
+}
+
+
+
+
+void CGameEntity::SetStandTileIndexList( const list<pair<int, BYTE>>& _standTileIndexList )
+{
+	this->m_standTileIndexList.clear();
+	this->m_standTileIndexList = _standTileIndexList;
+}
+
 float CGameEntity::GetCurHp() const
 {
 	return this->m_tInfoData.fCurHp;
@@ -49,6 +66,16 @@ float CGameEntity::GetCurHp() const
 float CGameEntity::GetSpeed() const
 {
 	return m_tInfoData.fSpeed;
+}
+
+int CGameEntity::GetScope() const
+{
+	return this->m_tInfoData.iScope;
+}
+
+const CCorps * CGameEntity::GetEntityBelongToCorps() const
+{
+	return this->m_pEntityBelongToCorps;
 }
 
 RECT CGameEntity::GetColRect() const
@@ -60,6 +87,18 @@ RECT CGameEntity::GetOriginColRect() const
 {
 	return this->m_tOriginColRect;
 }
+
+bool CGameEntity::GetIsCollision() const
+{
+	return this->m_bCollision;
+}
+
+const list<pair<int, BYTE>>* CGameEntity::GetStandTileIndexList()
+{
+	return &this->m_standTileIndexList;
+}
+
+
 
 HRESULT CGameEntity::Initialize( void )
 {
@@ -134,47 +173,52 @@ void CGameEntity::Release( void )
 {
 }
 
-void CGameEntity::UpdatePosition()
+void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 {
 	this->CollisionUpdate();
-	this->CollisionCheck();
+	//this->CollisionCheck();
 
-	CGameObject::UpdatePosition();
+	m_pBackground->EraseUnitData( this, vPrevPos );
+	m_pBackground->UpdateUnitData( this );
+
+	CGameObject::UpdatePosition( vPrevPos );
 }
 
-bool CGameEntity::CheckAlertEntity( const eObjectType & eObjectType, vector<CGameEntity*>* pVecEntitys /*= NULL*/ )
+bool CGameEntity::CheckAlertEntity( const eObjectType& _eObjectType, vector<CGameEntity*>* pVecEntitys /*= NULL*/ )
 {
 	/* eObjectType 타입의 주변 오브젝트를 검사.. */
 	bool bOut = false;
 
-	list<CGameObject*>* pCheckList = CObjMgr::GetInstance()->GetList( eObjectType );
+	bOut = CObjMgr::GetInstance()->CheckNearEntitys( pVecEntitys, this, _eObjectType );
 
-	/* 나중에 공간 분할을 통해 연산을 줄이기.. */
-	for each (CGameObject* pObject in (*pCheckList))
-	{
-		float fScope = m_tInfoData.iScope * Object_Scope_Mul;
-
-		D3DXVECTOR3 vMyPos = this->GetTransform()->GetPos();
-		D3DXVECTOR3 vCheckObjPos = this->GetTransform()->GetPos();
-
-		/* 플레이어의 시야 안에 있는 객체들을 검사.. */
-		if ( D3DXVec3Length( &(vMyPos - vCheckObjPos) ) <= fScope )
-		{
-			if ( !bOut )
-				bOut = true;
-
-			/* 시야 안에 있는 객체들을 넣어주길 원한다면 넣음.. */
-			if ( pVecEntitys )
-			{
-				CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(pObject);
-				if ( pGameEntity )
-					pVecEntitys->push_back( pGameEntity );
-			}
-			else
-				return true;
-
-		}
-	}
+	//list<CGameObject*>* pCheckList = CObjMgr::GetInstance()->GetList( eObjectType );
+	//
+	///* 나중에 공간 분할을 통해 연산을 줄이기.. */
+	//for each (CGameObject* pObject in (*pCheckList))
+	//{
+	//	float fScope = m_tInfoData.iScope * Object_Scope_Mul;
+	//
+	//	D3DXVECTOR3 vMyPos = this->GetTransform()->GetPos();
+	//	D3DXVECTOR3 vCheckObjPos = this->GetTransform()->GetPos();
+	//
+	//	/* 플레이어의 시야 안에 있는 객체들을 검사.. */
+	//	if ( D3DXVec3Length( &(vMyPos - vCheckObjPos) ) <= fScope )
+	//	{
+	//		if ( !bOut )
+	//			bOut = true;
+	//
+	//		/* 시야 안에 있는 객체들을 넣어주길 원한다면 넣음.. */
+	//		if ( pVecEntitys )
+	//		{
+	//			CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(pObject);
+	//			if ( pGameEntity )
+	//				pVecEntitys->push_back( pGameEntity );
+	//		}
+	//		else
+	//			return true;
+	//
+	//	}
+	//}
 
 	return bOut;
 }
@@ -272,41 +316,40 @@ void CGameEntity::CollisionUpdate()
 
 void CGameEntity::CollisionCheck()
 {
-	return;
+	//return;
 	vector<CGameEntity*> vColEntity;
 	
-	CObjMgr::GetInstance()->CheckNearEntitys(&vColEntity, this);
+	CObjMgr::GetInstance()->CheckEntitysCol( &vColEntity, this );
 	
-	if (vColEntity.empty())
-		return;
-	
-	auto SortEntityToPos = [&](CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity) {
-		return D3DXVec3Length(&(_pDstEntity->GetPos() - this->GetPos())) > D3DXVec3Length(&(_pSrcEntity->GetPos() - this->GetPos()));
-	};
-	
-	sort(vColEntity.begin(), vColEntity.end(), SortEntityToPos);
-	
-	CGameEntity* pEntity = vColEntity.front();
-	RECT rcCheckEntity = pEntity->GetColRect();
+	if ( !vColEntity.empty() )
+	{
+		auto SortEntityToPos = [&]( CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity ) {
+			return D3DXVec3Length( &(_pDstEntity->GetPos() - this->GetPos()) ) > D3DXVec3Length( &(_pSrcEntity->GetPos() - this->GetPos()) );
+		};
 
-	D3DXVECTOR3 vDir = -this->GetTransform()->GetDir();
-	D3DXVECTOR3 vColDir, vMove;
+		sort( vColEntity.begin(), vColEntity.end(), SortEntityToPos );
 
-	D3DXVec3Normalize(&vColDir, &(this->GetPos() - pEntity->GetPos()));
-	D3DXVec3Normalize(&vMove, &(vDir + vColDir));
-	
-	//D3DXVECTOR3 vMove(0.f, 0.f, 0.f);
-	//
-	//if (rcCheckEntity.left < m_tColRect.left)
-	//	vMove.x = rcCheckEntity.right - m_tColRect.left;
-	//else
-	//	vMove.x = m_tColRect.right - rcCheckEntity.left;
-	//
-	//if(rcCheckEntity.top < m_tColRect.top)
-	//	vMove.y = rcCheckEntity.bottom - m_tColRect.top;
-	//else
-	//	vMove.y = m_tColRect.bottom - rcCheckEntity.top;
-	
-	this->Translate(vMove * GET_TIME);
+		CGameEntity* pEntity = vColEntity.front();
+		RECT rcCheckEntity = pEntity->GetColRect();
+
+		D3DXVECTOR3 vDir = -this->GetTransform()->GetDir();
+		D3DXVECTOR3 vColDir, vMove;
+
+		D3DXVec3Normalize( &vColDir, &(this->GetPos() - pEntity->GetPos()) );
+		//D3DXVec3Normalize( &vMove, &(vDir + vColDir) );
+		vMove = vDir + vColDir;
+
+		this->Translate( vMove );
+
+		if ( !m_bCollision )
+		{
+			m_bCollision = true;
+		}
+	}
+	else
+	{
+		if ( m_bCollision )
+			m_bCollision = false;
+	}
 
 }

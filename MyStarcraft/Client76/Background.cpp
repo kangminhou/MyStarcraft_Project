@@ -138,74 +138,241 @@ bool CBackground::Picking(const D3DXVECTOR3& vMousePos,
 	return true;
 }
 
-void CBackground::UpdateUnitPosData( const CGameEntity * _pEntity, bool bErase )
+void CBackground::EraseUnitData( const CGameEntity * _pEntity, const D3DXVECTOR3 & _vPos )
 {
-	if ( bErase )
+	D3DXVECTOR3 vEntityPos = _vPos;
+	RECT rcEntityOriginCol = _pEntity->GetOriginColRect();
+
+	int iStartX = int(vEntityPos.x + rcEntityOriginCol.left) / (TILECX / ENTITY_TILE_DIV_X);
+	int iEndX = int(vEntityPos.x + rcEntityOriginCol.right) / (TILECX / ENTITY_TILE_DIV_X);
+
+	int iStartY = int(vEntityPos.y + rcEntityOriginCol.top) / (TILECY / ENTITY_TILE_DIV_Y);
+	int iEndY = int(vEntityPos.y + rcEntityOriginCol.bottom) / (TILECY / ENTITY_TILE_DIV_Y);
+
+	for ( int i = iStartY; i <= iEndY; ++i )
 	{
-		D3DXVECTOR3 vEntityPos = _pEntity->GetPos();
-		RECT rcEntityOriginCol = _pEntity->GetOriginColRect();
-
-		int iStartX = int(vEntityPos.x + rcEntityOriginCol.left) / TILECX;
-		int iEndX = int(vEntityPos.x + rcEntityOriginCol.right) / TILECX;
-
-		int iStartY = int(vEntityPos.y + rcEntityOriginCol.top) / TILECY;
-		int iEndY = int(vEntityPos.y + rcEntityOriginCol.bottom) / TILECY;
-
-		for ( int i = iStartY; i <= iEndY; ++i )
+		for ( int j = iStartX; j <= iEndX; ++j )
 		{
-			for ( int j = iStartX; j <= iEndX; ++j )
+			if ( i < 0 || i >= TILEY ||
+				 j < 0 || j >= TILEX )
+				continue;
+
+			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
+
+			auto& checkList = m_entityTileData[iIndex].entityList;
+			auto iter_end = checkList.end();
+			for ( auto iter = checkList.begin(); iter != iter_end; ++iter )
 			{
-				if ( i < 0 || i >= TILEY ||
-					 j < 0 || j >= TILEX )
-					continue;
-
-				int iIndex = j + i * TILEX;
-
-				auto& checkList = m_entityTileData[iIndex].entityList;
-				auto iter_end = checkList.end();
-				for ( auto iter = checkList.begin(); iter != iter_end; ++iter )
+				if ( (*iter) == _pEntity )
 				{
-					if ( (*iter) == _pEntity )
-					{
-						checkList.erase( iter );
-						if ( checkList.empty() )
-							m_entityTileData[iIndex].byTileOption = 0;
+					checkList.erase( iter );
+					if ( checkList.empty() )
+						m_entityTileData[iIndex].byTileOption = 0;
 
-						break;
-					}
+					break;
 				}
 			}
 		}
 	}
-	else
+}
+
+void CBackground::UpdateUnitData( const CGameEntity * _pEntity )
+{
+	RECT rcEntityCurCol = _pEntity->GetColRect();
+
+	int iStartX = (rcEntityCurCol.left) / (TILECX / ENTITY_TILE_DIV_X);
+	int iEndX = (rcEntityCurCol.right) / (TILECX / ENTITY_TILE_DIV_X);
+
+	int iStartY = (rcEntityCurCol.top) / (TILECY / ENTITY_TILE_DIV_Y);
+	int iEndY = (rcEntityCurCol.bottom) / (TILECY / ENTITY_TILE_DIV_Y);
+
+	list<pair<int, BYTE>> indexList;
+
+	for ( int i = iStartY; i <= iEndY; ++i )
 	{
-		RECT rcEntityCurCol = _pEntity->GetColRect();
-
-		int iStartX = (rcEntityCurCol.left) / TILECX;
-		int iEndX = (rcEntityCurCol.right) / TILECX;
-
-		int iStartY = (rcEntityCurCol.top) / TILECY;
-		int iEndY = (rcEntityCurCol.bottom) / TILECY;
-
-		for ( int i = iStartY; i <= iEndY; ++i )
+		for ( int j = iStartX; j <= iEndX; ++j )
 		{
-			for ( int j = iStartX; j <= iEndX; ++j )
+			if ( i < 0 || i >= TILEY * ENTITY_TILE_DIV_Y ||
+				 j < 0 || j >= TILEX * ENTITY_TILE_DIV_X )
+				continue;
+
+			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
+			bool bFindSameEntity = false;
+			BYTE byDetailSpaceData = 0;
+
+			int xDetailIndex = j % ENTITY_TILE_DIV_X;
+			int yDetailIndex = i % ENTITY_TILE_DIV_Y;
+
+			if ( xDetailIndex == 0 && yDetailIndex == 0 )
+				byDetailSpaceData = (1 << 0);
+			else if ( xDetailIndex == 1 && yDetailIndex == 0 )
+				byDetailSpaceData = (1 << 1);
+			else if ( xDetailIndex == 0 && yDetailIndex == 1 )
+				byDetailSpaceData = (1 << 2);
+			else if ( xDetailIndex == 1 && yDetailIndex == 1 )
+				byDetailSpaceData = (1 << 3);
+
+			int iInputIndex = (j / ENTITY_TILE_DIV_Y) + (i / ENTITY_TILE_DIV_X) * TILEX;
+
+			bool bFind = false;
+			for each (auto iter in indexList)
 			{
-				if ( i < 0 || i >= TILEY ||
-					 j < 0 || j >= TILEX )
-					continue;
-
-				int iIndex = j + i * TILEX;
-
-				m_entityTileData[iIndex].byTileOption = 2;
-
-				auto& checkList = m_entityTileData[iIndex].entityList;
-				if ( checkList.empty() )
-					m_entityTileData[iIndex].byTileOption = 1;
-				checkList.push_back( _pEntity );
+				if ( iter.first == iInputIndex )
+				{
+					bFind = true;
+					iter.second |= byDetailSpaceData;
+					break;
+				}
 			}
+
+			if ( !bFind )
+				indexList.push_back( pair<int, BYTE>( iInputIndex, byDetailSpaceData ) );
+
+			auto& checkList = m_entityTileData[iIndex].entityList;
+			if ( checkList.empty() )
+				m_entityTileData[iIndex].byTileOption = 1;
+
+			for each (auto iter in checkList)
+			{
+				if ( iter == _pEntity )
+				{
+					bFindSameEntity = true;
+					break;
+				}
+			}
+
+			if ( !bFindSameEntity )
+				checkList.push_back( _pEntity );
+			
 		}
 	}
+
+	const_cast<CGameEntity*>(_pEntity)->SetStandTileIndexList( indexList );
+}
+
+bool CBackground::CheckCanGoTile( const int & iIndex, const BYTE& byDir, CGameEntity* _pEntity )
+{
+	/* 인덱스가 타일 범위 밖의 것이라면 ( 예외처리.. ) */
+	if ( iIndex < 0 || (unsigned int)iIndex >= this->m_vecTile.size() )
+		return false;
+
+	if ( this->m_vecTile[iIndex]->byOption == 1 )
+		return false;
+
+	BYTE byEntityTileData = this->CalcEntityTileData( iIndex, _pEntity );
+
+	switch ( byDir )
+	{
+		case 1:	// 위쪽..
+		{
+			BYTE byLeftNearTileData = this->CalcEntityTileData( iIndex - 1, _pEntity );
+			BYTE byRightNearTileData = this->CalcEntityTileData( iIndex + 1, _pEntity );
+
+			if ( (byEntityTileData & (1 << 2) &&
+				 byEntityTileData & (1 << 3)) )
+				return false;
+		}
+		break;
+
+		case 2:	// 아래쪽..
+		{
+			if ( (byEntityTileData & (1 << 0) &&
+				 byEntityTileData & (1 << 1)) )
+				return false;
+		}
+		break;
+
+		case 3:	// 왼쪽..
+		{
+			if ( (byEntityTileData & (1 << 1) &&
+				 byEntityTileData & (1 << 3)) )
+				return false;
+		}
+		break;
+		
+		case 4:	// 오른쪽..
+		{
+			if ( (byEntityTileData & (1 << 2) &&
+				 byEntityTileData & (1 << 4)) )
+				return false;
+		}
+		break;
+
+		case 5: case 6: case 7: case 8:// 오른쪽 위..
+		{
+			if ( byEntityTileData != 0 )
+				return false;
+		}
+		break;
+
+		//case 6:	// 오른쪽 아래..
+		//{
+		//	if ( this->m_entityTileData[xIndex + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 &&
+		//		 this->m_entityTileData[xIndex + 1 + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 )
+		//		return false;
+		//}
+		//	break;
+		//case 7:	// 왼쪽 아래..
+		//{
+		//	if ( this->m_entityTileData[xIndex + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 &&
+		//		 this->m_entityTileData[xIndex + 1 + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 )
+		//		return false;
+		//}
+		//	break;
+		//case 8:	// 왼쪽 위..
+		//{
+		//	if ( this->m_entityTileData[xIndex + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 &&
+		//		 this->m_entityTileData[xIndex + 1 + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))].byTileOption == 1 )
+		//		return false;
+		//}
+		//	break;
+	}
+
+	return true;
+}
+
+BYTE CBackground::CalcEntityTileData( const int & iIndex, CGameEntity * _pEntity )
+{
+	BYTE byOut = 0;
+
+	int yIndex = (iIndex / TILEX);
+	int xIndex = (iIndex - yIndex * TILEX);
+
+	yIndex *= ENTITY_TILE_DIV_Y;
+	xIndex *= ENTITY_TILE_DIV_X;
+
+	ENTITY_TILE_DATA& entityCheckTileLeftUp = this->m_entityTileData[xIndex + ((yIndex) * (TILEX * ENTITY_TILE_DIV_X))];
+	ENTITY_TILE_DATA& entityCheckTileRightUp = this->m_entityTileData[xIndex + 1 + ((yIndex) * (TILEX * ENTITY_TILE_DIV_X))];
+	ENTITY_TILE_DATA& entityCheckTileLeftDown = this->m_entityTileData[xIndex + ((yIndex  + 1) * (TILEX * ENTITY_TILE_DIV_X))];
+	ENTITY_TILE_DATA& entityCheckTileRightDown = this->m_entityTileData[xIndex + 1 + ((yIndex + 1) * (TILEX * ENTITY_TILE_DIV_X))];
+
+	/* 못가는 타일 검사.. */
+	if ( entityCheckTileLeftUp.byTileOption == 1 )
+		byOut |= (1 << 0);
+	if ( entityCheckTileRightUp.byTileOption == 1 )
+		byOut |= (1 << 1);
+	if ( entityCheckTileLeftDown.byTileOption == 1 )
+		byOut |= (1 << 2);
+	if ( entityCheckTileRightDown.byTileOption == 1 )
+		byOut |= (1 << 3);
+
+	if ( _pEntity )
+	{
+		/* 현재 Entity 가 밟고 있는 타일인지 아닌지 검사.. */
+		const list<pair<int, BYTE>>* pCheckTileIndexList = _pEntity->GetStandTileIndexList();
+		
+		for each (auto iter in (*pCheckTileIndexList))
+		{
+			if ( iter.first == iIndex )
+			{
+				byOut -= iter.second;
+				break;
+			}
+		}
+
+	}
+
+	return byOut;
 }
 
 HRESULT CBackground::Initialize(void)
@@ -218,6 +385,9 @@ HRESULT CBackground::Initialize(void)
 	//this->LoadTileData();
 
 	m_pBackgroundTexture = CTextureMgr::GetInstance()->GetTexture( L"Map" );
+
+	for ( int i = 0; i < 16; ++i )
+		m_vecTileTexture.push_back( CTextureMgr::GetInstance()->GetTexture( L"Back", L"Tile", i ) );
 
 	for(int i = 0; i < TILEY; ++i)	
 	{
@@ -280,10 +450,62 @@ void CBackground::Render(void)
 			if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
 				continue;
 
-			const TEX_INFO* pTileTex = 
-				CTextureMgr::GetInstance()->GetTexture(L"Back",
-														L"Tile",
-														m_vecTile[iIndex]->byDrawID);
+			BYTE byDrawID = this->m_vecTile[iIndex]->byDrawID;
+			BYTE byEntityTIleData = this->CalcEntityTileData( iIndex, NULL );
+
+			if ( this->m_vecTile[iIndex]->byDrawID == 0 )
+			{
+				switch ( byEntityTIleData )
+				{
+					case 1:
+						byDrawID = 15;
+						break;
+					case 2:
+						byDrawID = 14;
+						break;
+					case 3:
+						byDrawID = 8;
+						break;
+					case 4:
+						byDrawID = 13;
+						break;
+					case 5:
+						byDrawID = 9;
+						break;
+					case 6:
+						byDrawID = 10;
+						break;
+					case 7:
+						byDrawID = 5;
+						break;
+					case 8:
+						byDrawID = 12;
+						break;
+					case 9:
+						byDrawID = 11;
+						break;
+					case 10:
+						byDrawID = 7;
+						break;
+					case 11:
+						byDrawID = 4;
+						break;
+					case 12:
+						byDrawID = 6;
+						break;
+					case 13:
+						byDrawID = 3;
+						break;
+					case 14:
+						byDrawID = 2;
+						break;
+					case 15:
+						byDrawID = 1;
+						break;
+				}
+			}
+
+			const TEX_INFO* pTileTex = this->m_vecTileTexture[byDrawID];
 
 			//if ( m_vecTile[iIndex]->byDrawID == 0 )
 			//	continue;
@@ -293,14 +515,14 @@ void CBackground::Render(void)
 								   , m_vecTile[iIndex]->vPos.y - m_vScroll.y	//1 : y
 								   , 0.f);
 
-			CDevice::GetInstance()->GetSprite()->SetTransform(&matTrans);
+			CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
 
 			CDevice::GetInstance()->GetSprite()->Draw(
 				pTileTex->pTexture,
-				NULL, 
 				NULL,
 				NULL,
-				D3DCOLOR_ARGB(255, 255, 255, 255)
+				NULL,
+				D3DCOLOR_ARGB( 255, 255, 255, 255 )
 			);
 
 			////##폰트 출력

@@ -113,11 +113,11 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/ESelect/ESelect%d.png", L"SelectArea", TEX_MULTI, L"Enemy", 10, true, D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
 		return false;
 
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/Tile%d.png"
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"
 		 , TEX_MULTI
 		 , L"Tile"
-		 , 2
+		 , 16
 		 , true
 		 , D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
 		return false;

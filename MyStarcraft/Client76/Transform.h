@@ -40,7 +40,7 @@ public:
 public:
 	void Translate( const float& _fSpeed );
 	void Translate(const D3DXVECTOR3& _vMove);
-	void UpdateTransform();
+	void UpdateTransform( const D3DXVECTOR3& _vPrevPos );
 
 };
 

@@ -61,7 +61,7 @@ public:
 	virtual void	Release(void)PURE;
 
 public:
-	virtual void UpdatePosition();
+	virtual void UpdatePosition( const D3DXVECTOR3& vPrevPos );
 
 public:
 	/*

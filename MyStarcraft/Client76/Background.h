@@ -18,11 +18,14 @@ public:
 
 	}ENTITY_TILE_DATA;
 
+	enum { ENTITY_TILE_DIV_X = 2, ENTITY_TILE_DIV_Y = 2, ENTITY_TOTAL_TILE_DIV = ENTITY_TILE_DIV_X * ENTITY_TILE_DIV_Y };
+
 private:
 	vector<TILE*>		m_vecTile;
-	ENTITY_TILE_DATA	m_entityTileData[TILEX * TILEY];
+	ENTITY_TILE_DATA	m_entityTileData[TILEX * TILEY * ENTITY_TOTAL_TILE_DIV];
 
 	const TEX_INFO*		m_pBackgroundTexture;
+	vector<const TEX_INFO*>	m_vecTileTexture;
 
 public:
 	vector<TILE*>*	GetTile(void)
@@ -46,7 +49,11 @@ public:
 
 	bool Picking(const D3DXVECTOR3& vPos, const int& iIndex);
 
-	void	UpdateUnitPosData( const CGameEntity* _pEntity, bool bErase = false );
+	void	EraseUnitData( const CGameEntity* _pEntity, const D3DXVECTOR3& _vPos );
+	void	UpdateUnitData( const CGameEntity* _pEntity );
+
+	bool	CheckCanGoTile( const int& iIndex, const BYTE& byDir, CGameEntity* _pEntity );
+	BYTE	CalcEntityTileData( const int& iIndex, CGameEntity* _pEntity );
 
 public:
 	HRESULT Initialize(void);

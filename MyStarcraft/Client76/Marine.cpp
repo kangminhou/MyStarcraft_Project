@@ -14,6 +14,7 @@
 #include "Pattern_IdleAlert.h"
 #include "Pattern_Move.h"
 #include "Pattern_MoveAlert.h"
+#include "Pattern_ChaseTarget.h"
 #include "Move.h"
 #include "Background.h"
 
@@ -173,8 +174,8 @@ void CMarine::SetPattern( const eGameEntityPattern& _ePatternKind )
 			this->m_wstrStateKey = L"Move";
 			break;
 
-		case CGameEntity::Pattern_AttackTarget:
-			this->m_pCurActPattern = this->m_mapPatterns.find( L"AttackTarget" )->second;
+		case CGameEntity::Pattern_ChaseTarget:
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"ChaseTarget" )->second;
 			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Move" );
 			this->m_wstrStateKey = L"Move";
 			break;
@@ -211,7 +212,8 @@ void CMarine::InitPattern()
 	this->m_mapPatterns.insert( make_pair( L"Idle", new CPattern_IdleAlert ) );
 	this->m_mapPatterns.insert( make_pair( L"Move", new CPattern_Move ) );
 	this->m_mapPatterns.insert( make_pair( L"MoveAlert", new CPattern_MoveAlert ) );
-	this->m_mapPatterns.insert( make_pair( L"ChaseTarget", nullptr ) );
+	this->m_mapPatterns.insert( make_pair( L"ChaseTarget", new CPattern_ChaseTarget ) );
+	this->m_mapPatterns.insert( make_pair( L"AttackTarget", nullptr) );
 	this->m_mapPatterns.insert( make_pair( L"Attack", nullptr ) );
 	this->m_mapPatterns.insert( make_pair( L"Hit", nullptr ) );
 }
