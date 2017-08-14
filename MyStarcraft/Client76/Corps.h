@@ -14,6 +14,7 @@ private:
 	BYTE			m_byCurUnitNum;			// 부대원 개수..
 	CGameEntity::eGameEntityPattern	m_eCurPattern;
 
+	RECT			m_rcEntityInclude;
 	D3DXVECTOR3		m_vCenterPos;
 	bool			m_bGatherEntitys;		// 모여 있나??..
 
@@ -22,6 +23,7 @@ public:
 	virtual ~CCorps();
 
 public:
+	RECT GetEntityIncludeRect() const;
 	BYTE GetCurUnitNum() const;
 	D3DXVECTOR3 GetCenterPos() const;
 	bool GetGatherEntitys() const;
@@ -42,9 +44,14 @@ public:
 	 * 매개변수
 	  - ePatternKind : 부대원들에게 내린 명령..
 	 */
-	void SetUnitPattern( CUnit::eGameEntityPattern _ePatternKind );
+	void SetUnitPattern( const CUnit::eGameEntityPattern& _ePatternKind );
 	void AddUnit( CGameEntity* _pEntity );
 	void ResetCorps(void);
+
+	bool CheckCorpsOnePlaceMove( const D3DXVECTOR3& _vDestination );
+
+private:
+	void CalcCorpsMoveKind();
 
 };
 

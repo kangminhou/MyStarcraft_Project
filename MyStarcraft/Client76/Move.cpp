@@ -76,45 +76,9 @@ int CMove::Update()
 void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 {
 	//m_pBackground->UpdateUnitPosData( this->m_pGameEntity, true );
+	this->m_vDestination = _vDestination;
 
-	if ( true )
-	{
-		const CCorps* pBelongToCorps = this->m_pGameEntity->GetEntityBelongToCorps();
-
-		if ( pBelongToCorps && pBelongToCorps->GetCurUnitNum() > 1 )
-		{
-			if ( pBelongToCorps->GetGatherEntitys() )
-				this->m_vDestination = _vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
-			else
-				this->m_vDestination = _vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
-		}
-		else
-			this->m_vDestination = _vDestination;
-
-		this->m_vDestination.z = 0.f;
-		/* AStar 로 최단거리 타일 인덱스 찾기.. */
-		int iEndIndex = m_pBackground->GetTileIndex( m_vDestination );
-		//vector<int> vBestIndex;
-		if ( !this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath ) )
-		{
-			//ERROR_MSG( L"이동 경로를 못찾음.." );
-			return;
-		}
-
-		TILE* pEndTile = (*m_pBackground->GetTile())[iEndIndex];
-
-		/* 찾은 타일 인덱스를 좌표로 바꿔서 넣기.. */
-		//vector<TILE*>* pVecTempTile = m_pBackground->GetTile();
-		//D3DXVECTOR3 vPlusPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
-		//this->m_vecMovePath.clear();
-		//
-		//for ( size_t i = 0; i < vBestIndex.size() - 1; ++i )
-		//	this->m_vecMovePath.push_back( (*pVecTempTile)[vBestIndex[i]]->vPos + vPlusPos );
-
-		if ( pEndTile->byOption != 0 )
-			return;
-
-	}
+	this->DecidePathFindMethod();
 
 	this->m_vecMovePath.push_back( m_vDestination );
 
@@ -125,4 +89,27 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination )
 void CMove::SettingMoveData()
 {
 	m_vTilePos = m_vecMovePath[this->m_iCurIndexNum];
+}
+
+void CMove::DecidePathFindMethod()
+{
+	const CCorps* pBelongToCorps = this->m_pGameEntity->GetEntityBelongToCorps();
+
+	if ( pBelongToCorps && pBelongToCorps->GetCurUnitNum() > 1 )
+	{
+		if ( pBelongToCorps->GetGatherEntitys() )
+			this->m_vDestination = this->m_vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
+		else
+			this->m_vDestination = this->m_vDestination + (this->m_pGameEntity->GetPos() - pBelongToCorps->GetCenterPos());
+	}
+
+	this->m_vDestination.z = 0.f;
+	/* AStar 로 최단거리 타일 인덱스 찾기.. */
+	int iEndIndex = m_pBackground->GetTileIndex( m_vDestination );
+
+	if ( !this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath ) )
+	{
+		//ERROR_MSG( L"이동 경로를 못찾음.." );
+		return;
+	}
 }

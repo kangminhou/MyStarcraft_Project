@@ -49,5 +49,7 @@ public:
 private:
 	void SettingMoveData();
 
+	void DecidePathFindMethod();
+
 };
 

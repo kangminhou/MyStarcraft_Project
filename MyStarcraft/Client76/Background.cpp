@@ -250,23 +250,33 @@ void CBackground::UpdateUnitData( const CGameEntity * _pEntity )
 	const_cast<CGameEntity*>(_pEntity)->SetStandTileIndexList( indexList );
 }
 
-bool CBackground::CheckCanGoTile( const int & iIndex, const BYTE& byDir, CGameEntity* _pEntity )
+bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGameEntity * _pEntity )
 {
 	/* 인덱스가 타일 범위 밖의 것이라면 ( 예외처리.. ) */
-	if ( iIndex < 0 || (unsigned int)iIndex >= this->m_vecTile.size() )
+	if ( _iIndex < 0 || (unsigned int)_iIndex >= this->m_vecTile.size() )
 		return false;
 
-	if ( this->m_vecTile[iIndex]->byOption == 1 )
+	if ( this->m_vecTile[_iIndex]->byOption == 1 )
 		return false;
 
-	BYTE byEntityTileData = this->CalcEntityTileData( iIndex, _pEntity );
+	BYTE byEntityTileData = this->CalcEntityTileData( _iIndex, _pEntity );
 
-	switch ( byDir )
+	switch ( _byDir )
 	{
+		case 0:
+		{
+			if ( byEntityTileData == 15 )
+				return false;
+		}
+		break;
+
 		case 1:	// 위쪽..
 		{
-			BYTE byLeftNearTileData = this->CalcEntityTileData( iIndex - 1, _pEntity );
-			BYTE byRightNearTileData = this->CalcEntityTileData( iIndex + 1, _pEntity );
+			BYTE byStartTileEntityData = this->CalcEntityTileData( _iIndex + TILECX, _pEntity );
+
+			if ( byStartTileEntityData & (1 << 0) &&
+				 byStartTileEntityData & (1 << 1) )
+				return false;
 
 			if ( (byEntityTileData & (1 << 2) &&
 				 byEntityTileData & (1 << 3)) )
@@ -276,6 +286,12 @@ bool CBackground::CheckCanGoTile( const int & iIndex, const BYTE& byDir, CGameEn
 
 		case 2:	// 아래쪽..
 		{
+			BYTE byStartTileEntityData = this->CalcEntityTileData( _iIndex - TILECX, _pEntity );
+
+			if ( byStartTileEntityData & (1 << 2) &&
+				 byStartTileEntityData & (1 << 3) )
+				return false;
+
 			if ( (byEntityTileData & (1 << 0) &&
 				 byEntityTileData & (1 << 1)) )
 				return false;
@@ -284,14 +300,26 @@ bool CBackground::CheckCanGoTile( const int & iIndex, const BYTE& byDir, CGameEn
 
 		case 3:	// 왼쪽..
 		{
+			BYTE byStartTileEntityData = this->CalcEntityTileData( _iIndex + 1, _pEntity );
+
+			if ( byStartTileEntityData & (1 << 1) &&
+				 byStartTileEntityData & (1 << 3) )
+				return false;
+
 			if ( (byEntityTileData & (1 << 1) &&
 				 byEntityTileData & (1 << 3)) )
 				return false;
 		}
 		break;
-		
+
 		case 4:	// 오른쪽..
 		{
+			BYTE byStartTileEntityData = this->CalcEntityTileData( _iIndex - 1, _pEntity );
+
+			if ( byStartTileEntityData & (1 << 0) &&
+				 byStartTileEntityData & (1 << 2) )
+				return false;
+
 			if ( (byEntityTileData & (1 << 2) &&
 				 byEntityTileData & (1 << 4)) )
 				return false;
@@ -331,12 +359,12 @@ bool CBackground::CheckCanGoTile( const int & iIndex, const BYTE& byDir, CGameEn
 	return true;
 }
 
-BYTE CBackground::CalcEntityTileData( const int & iIndex, CGameEntity * _pEntity )
+BYTE CBackground::CalcEntityTileData( const int & _iIndex, CGameEntity * _pEntity )
 {
 	BYTE byOut = 0;
 
-	int yIndex = (iIndex / TILEX);
-	int xIndex = (iIndex - yIndex * TILEX);
+	int yIndex = (_iIndex / TILEX);
+	int xIndex = (_iIndex - yIndex * TILEX);
 
 	yIndex *= ENTITY_TILE_DIV_Y;
 	xIndex *= ENTITY_TILE_DIV_X;
@@ -363,7 +391,7 @@ BYTE CBackground::CalcEntityTileData( const int & iIndex, CGameEntity * _pEntity
 		
 		for each (auto iter in (*pCheckTileIndexList))
 		{
-			if ( iter.first == iIndex )
+			if ( iter.first == _iIndex )
 			{
 				byOut -= iter.second;
 				break;
@@ -373,6 +401,45 @@ BYTE CBackground::CalcEntityTileData( const int & iIndex, CGameEntity * _pEntity
 	}
 
 	return byOut;
+}
+
+int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndIndex )
+{
+	TILE* pStartTile = this->m_vecTile[_iStartIndex];
+	TILE* pEndTile = this->m_vecTile[_iEndIndex];
+
+	D3DXVECTOR3 vDir;
+	D3DXVec3Normalize( &vDir, &(pEndTile->vPos - pStartTile->vPos) );
+
+	float fStartYIndex = (float)(_iStartIndex / TILEX);
+	float fStartXIndex = (float)(_iStartIndex - fStartYIndex * TILEX);
+
+	float fEndYIndex = (float)(_iEndIndex / TILEX);
+	float fEndXIndex = (float)(_iEndIndex - fEndYIndex * TILEX);
+
+	D3DXVec3Normalize( &vDir, &(D3DXVECTOR3( fStartXIndex, fStartYIndex, 0.f ) - D3DXVECTOR3( fEndXIndex, fEndYIndex, 0.f )) );
+
+	float fXIndex = fEndXIndex;
+	float fYIndex = fEndYIndex;
+
+	int iIndex = 0;
+
+	while ( true )
+	{
+		fXIndex += vDir.x;
+		fYIndex += vDir.y;
+
+		iIndex = (int)((int)fXIndex + ((int)(fYIndex)) * TILEX);
+
+		if ( this->CheckCanGoTile( iIndex, 0, NULL ) )
+			return iIndex;
+
+		if ( iIndex == _iStartIndex )
+			return -1;
+
+	}
+
+	return -1;
 }
 
 HRESULT CBackground::Initialize(void)

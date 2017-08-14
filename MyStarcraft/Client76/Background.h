@@ -52,8 +52,10 @@ public:
 	void	EraseUnitData( const CGameEntity* _pEntity, const D3DXVECTOR3& _vPos );
 	void	UpdateUnitData( const CGameEntity* _pEntity );
 
-	bool	CheckCanGoTile( const int& iIndex, const BYTE& byDir, CGameEntity* _pEntity );
+	bool	CheckCanGoTile( const int& _iIndex, const BYTE& _byDir, CGameEntity* _pEntity );
 	BYTE	CalcEntityTileData( const int& iIndex, CGameEntity* _pEntity );
+
+	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex );
 
 public:
 	HRESULT Initialize(void);

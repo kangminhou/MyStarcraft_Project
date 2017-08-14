@@ -25,9 +25,9 @@ public:
 	bool AStarStartPos(const D3DXVECTOR3& vStartPos, const D3DXVECTOR3& vEndPos, vector<D3DXVECTOR3>& vecGetData);
 
 private:
-	bool AStarStart(const int& iStartIndex
-					  ,const int& iEndIndex
-					  , vector<D3DXVECTOR3>& vecGetData);
+	bool AStarStart( const int& iStartIndex,
+					 const int& iEndIndex,
+					 vector<D3DXVECTOR3>& vecGetData );
 
 	bool MakeRoute(vector<D3DXVECTOR3>& vecGetData);
 	NODE* MakeNode(int iIndex, NODE* pParent, const vector<TILE*>* pTile);

@@ -119,9 +119,11 @@ typedef struct tagTile
 //A* Node 구조체를 선언하자.
 typedef struct tagAStarNode 
 {
-	float		  fCost;
-	int			  iIndex;
-	tagAStarNode* pParent;
+	float			fCost;
+	int				iIndex;
+	BYTE			byEntityTileData;
+	tagAStarNode*	pParent;
+
 }NODE;
 
 

@@ -3,6 +3,8 @@
 #include "ObjMgr.h"
 #include "Background.h"
 
+#include "Random.h"
+
 void CAStar::SetBackground( CBackground * _pBackground )
 {
 	this->m_pBackground = _pBackground;
@@ -27,16 +29,18 @@ bool CAStar::AStarStart(const int& iStartIndex,
 						  const int& iEndIndex,
 						  vector<D3DXVECTOR3>& vecGetData)
 {
-	if ( iStartIndex == iEndIndex )
-		return false;
+	//if ( iStartIndex == iEndIndex )
+	//	return false;
 
 	const vector<TILE*>* pVecTile = m_pBackground->GetTile();
 
 	if ( pVecTile == NULL )
 		return false;
 
-	if ( (*pVecTile)[iEndIndex]->byOption == 1 )	//이동 불가 타일이라면.
-		return false;
+	if ( !this->m_pBackground->CheckCanGoTile(iEndIndex, 0, NULL) )	//이동 불가 타일이라면.
+	{
+		m_iEndIndex = this->m_pBackground->CalcNearCanGoTile( m_iStartIndex, m_iEndIndex );
+	}
 
 	Release();
 
@@ -69,7 +73,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 
 	NODE* pMakeNode = NULL;
 	int   iIndex = 0;
-	forward_list<int> bestList;
+	forward_list<NODE*> bestList;
 	BYTE byCheckSuccess = 0;
 	NODE* pCheckNode = pFirstNode;
 
@@ -211,20 +215,86 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 
 		if(pCheckNode->iIndex == m_iEndIndex)
 		{
-			pCheckNode = pCheckNode->pParent;
+			//pCheckNode = pCheckNode->pParent;
 			//BestList를 얻어내자.
 			while( pCheckNode )
 			{
-				bestList.push_front( pCheckNode->iIndex );
+				//if ( pCheckNode->iIndex != m_iStartIndex && pCheckNode->iIndex != m_iEndIndex )
+					bestList.push_front( pCheckNode );
 
 				if ( pCheckNode->iIndex == m_iStartIndex )
 				{
 					D3DXVECTOR3 vPlusPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
 
+					/* Entity 객체가 갈 위치 정하기.. */
 					for each (auto iter in bestList)
 					{
-						vecGetData.push_back( (*pVecTile)[iter]->vPos + vPlusPos );
+						BYTE byDecideDetailIndex = 0;
+						BYTE byTempEntityTileData = iter->byEntityTileData;
+
+						if ( byTempEntityTileData == 0 )
+							byDecideDetailIndex = 0;
+						else
+						{
+							while ( true )
+							{
+								byDecideDetailIndex = RANDOM_RANGE_INTERGER( 1, CBackground::ENTITY_TOTAL_TILE_DIV );
+								if ( !(byDecideDetailIndex & byTempEntityTileData) )
+									break;
+
+							}
+						}
+
+						switch ( byDecideDetailIndex )
+						{
+							case 0:
+								vPlusPos = D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
+								break;
+
+							case 1:
+							{
+								int iDetailTileCX = TILECX / CBackground::ENTITY_TILE_DIV_X;
+								int iDetailTileCY = TILECY / CBackground::ENTITY_TILE_DIV_Y;
+
+								vPlusPos = D3DXVECTOR3( iDetailTileCX * 0.5f, iDetailTileCY * 0.5f, 0.f );
+							}
+								break;
+
+							case 2:
+							{
+								int iDetailTileCX = TILECX / CBackground::ENTITY_TILE_DIV_X;
+								int iDetailTileCY = TILECY / CBackground::ENTITY_TILE_DIV_Y;
+
+								vPlusPos = D3DXVECTOR3( iDetailTileCX * 1.5f, iDetailTileCY * 0.5f, 0.f );
+							}
+								break;
+
+							case 3:
+							{
+								int iDetailTileCX = TILECX / CBackground::ENTITY_TILE_DIV_X;
+								int iDetailTileCY = TILECY / CBackground::ENTITY_TILE_DIV_Y;
+
+								vPlusPos = D3DXVECTOR3( iDetailTileCX * 0.5f, iDetailTileCY * 1.5f, 0.f );
+							}
+								break;
+
+							case 4:
+							{
+								int iDetailTileCX = TILECX / CBackground::ENTITY_TILE_DIV_X;
+								int iDetailTileCY = TILECY / CBackground::ENTITY_TILE_DIV_Y;
+
+								vPlusPos = D3DXVECTOR3( iDetailTileCX * 1.5f, iDetailTileCY * 1.5f, 0.f );
+							}
+								break;
+
+						}
+
+
+						vecGetData.push_back( (*pVecTile)[iter->iIndex]->vPos + vPlusPos );
 					}
+
+					//if ( !vecGetData.empty() )
+					//	vecGetData.erase( vecGetData.begin() );
 
 					break;
 				}
@@ -246,9 +316,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 	return false;
 }
 
-NODE* CAStar::MakeNode(int iIndex, 
-						NODE* pParent, 
-						const vector<TILE*>* pTile)
+NODE * CAStar::MakeNode( int iIndex, NODE * pParent, const vector<TILE*>* pTile )
 {
 	NODE* pNode = new NODE;
 
@@ -271,11 +339,16 @@ NODE* CAStar::MakeNode(int iIndex,
 	pNode->fCost = fPlayerCost + fEndCost;
 	//pNode->fCost = fPlayerCost + fEndCost + ((pParent) ? pParent->fCost : 0.f);
 
+	pNode->byEntityTileData = this->m_pBackground->CalcEntityTileData( iIndex, m_pCheckEntity );
+
 	return pNode;
 }
 
 bool CAStar::ListCheck(const int& iIndex)
 {
+	if ( iIndex < 0 || iIndex >= TILEX * TILEY )
+		return false;
+
 	for(list<NODE*>::iterator iter = m_OpenList.begin();
 		 iter != m_OpenList.end(); ++iter)
 	{

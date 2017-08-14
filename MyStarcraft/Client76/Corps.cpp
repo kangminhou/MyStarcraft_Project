@@ -11,6 +11,11 @@ CCorps::~CCorps()
 {
 }
 
+RECT CCorps::GetEntityIncludeRect() const
+{
+	return this->m_rcEntityInclude;
+}
+
 BYTE CCorps::GetCurUnitNum() const
 {
 	return this->m_byCurUnitNum;
@@ -51,7 +56,7 @@ void CCorps::Render()
 	}
 }
 
-void CCorps::SetUnitPattern( CUnit::eGameEntityPattern _ePatternKind )
+void CCorps::SetUnitPattern( const CUnit::eGameEntityPattern & _ePatternKind )
 {
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
@@ -61,29 +66,8 @@ void CCorps::SetUnitPattern( CUnit::eGameEntityPattern _ePatternKind )
 		this->m_eCurPattern = _ePatternKind;
 
 		if ( this->m_eCurPattern == CGameEntity::Pattern_Move )
-		{
-			D3DXVECTOR3 vTotalPos( 0.f, 0.f, 0.f );
-			for ( int i = 0; i < this->m_byCurUnitNum; ++i )
-			{
-				if ( this->m_pEntityArr[i] )
-					vTotalPos += this->m_pEntityArr[i]->GetPos();
-			}
-
-			this->m_vCenterPos = vTotalPos / this->m_byCurUnitNum;
-			this->m_bGatherEntitys = false;
-
-			for ( int i = 0; i < this->m_byCurUnitNum; ++i )
-			{
-				if ( this->m_pEntityArr[i] )
-				{
-					if ( D3DXVec3Length( &(this->m_vCenterPos - this->m_pEntityArr[i]->GetPos()) ) >= 100.f )
-					{
-						this->m_bGatherEntitys = true;
-						break;
-					}
-				}
-			}
-
+		{	
+			this->CalcCorpsMoveKind();
 		}
 
 		this->m_pEntityArr[i]->SetPattern( _ePatternKind );
@@ -110,4 +94,46 @@ void CCorps::ResetCorps( void )
 	}
 
 	this->m_byCurUnitNum = 0;
+}
+
+void CCorps::CalcCorpsMoveKind()
+{
+	D3DXVECTOR3 vTotalPos( 0.f, 0.f, 0.f );
+	float fMinX = INFINITY, fMinY = INFINITY;
+	float fMaxX = -INFINITY, fMaxY = -INFINITY;
+	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
+	{
+		if ( this->m_pEntityArr[i] )
+		{
+			D3DXVECTOR3 vEntityPos = this->m_pEntityArr[i]->GetPos();
+			vTotalPos += vEntityPos;
+
+			if ( vEntityPos.x < fMinX )
+				fMinX = vEntityPos.x;
+			if ( vEntityPos.x > fMaxX)
+				fMaxX = vEntityPos.x;
+			if ( vEntityPos.y < fMinY )
+				fMinY = vEntityPos.y;
+			if ( vEntityPos.y > fMaxY )
+				fMaxY = vEntityPos.y;
+		}
+	}
+
+	this->m_vCenterPos = vTotalPos / this->m_byCurUnitNum;
+	this->m_bGatherEntitys = false;
+
+	RECT rc = { fMinX, fMinY, fMaxX, fMaxY };
+	this->m_rcEntityInclude = rc;
+
+	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
+	{
+		if ( this->m_pEntityArr[i] )
+		{
+			if ( D3DXVec3Length( &(this->m_vCenterPos - this->m_pEntityArr[i]->GetPos()) ) >= 100.f )
+			{
+				this->m_bGatherEntitys = true;
+				break;
+			}
+		}
+	}
 }
