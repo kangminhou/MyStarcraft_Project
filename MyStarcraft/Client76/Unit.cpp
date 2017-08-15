@@ -34,9 +34,6 @@ HRESULT CUnit::Initialize( void )
 	//this->m_pGroundAttWeapon = NULL;
 	//this->m_pAirAttWeapon = NULL;
 
-	AddComponent( this->m_tGroundAttWeapon.pWeapon );
-	AddComponent( this->m_tAirAttWeapon.pWeapon );
-
 	CGameEntity::Initialize();
 
 	return S_OK;
@@ -44,9 +41,7 @@ HRESULT CUnit::Initialize( void )
 
 int CUnit::Update( void )
 {
-	int iResult = CGameEntity::Update();
-
-	return iResult;
+	return CGameEntity::Update();
 }
 
 void CUnit::Release( void )

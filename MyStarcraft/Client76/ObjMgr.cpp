@@ -10,58 +10,158 @@ IMPLEMENT_SINGLETON(CObjMgr);
 void CObjMgr::AddGameObject(CGameObject* pObject, eObjectType eType)
 {
 	pObject->SetObjectType( eType );
-	this->ReAdjustmentSpace( D3DXVECTOR3( 0.f, 0.f, 0.f ), pObject, true );
+	InsertEntitySpaceData( dynamic_cast<CGameEntity*>(pObject) );
 	m_ObjList[eType].push_back(pObject);
 }
 
-void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _pGameObject, const bool& _bFirst /*= false*/ )
+void CObjMgr::InsertEntitySpaceData( CGameEntity* _pGameEntity )
 {
-	CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(_pGameObject);
+	int iReturnSpaceData = -1;
 
 	/* 오브젝트가 빈 오브젝트라면 ( 예외처리.. ) */
-	if ( !pGameEntity || pGameEntity->GetObjectType() < 0 || pGameEntity->GetObjectType() >= OBJ_TYPE_MAX )
+	if ( !_pGameEntity || _pGameEntity->GetObjectType() < 0 || _pGameEntity->GetObjectType() >= OBJ_TYPE_MAX )
 		return;
 
-	int iPrevSpaceIndex = this->GetSpaceIndex( _vPrevPos );
-	int iCurSpaceIndex = this->GetSpaceIndex( pGameEntity->GetPos() );
+	int iEntityObjectType = _pGameEntity->GetObjectType();
+	int iCurSpaceIndex = this->GetSpaceIndex( _pGameEntity->GetPos() );
 
-	if ( !_bFirst )
+	/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
+	if ( iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
+		return;
+
+	for ( int i = 0; i < EntitySpaceArrSize; ++i )
 	{
-		/* 현재 있는 공간과 전에 있던 공간이 같을 경우 ( 예외처리.. ) */
-		if ( iPrevSpaceIndex == iCurSpaceIndex )
-			return;
-
-		/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
-		if ( iPrevSpaceIndex < 0 || iPrevSpaceIndex > TOTAL_SPACE_NUM ||
-			 iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
-			return;
-
-		list<CGameEntity*>& curCheckList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iPrevSpaceIndex];
-
-		/* 전에 있던 공간리스트에서 삭제.. */
-		auto iter_end = curCheckList.end();
-		for ( auto iter = curCheckList.begin(); iter != iter_end; ++iter )
+		CGameEntity*& pCheckEntity = this->m_EntitySpaceArr[iEntityObjectType][iCurSpaceIndex][i];
+		if ( !pCheckEntity )
 		{
-			if ( (*iter) == pGameEntity )
-			{
-				curCheckList.erase( iter );
-				break;
-			}
+			pCheckEntity = _pGameEntity;
+			iReturnSpaceData = iCurSpaceIndex << 16;
+			iReturnSpaceData += i;
+			break;
 		}
+	}
+
+	_pGameEntity->SetEntitySpaceDataKey( iReturnSpaceData );
+}
+
+void CObjMgr::EraseEntitySpaceData( CGameEntity * _pGameEntity, const int & iSpaceKey )
+{
+	if ( iSpaceKey == -1 )
+		return;
+
+	int iIndex = iSpaceKey >> 16;
+	int iEntityArrIndex = ((iSpaceKey << 16) >> 16);
+	int iObjectType = _pGameEntity->GetObjectType();
+
+	/* 오브젝트가 빈 오브젝트라면 or Index 가 배열 범위 밖에 있다면 ( 예외처리.. ) */
+	if ( !_pGameEntity || iObjectType < 0 || iObjectType >= OBJ_TYPE_MAX ||
+		 iIndex < 0 || iIndex >= TOTAL_SPACE_NUM || iEntityArrIndex < 0 || iEntityArrIndex >= EntitySpaceArrSize )
+		return;
+
+	if ( _pGameEntity == m_EntitySpaceArr[iObjectType][iIndex][iEntityArrIndex] )
+	{
+		m_EntitySpaceArr[iObjectType][iIndex][iEntityArrIndex] = NULL;
+
+		CGameEntity* pCheckGameEntity = NULL;
+		CGameEntity* pNextCheckGameEntity = NULL;
+		for ( int i = iEntityArrIndex; i < EntitySpaceArrSize - 1; ++i )
+		{
+			pCheckGameEntity = m_EntitySpaceArr[iObjectType][iIndex][i];
+			pNextCheckGameEntity = m_EntitySpaceArr[iObjectType][iIndex][i + 1];
+			if ( pCheckGameEntity )
+			{
+				if ( pNextCheckGameEntity )
+					pCheckGameEntity = pNextCheckGameEntity;
+				else
+					pCheckGameEntity = NULL;
+			}
+			else
+				break;
+		}
+
+		_pGameEntity->SetEntitySpaceDataKey( -1 );
 	}
 	else
 	{
-		//if ( !m_pBackground )
-		//	m_pBackground = (CBackground*)m_ObjList[OBJ_TYPE_BACKGROUND].front();
-		//
-		//m_pBackground->UpdateUnitData( pGameEntity );
+		ERROR_MSG( L"Error - CObjMgr Class - EraseEntitySpaceData Function" );
+		return;
 	}
-
-	/* 현재 자신이 있는 공간리스트에 새로 삽입.. */
-	list<CGameEntity*>& curInsertList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iCurSpaceIndex];
-
-	curInsertList.push_back( pGameEntity );
 }
+
+//void CObjMgr::ReAdjustmentSpace( const D3DXVECTOR3 & _vPrevPos, CGameObject * _pGameObject, const bool& _bFirst /*= false*/ )
+//{
+//	CGameEntity* pGameEntity = dynamic_cast<CGameEntity*>(_pGameObject);
+//
+//	/* 오브젝트가 빈 오브젝트라면 ( 예외처리.. ) */
+//	if ( !pGameEntity || pGameEntity->GetObjectType() < 0 || pGameEntity->GetObjectType() >= OBJ_TYPE_MAX )
+//		return;
+//
+//	int iPrevSpaceIndex = this->GetSpaceIndex( _vPrevPos );
+//	int iCurSpaceIndex = this->GetSpaceIndex( pGameEntity->GetPos() );
+//
+//	if ( !_bFirst )
+//	{
+//		/* 현재 있는 공간과 전에 있던 공간이 같을 경우 ( 예외처리.. ) */
+//		if ( iPrevSpaceIndex == iCurSpaceIndex )
+//			return;
+//
+//		/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
+//		if ( iPrevSpaceIndex < 0 || iPrevSpaceIndex > TOTAL_SPACE_NUM ||
+//			 iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
+//			return;
+//
+//		list<CGameEntity*>& curCheckList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iPrevSpaceIndex];
+//
+//		/* 전에 있던 공간리스트에서 삭제.. */
+//		auto iter_end = curCheckList.end();
+//		for ( auto iter = curCheckList.begin(); iter != iter_end; ++iter )
+//		{
+//			if ( (*iter) == pGameEntity )
+//			{
+//				curCheckList.erase( iter );
+//				break;
+//			}
+//		}
+//	}
+//	else
+//	{
+//		//if ( !m_pBackground )
+//		//	m_pBackground = (CBackground*)m_ObjList[OBJ_TYPE_BACKGROUND].front();
+//		//
+//		//m_pBackground->UpdateUnitData( pGameEntity );
+//	}
+//
+//	/* 현재 자신이 있는 공간리스트에 새로 삽입.. */
+//	list<CGameEntity*>& curInsertList = this->m_EntitySpaceList[pGameEntity->GetObjectType()][iCurSpaceIndex];
+//
+//	curInsertList.push_back( pGameEntity );
+//}
+//
+//void CObjMgr::EraseEntitySpaceData( CGameEntity * _pEntity )
+//{
+//	/* 오브젝트가 빈 오브젝트라면 ( 예외처리.. ) */
+//	if ( !_pEntity || _pEntity->GetObjectType() < 0 || _pEntity->GetObjectType() >= OBJ_TYPE_MAX )
+//		return;
+//
+//	int iCurSpaceIndex = this->GetSpaceIndex( _pEntity->GetPos() );
+//
+//	/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
+//	if ( iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
+//		return;
+//
+//	list<CGameEntity*>& curCheckList = this->m_EntitySpaceList[_pEntity->GetObjectType()][iCurSpaceIndex];
+//
+//	/* 전에 있던 공간리스트에서 삭제.. */
+//	auto iter_end = curCheckList.end();
+//	for ( auto iter = curCheckList.begin(); iter != iter_end; ++iter )
+//	{
+//		if ( (*iter) == _pEntity )
+//		{
+//			curCheckList.erase( iter );
+//			break;
+//		}
+//	}
+//}
 
 bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize )
 {
@@ -87,29 +187,33 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _
 					 j < 0 || j >= SPACEX )
 					continue;
 
-				auto& checkList = this->m_EntitySpaceList[k][iIndex];
+				CGameEntity* pCheckEntity = NULL;
 
-				for each (auto iter in checkList)
+				for ( int l = 0; l < EntitySpaceArrSize; ++l )
 				{
-					if ( iter == _pGameEntity )
+					pCheckEntity = this->m_EntitySpaceArr[k][iIndex][l];
+
+					if ( !pCheckEntity )
+						break;
+						
+					if ( pCheckEntity== _pGameEntity )
 						continue;
 
-					RECT rcCheckEntity = iter->GetColRect();
+					RECT rcCheckEntity = pCheckEntity->GetColRect();
 					RECT rc = { 0, 0, 0, 0 };
 
 					if ( IntersectRect( &rc, &rcCheckEntity, &_rcCol ) )
 					{
 						if ( iVecLimitSize == 0 )
 							return true;
-						if ( iter && _pOut )
+						if ( pCheckEntity && _pOut )
 						{
-							_pOut->push_back( iter );
+							_pOut->push_back( pCheckEntity );
 							iVecLimitSize--;
 						}
 					}
 
 				}
-
 			}
 		}
 	}
@@ -133,9 +237,9 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 	int iStartY = int( _rcCol.top ) / SPACECY;
 	int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
 
-	for ( int i = iStartY; i < iEndY; ++i )
+	for ( int i = iStartY; i <= iEndY; ++i )
 	{
-		for ( int j = iStartX; j < iEndX; ++j )
+		for ( int j = iStartX; j <= iEndX; ++j )
 		{
 			int iIndex = j + i * SPACEX;
 
@@ -143,14 +247,17 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 				 j < 0 || j >= SPACEX )
 				continue;
 
-			auto& checkList = this->m_EntitySpaceList[_eCheckID][iIndex];
-
-			for each (auto iter in checkList)
+			for ( int k = 0; k < EntitySpaceArrSize; ++k )
 			{
-				if ( iter == _pGameEntity )
+				CGameEntity* pCheckEntity = this->m_EntitySpaceArr[_eCheckID][iIndex][k];
+
+				if ( !pCheckEntity )
+					break;
+
+				if ( pCheckEntity == _pGameEntity )
 					continue;
 
-				D3DXVECTOR3 vCheckEntityPos = iter->GetPos();
+				D3DXVECTOR3 vCheckEntityPos = pCheckEntity->GetPos();
 
 				if ( vCheckEntityPos.x >= _rcCol.left && vCheckEntityPos.x <= _rcCol.right &&
 					 vCheckEntityPos.y >= _rcCol.top && vCheckEntityPos.y <= _rcCol.bottom )
@@ -158,16 +265,39 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 					if ( !bFind )
 						bFind = true;
 
-					if ( iVecLimitSize == 0 )
+					if ( iVecLimitSize == 0 || !_pOut )
 						return true;
-					if ( iter && _pOut )
+					if ( pCheckEntity && _pOut )
 					{
-						_pOut->push_back( iter );
+						_pOut->push_back( pCheckEntity );
 						iVecLimitSize--;
 					}
 				}
-
 			}
+
+			//for each (auto iter in checkList)
+			//{
+			//	if ( iter == _pGameEntity )
+			//		continue;
+			//
+			//	D3DXVECTOR3 vCheckEntityPos = iter->GetPos();
+			//
+			//	if ( vCheckEntityPos.x >= _rcCol.left && vCheckEntityPos.x <= _rcCol.right &&
+			//		 vCheckEntityPos.y >= _rcCol.top && vCheckEntityPos.y <= _rcCol.bottom )
+			//	{
+			//		if ( !bFind )
+			//			bFind = true;
+			//
+			//		if ( iVecLimitSize == 0 || !_pOut )
+			//			return true;
+			//		if ( iter && _pOut )
+			//		{
+			//			_pOut->push_back( iter );
+			//			iVecLimitSize--;
+			//		}
+			//	}
+			//
+			//}
 
 		}
 	}
@@ -200,25 +330,46 @@ bool CObjMgr::CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_
 		for ( int j = iStartX; j < iEndX; ++j )
 		{
 			int iIndex = j + i * SPACEX;
-	
-			for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
+
+			CGameEntity* pCheckEntity = NULL;
+
+			for ( int k = 0; k < EntitySpaceArrSize; ++k )
 			{
-				RECT rcCheckEntity = iter->GetColRect();
+				pCheckEntity = this->m_EntitySpaceArr[eID][iIndex][k];
+
+				if ( !pCheckEntity )
+					break;
+
+				RECT rcCheckEntity = pCheckEntity->GetColRect();
 				RECT rc = { 0, 0, 0, 0 };
-	
+				
 				if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
 				{
-					CGameEntity* pPushEntity = dynamic_cast<CGameEntity*>(iter);
-					if ( pPushEntity )
-					{
-						_vecOut.push_back( pPushEntity );
-						bFind = true;
-						//if ( _vecOut.size() == 12 )
-						//	return true;
-					}
+					_vecOut.push_back( pCheckEntity );
+					bFind = true;
+					if ( _vecOut.size() == 12 )
+						return true;
 				}
-	
 			}
+	
+			//for each (auto iter in this->m_EntitySpaceArr[eID][iIndex])
+			//{
+			//	RECT rcCheckEntity = iter->GetColRect();
+			//	RECT rc = { 0, 0, 0, 0 };
+			//
+			//	if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
+			//	{
+			//		CGameEntity* pPushEntity = dynamic_cast<CGameEntity*>(iter);
+			//		if ( pPushEntity )
+			//		{
+			//			_vecOut.push_back( pPushEntity );
+			//			bFind = true;
+			//			//if ( _vecOut.size() == 12 )
+			//			//	return true;
+			//		}
+			//	}
+			//
+			//}
 		}
 	}
 
@@ -316,11 +467,24 @@ HRESULT CObjMgr::Initialize(void)
 {
 	m_pBackground = NULL;
 
+	for ( int i = 0; i < OBJ_TYPE_MAX; ++i )
+	{
+		for ( int j = 0; j < TOTAL_SPACE_NUM; ++j )
+		{
+			for ( int k = 0; k < EntitySpaceArrSize; ++k )
+			{
+				this->m_EntitySpaceArr[i][j][k] = NULL;
+			}
+		}
+	}
+
 	return S_OK;
 }
 
 int CObjMgr::Update(void)
 {
+	vector<CGameObject*> vecDeleteObject;
+
 	for(size_t i = 0; i < OBJ_TYPE_MAX; ++i)
 	{
 		list<CGameObject*>::iterator iter = m_ObjList[i].begin();
@@ -328,14 +492,29 @@ int CObjMgr::Update(void)
 
 		for(iter; iter != iter_end; )
 		{
-			if( (*iter)->Update() == 1 )
+			if ( !(*iter) )
+				continue;
+
+			int iEvent = (*iter)->Update();
+			if ( iEvent == Event_DestoryObject )
 			{
-				safe_delete(*iter);
-				iter = m_ObjList[i].erase(iter);
+				vecDeleteObject.push_back( (*iter) );
+				iter = m_ObjList[i].erase( iter );
 			}
-			else
+			else if ( iEvent == Event_None )
 				++iter;
 		}
+	}
+	
+	if ( !vecDeleteObject.empty() )
+	{
+		size_t iLength = vecDeleteObject.size();
+		for ( size_t i = 0; i < iLength; ++i )
+		{
+			safe_delete( vecDeleteObject[i] );
+		}
+
+		vecDeleteObject.clear();
 	}
 
 	return 0;

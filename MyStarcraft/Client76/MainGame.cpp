@@ -104,6 +104,7 @@ void CMainGame::Release(void)
 
 bool CMainGame::InitResource( void )
 {
+	/* UI Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/DragArea.png", L"Drag", TEX_SINGLE, L"", 1, true, D3DCOLOR_ARGB(255,0,0,0) ) ) )
 		return false;
 
@@ -113,6 +114,7 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/ESelect/ESelect%d.png", L"SelectArea", TEX_MULTI, L"Enemy", 10, true, D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
 		return false;
 
+	/* Map Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"
 		 , TEX_MULTI
@@ -125,6 +127,10 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/Map.png", L"BackGround", TEX_SINGLE ) ) )
 		return false;
 
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"Map", TEX_SINGLE ) ) )
+		return false;
+
+	/* Marine Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Idle/marine%d.png", L"Marine", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
 		return false;
 
@@ -137,7 +143,20 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Die/marine%d.png", L"Marine", TEX_MULTI, L"Die", 8, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
 		return false;
 
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"Map", TEX_SINGLE ) ) )
+	/* Medic Image.. */
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Idle/medic%d.png", L"Medic", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Work/medic%d.png", L"Medic", TEX_MULTI, L"Move", 119, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Attack/medic%d.png", L"Medic", TEX_MULTI, L"Attack", 34, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Magic/medic%d.png", L"Medic", TEX_MULTI, L"Magic", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Die/medic%d.png", L"Medic", TEX_MULTI, L"Die", 9, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
 		return false;
 
 	return true;

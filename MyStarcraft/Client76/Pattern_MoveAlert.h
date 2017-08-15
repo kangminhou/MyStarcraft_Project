@@ -2,15 +2,17 @@
 #include "EntityPattern.h"
 #include "Include.h"
 
+class CMove;
+
 class CPattern_MoveAlert :
 	public CEntityPattern 
 {
 private:
-	D3DXVECTOR3 m_vDestination;
-	eObjectType m_eEnemyType;
+	CMove*	m_pMoveComponent;
+	bool	m_bCheckEnemy;
 
 public:
-	CPattern_MoveAlert();
+	CPattern_MoveAlert(const bool& _bCheckEnemy = true);
 	~CPattern_MoveAlert();
 
 	// CEntityPattern을(를) 통해 상속됨

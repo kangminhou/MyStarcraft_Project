@@ -6,6 +6,7 @@
 
 CAnimation::CAnimation()
 	: m_pCurAnimation(NULL)
+	, m_bAnimEnd(false)
 {
 }
 
@@ -27,9 +28,33 @@ void CAnimation::SetAnimationData( const wstring & _wstrName, const FRAME & _tFr
 	}
 }
 
+void CAnimation::ChangeAnimationSpeed( const wstring & _wstrName, const float & _fSpeed )
+{
+	auto iterFindAnimation = m_mapAnimation.find( _wstrName );
+
+	/* map 컨테이너에 있을 경우에만.. */
+	if ( iterFindAnimation != m_mapAnimation.end() )
+	{
+		iterFindAnimation->second->tFrame.fCount = _fSpeed;
+	}
+}
+
+void CAnimation::ResetFrame()
+{
+	if ( this->m_pCurAnimation )
+		this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+
+	this->m_bAnimEnd = false;
+}
+
 const FRAME * CAnimation::GetCurAnimation()
 {
 	return &m_pCurAnimation->tFrame;
+}
+
+const bool CAnimation::GetIsAnimEnd() const
+{
+	return this->m_bAnimEnd;
 }
 
 void CAnimation::Initialize()
@@ -44,7 +69,20 @@ void CAnimation::UpdateAnim()
 		this->m_pCurAnimation->tFrame.fIndex += GET_TIME * this->m_pCurAnimation->tFrame.fCount;
 
 		if ( this->m_pCurAnimation->tFrame.fIndex > this->m_pCurAnimation->tFrame.fMax )
-			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+		{
+			switch ( m_pCurAnimation->eKind )
+			{
+				case Anim_Loop:
+					this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+					break;
+
+				case Anim_ClampForever:
+					this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
+					this->m_bAnimEnd = true;
+					break;
+
+			}
+		}
 	}
 }
 
@@ -82,6 +120,7 @@ bool CAnimation::ChangeAnimation( const wstring & _wstrName )
 		return false;
 
 	m_pCurAnimation = iterFindAnimation->second;
-	m_pCurAnimation->tFrame.fIndex = 0.f;
+
+	this->ResetFrame();
 	return true;
 }

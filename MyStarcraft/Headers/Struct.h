@@ -141,6 +141,12 @@ typedef struct tagCommonData
 
 }COMMON_DATA;
 
+typedef struct tagEntityManaData
+{
+	int iCurMP;
+	int iMaxMP;
+} ENTITY_MANA_DATA;
+
 typedef struct tagUnitGenerateData
 {
 	// /* 필요로 하는 건물들 변수.. */

@@ -60,6 +60,18 @@ void CPlayer::KeyCheck( void )
 		this->MakeDragUnitCorps();
 	}
 
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'A' ) )
+	{
+		if ( this->m_pCurCorps )
+			this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_MoveAlert );
+	}
+
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'P' ) )
+	{
+		if ( this->m_pCurCorps )
+			this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_Patrol );
+	}
+
 	/* 부대 매크로 키 관련.. */
 	if ( GetAsyncKeyState( VK_CONTROL ) )
 	{

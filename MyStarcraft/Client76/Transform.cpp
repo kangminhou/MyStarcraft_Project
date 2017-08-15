@@ -28,9 +28,6 @@ void CTransform::SetPos( const D3DXVECTOR3 & _vPos )
 	if (this->m_tInfo.vPos.y <= 0)
 		this->m_tInfo.vPos.y = 0.f;
 
-	if ( this->GetGameObject() )
-		CObjMgr::GetInstance()->ReAdjustmentSpace( vPrevPos, const_cast<CGameObject*>(this->GetGameObject()) );
-
 	this->UpdateTransform( vPrevPos );
 }
 

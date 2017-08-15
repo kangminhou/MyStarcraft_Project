@@ -1,24 +1,26 @@
 #pragma once
 #include "GameObject.h"
-
-class CGameEntity;
+#include "GameEntity.h"
 
 class CBackground :
 	public CGameObject
 {
 public:
+	enum { ENTITY_TILE_DIV_X = 2, ENTITY_TILE_DIV_Y = 2, ENTITY_TOTAL_TILE_DIV = ENTITY_TILE_DIV_X * ENTITY_TILE_DIV_Y };
+
 	typedef struct tagEntityTileData
 	{
 		BYTE						byTileOption;
-		list<const CGameEntity*>	entityList;
+		const CGameEntity*			pEntityArr[ENTITY_TOTAL_TILE_DIV];
 
 		tagEntityTileData()
 			: byTileOption(0)
-		{}
+		{
+			for ( int i = 0; i < ENTITY_TOTAL_TILE_DIV; ++i )
+				pEntityArr[i] = NULL;
+		}
 
 	}ENTITY_TILE_DATA;
-
-	enum { ENTITY_TILE_DIV_X = 2, ENTITY_TILE_DIV_Y = 2, ENTITY_TOTAL_TILE_DIV = ENTITY_TILE_DIV_X * ENTITY_TILE_DIV_Y };
 
 private:
 	vector<TILE*>		m_vecTile;
@@ -49,13 +51,13 @@ public:
 
 	bool Picking(const D3DXVECTOR3& vPos, const int& iIndex);
 
-	void	EraseUnitData( const CGameEntity* _pEntity, const D3DXVECTOR3& _vPos );
-	void	UpdateUnitData( const CGameEntity* _pEntity );
+	void	EraseUnitData( const vector<int>& _vecKey );
+	void	UpdateUnitData( const CGameEntity* _pEntity, vector<int>& _vecKey );
 
-	bool	CheckCanGoTile( const int& _iIndex, const BYTE& _byDir, CGameEntity* _pEntity );
+	bool	CheckCanGoTile( const int& _iIndex, const BYTE& _byDir, CGameEntity* _pEntity, const bool& _bCheckEntityData );
 	BYTE	CalcEntityTileData( const int& iIndex, CGameEntity* _pEntity );
 
-	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex );
+	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex, const bool& _bCheckEntityData );
 
 public:
 	HRESULT Initialize(void);

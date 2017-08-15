@@ -125,14 +125,19 @@
     <ClCompile Include="Logo.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Marine.cpp" />
+    <ClCompile Include="Medic.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Move.cpp" />
     <ClCompile Include="MultiTexture.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
+    <ClCompile Include="Pattern_Attack.cpp" />
     <ClCompile Include="Pattern_ChaseTarget.cpp" />
+    <ClCompile Include="Pattern_Die.cpp" />
+    <ClCompile Include="Pattern_HealOurForces.cpp" />
     <ClCompile Include="Pattern_IdleAlert.cpp" />
     <ClCompile Include="Pattern_Move.cpp" />
     <ClCompile Include="Pattern_MoveAlert.cpp" />
+    <ClCompile Include="Pattern_Patrol.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="RayObject.cpp" />
@@ -141,6 +146,8 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SingleTexture.cpp" />
+    <ClCompile Include="Skill.cpp" />
+    <ClCompile Include="Skill_HealAliveUnit.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -178,14 +185,19 @@
     <ClInclude Include="Logo.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Marine.h" />
+    <ClInclude Include="Medic.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="MultiTexture.h" />
     <ClInclude Include="ObjMgr.h" />
+    <ClInclude Include="Pattern_Attack.h" />
     <ClInclude Include="Pattern_ChaseTarget.h" />
+    <ClInclude Include="Pattern_Die.h" />
+    <ClInclude Include="Pattern_HealOurForces.h" />
     <ClInclude Include="Pattern_IdleAlert.h" />
     <ClInclude Include="Pattern_Move.h" />
     <ClInclude Include="Pattern_MoveAlert.h" />
+    <ClInclude Include="Pattern_Patrol.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="RayObject.h" />
@@ -195,6 +207,8 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="SingleTexture.h" />
+    <ClInclude Include="Skill.h" />
+    <ClInclude Include="Skill_HealAliveUnit.h" />
     <ClInclude Include="Stage.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

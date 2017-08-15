@@ -21,15 +21,20 @@ private:
 	map<wstring, ANIM_DATA*>	m_mapAnimation;
 	ANIM_DATA*					m_pCurAnimation;
 
+	bool						m_bAnimEnd;
+
 public:
 	CAnimation();
 	virtual ~CAnimation();
 
 public:
 	void SetAnimationData( const wstring& _wstrName, const FRAME& _tFrame );
+	void ChangeAnimationSpeed( const wstring& _wstrName, const float& _fSpeed );
+	void ResetFrame();
 
 public:
 	const FRAME*	GetCurAnimation();
+	const bool		GetIsAnimEnd() const;
 
 public:
 	// CComponent을(를) 통해 상속됨

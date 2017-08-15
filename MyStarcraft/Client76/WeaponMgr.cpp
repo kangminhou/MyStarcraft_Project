@@ -17,7 +17,7 @@ void CWeaponMgr::Initialize()
 {
 	/* 무기의 정보 초기화.. ( XML 데이터로 처리할 예정???? ) */
 	this->m_tWeaponDataArr[Weapon_GaussRifle].eUpgradeType = Upgrade_Terran_Infantry_Weapons;
-	this->m_tWeaponDataArr[Weapon_GaussRifle].fAttInterval = Calc_Weapon_Interval( 22.f );
+	this->m_tWeaponDataArr[Weapon_GaussRifle].fAttInterval = Calc_Weapon_Interval( 15.f );
 	this->m_tWeaponDataArr[Weapon_GaussRifle].fDamage = 6.f;
 	this->m_tWeaponDataArr[Weapon_GaussRifle].iUpgradePlus = 1;
 	this->m_tWeaponDataArr[Weapon_GaussRifle].iMinAttRange = 0;
@@ -40,6 +40,8 @@ CWeapon * CWeaponMgr::GetNewWeapon( eWeaponKind eWeaponKind )
 			pOutWeapon->SetWeaponData( &this->m_tWeaponDataArr[Weapon_GaussRifle] );
 			break;
 	}
+
+	pOutWeapon->Initialize();
 
 	return pOutWeapon;
 }

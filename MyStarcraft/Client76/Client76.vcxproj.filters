@@ -163,6 +163,15 @@
     <Filter Include="02. Scene\05. RayTestScene">
       <UniqueIdentifier>{8c99fa05-4275-4e4a-b0e5-cfe220c7287f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\05. Attack">
+      <UniqueIdentifier>{ee8d0973-1e15-487c-93c7-644c3227e8cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\06. DIe">
+      <UniqueIdentifier>{51acaeba-57ff-48b0-be22-31febf2e689a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\01. Medic">
+      <UniqueIdentifier>{54e69ae4-25c0-4067-a42b-ad8c8a2d27f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -308,6 +317,27 @@
     </ClCompile>
     <ClCompile Include="Pattern_ChaseTarget.cpp">
       <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Attack.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\05. Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Die.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\06. DIe</Filter>
+    </ClCompile>
+    <ClCompile Include="Medic.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\01. Medic</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_HealOurForces.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\05. Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Patrol.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\03. Patrol</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill.cpp">
+      <Filter>03. Component\04. Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_HealAliveUnit.cpp">
+      <Filter>03. Component\04. Skill</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -460,6 +490,27 @@
     </ClInclude>
     <ClInclude Include="Pattern_ChaseTarget.h">
       <Filter>03. Component\03. EntityPattern\00. Unit\01. Move</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Attack.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\05. Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Die.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\06. DIe</Filter>
+    </ClInclude>
+    <ClInclude Include="Medic.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\01. Medic</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_HealOurForces.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\05. Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Patrol.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\03. Patrol</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill.h">
+      <Filter>03. Component\04. Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_HealAliveUnit.h">
+      <Filter>03. Component\04. Skill</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

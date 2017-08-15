@@ -7,10 +7,10 @@ class CPattern_IdleAlert :
 	public CEntityPattern
 {
 private:
-	eObjectType m_eEnemyType;
+	bool	m_bAlertEnemy;
 
 public:
-	CPattern_IdleAlert();
+	CPattern_IdleAlert(const bool& _bAlertEnemy = true);
 	virtual ~CPattern_IdleAlert();
 
 	// CEntityPattern을(를) 통해 상속됨

@@ -4,12 +4,13 @@
 #include "Mouse.h"
 
 #include "GameEntity.h"
+#include "Move.h"
 
 
-CPattern_MoveAlert::CPattern_MoveAlert()
+CPattern_MoveAlert::CPattern_MoveAlert( const bool & _bCheckEnemy )
+	: m_bCheckEnemy( _bCheckEnemy )
 {
 }
-
 
 CPattern_MoveAlert::~CPattern_MoveAlert()
 {
@@ -17,40 +18,44 @@ CPattern_MoveAlert::~CPattern_MoveAlert()
 
 void CPattern_MoveAlert::Initialize()
 {
+	this->m_pMoveComponent = const_cast<CMove*>(this->m_pGameEntity->GetComponent<CMove>());
 }
 
 void CPattern_MoveAlert::OnEnable()
 {
-	m_eEnemyType = ((this->m_pGameEntity->GetObjectType()) ? OBJ_TYPE_USER : OBJ_TYPE_USER2);
+	D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
+	vMouse += this->m_pGameEntity->GetScroll();
 
-	if ( this->m_pGameEntity->CheckAlertEntity( m_eEnemyType, NULL ) )
-	{
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_ChaseTarget );
-		return;
-	}
-
-	m_vDestination = CMouse::GetInstance()->GetPos();
-	D3DXVECTOR3 vGameEntityPos = this->m_pGameEntity->GetPos();
-
-	D3DXVECTOR3 vTempDir;
-	D3DXVec3Normalize( &vTempDir, &(m_vDestination - vGameEntityPos) );
-
-	this->m_pGameEntity->SetDir( vTempDir );
+	this->m_pMoveComponent->SetDestination( vMouse );
 }
 
 int CPattern_MoveAlert::Update()
 {
-	this->m_pGameEntity->MoveEntity();
+	int iResult = this->m_pMoveComponent->Update();
+	vector<CGameEntity*> vecEnemyEntity;
 
-	if ( D3DXVec3Length( &(this->m_pGameEntity->GetPos() - m_vDestination) ) <= this->m_pGameEntity->GetSpeed() )
+	if ( m_bCheckEnemy )
 	{
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
-		return Event_Pattern_Change;
+		if ( this->m_pGameEntity->CheckAlertEnemy( &vecEnemyEntity, 1 ) )
+		{
+			this->m_pGameEntity->SetTarget( vecEnemyEntity.front() );
+			this->m_pGameEntity->SetPattern( CGameEntity::Pattern_ChaseTarget );
+			return Event_Pattern_Change;
+		}
+	}
+	else
+	{
+		if ( this->m_pGameEntity->CheckAlertOurForces( &vecEnemyEntity, 1 ) )
+		{
+			this->m_pGameEntity->SetTarget( vecEnemyEntity.front() );
+			this->m_pGameEntity->SetPattern( CGameEntity::Pattern_ChaseTarget );
+			return Event_Pattern_Change;
+		}
 	}
 
-	if ( this->m_pGameEntity->CheckAlertEntity( m_eEnemyType, NULL ) )
+	if ( iResult == 1 )
 	{
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_ChaseTarget );
+		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
 		return Event_Pattern_Change;
 	}
 

@@ -10,6 +10,7 @@ enum eObjectType
 	OBJ_TYPE_USER,
 	OBJ_TYPE_USER2,
 	OBJ_TYPE_MAX,
+	OBJ_TYPE_USER_MAX = 2
 };
 
 enum eTextureType
@@ -42,6 +43,12 @@ enum eWeaponUpgradeType
 {
 	Upgrade_Terran_Vehicle_Weapons,
 	Upgrade_Terran_Infantry_Weapons,
+};
+
+enum eGameObjectEvent
+{
+	Event_None,
+	Event_DestoryObject,
 };
 
 //enum eItemType

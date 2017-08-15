@@ -1,0 +1,39 @@
+스킬 목록 정리
+
+
+구현 우선 순위 별
+
+0. Heal
+ - 사용 유닛 : 메딕
+
+
+1. Steam Pack
+ - 사용 유닛 : 마린, 파이어뱃
+
+
+2. Spider Mine
+ - 사용 유닛 : 벌쳐
+
+
+3. Cloaking
+ - 사용 유닛 : 고스트
+
+
+4. Cloaking Field
+ - 사용 유닛 : 레이스
+
+
+5. Yamato Gun
+ - 사용 유닛 : 배틀크루저
+
+
+6. Look Down
+ - 사용 유닛 : 고스트
+
+
+7. Irradiate
+ - 사용 유닛 : 사이언스 배슬
+
+
+8. Defensive Matrix
+ - 사용 유닛 : 사이언스 배슬

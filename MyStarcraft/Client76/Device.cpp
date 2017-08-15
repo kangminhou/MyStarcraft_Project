@@ -146,7 +146,7 @@ void CDevice::SerParameters(D3DPRESENT_PARAMETERS& d3dp)
 	//"스왑체인"
 
 	d3dp.hDeviceWindow = g_hWnd;		//윈도우 핸들
-	d3dp.Windowed	   = TRUE;			//전체화면:FALSE / 창모드:TRUE
+	d3dp.Windowed	   = BWindowed;		//전체화면:FALSE / 창모드:TRUE
 
 
 	d3dp.EnableAutoDepthStencil = TRUE;

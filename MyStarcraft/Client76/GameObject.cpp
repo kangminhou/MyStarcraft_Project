@@ -143,7 +143,7 @@ void CGameObject::UpdateMatrix( void )
 	m_matWorld = matScale * matTrans;
 }
 
-void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX & _matWorld, const D3DXVECTOR3 & _vCenterPos, const D3DCOLOR _color )
+void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX & _matWorld, const D3DXVECTOR3 & _vCenterPos, const D3DCOLOR& _color )
 {
 	if ( _pDrawTexture )
 	{
@@ -188,6 +188,20 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 			D3DCOLOR_ARGB( 255, 255, 255, 255 )
 		);
 	}
+}
+
+void CGameObject::DrawFont( const D3DXMATRIX & _matWorld, const wstring & wstrShow, const D3DCOLOR & _color )
+{
+	CDevice::GetInstance()->GetSprite()->SetTransform( &_matWorld );
+
+	CDevice::GetInstance()->GetFont()->DrawTextW(
+		CDevice::GetInstance()->GetSprite(),
+		wstrShow.c_str(),
+		lstrlen( wstrShow.c_str() ),
+		NULL,
+		NULL,
+		_color
+	);
 }
 
 CGameObject::CGameObject(void)

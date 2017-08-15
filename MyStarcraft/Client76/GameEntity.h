@@ -16,18 +16,26 @@ public:
 	{
 		Pattern_Idle,
 		Pattern_Move,
+		Pattern_MoveAlert,
 		Pattern_Stop,
 		Pattern_Hold,
 		Pattern_Patrol,
 		Pattern_Attack,
 		Pattern_ChaseTarget,
 		Pattern_Hit,
+		Pattern_Die
+	};
+
+	enum eGameEntitySkillKind
+	{
+		Skill_Heal,
 	};
 
 	typedef struct tagAttackData
 	{
 		CWeapon*		pWeapon;
 		BYTE			byAttackNum;
+		float			fAttRange;
 		CGameEntity*	pAttackEntity;
 	}ATTACK_DATA;
 
@@ -45,6 +53,8 @@ protected:
 
 	eGameEntityPattern		m_curActPatternKind;		// 현재 실행 중인 패턴..
 
+	vector<eGameEntityPattern>	m_vecActPatterns;
+
 	CCorps*					m_pEntityBelongToCorps;		// 현재 부대..
 
 	BYTE					m_byDirAnimIndex;
@@ -54,14 +64,21 @@ protected:
 	map<wstring, CEntityPattern*>	m_mapPatterns;
 	CEntityPattern*					m_pCurActPattern;
 
+	CGameEntity*			m_pTarget;
+
 	RECT					m_tColRect;
 	RECT					m_tOriginColRect;
 
 	bool					m_bCollision;
+	bool					m_bDie;
+	bool					m_bDestoryEntity;
 
-	static CBackground*				m_pBackground;
+	static CBackground*		m_pBackground;
 
-	list<pair<int, BYTE>>		m_standTileIndexList;
+	list<pair<int, BYTE>>	m_standTileIndexList;
+
+	vector<int>				m_vecSpaceDataKey;
+	int						m_iEntitySpaceDataKey;
 
 public:
 	CGameEntity();
@@ -69,16 +86,20 @@ public:
 
 public:
 	virtual void SetPattern( const eGameEntityPattern& _ePatternKind ) PURE;
+	void SetPrevPattern();
 	void SetCurHp( const float& fHp );
 	void SetEntityBelongToCorps( CCorps* _pEntityBelongToCorps );
+	void SetTarget( CGameEntity* _pTarget );
 	static void SetBackground(CBackground* pBackground)
 	{
 		m_pBackground = pBackground;
 	}
 	void SetStandTileIndexList( const list<pair<int, BYTE>>& _standTileIndexList );
+	void SetEntitySpaceDataKey( const int& _iEntitySpaceDataKey );
 
 public:
 	float GetCurHp() const;
+	float GetMaxHp() const;
 	float GetSpeed() const;
 	int GetScope() const;
 	const CCorps* GetEntityBelongToCorps() const;
@@ -86,7 +107,13 @@ public:
 	RECT GetColRect() const;
 	RECT GetOriginColRect() const;
 	bool GetIsCollision() const;
+	bool GetIsDie() const;
 	const list<pair<int, BYTE>>* GetStandTileIndexList();
+	ATTACK_DATA GetGroundAttackData() const;
+	ATTACK_DATA GetAirAttackData() const;
+	float GetGroundWeaponAttRange() const;
+	float GetAirWeaponAttRange() const;
+	CGameEntity* GetTarget() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -99,12 +126,20 @@ public:
 	virtual void UpdatePosition( const D3DXVECTOR3& vPrevPos ) override;
 
 public:
-	bool CheckAlertEntity( const eObjectType& _eObjectType, vector<CGameEntity*>* pVecEntitys = NULL );
+	virtual bool UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget );
+
+public:
+	bool CheckAlertEnemy( vector<CGameEntity*>* pVecEntitys = NULL, const int& iVecLimitSize = -1 );
+	bool CheckAlertOurForces( vector<CGameEntity*>* pVecEntitys = NULL, const int& iVecLimitSize = -1 );
 	void MoveEntity();
 	void UpdateDirAnimIndex();
 	void LookPos( const D3DXVECTOR3& _vPos );
 
 	void RenderSelectTexture( bool _bPlayer );
+
+	void HitEntity( CGameEntity* _pAttackedObject, float _fDamage );
+
+	void DieEntity();
 
 protected:
 	virtual void InitAnimation() PURE;

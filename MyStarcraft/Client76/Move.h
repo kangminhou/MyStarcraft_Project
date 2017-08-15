@@ -33,6 +33,10 @@ private:
 	std::vector<D3DXVECTOR3>	m_vecMovePath;
 	int							m_iCurIndexNum;
 
+	float				m_fRestReFindPath;
+	float				m_fReFindPathCycle;
+	bool				m_bCanRestReFindPath;
+
 public:
 	CMove();
 	virtual ~CMove();
@@ -45,6 +49,8 @@ public:
 public:
 	int Update();
 	virtual void SetDestination( const D3DXVECTOR3& _vDestination );
+	void PathFind();
+	void ReFindPath();
 
 private:
 	void SettingMoveData();

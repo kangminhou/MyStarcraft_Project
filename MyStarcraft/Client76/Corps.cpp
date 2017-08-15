@@ -52,7 +52,8 @@ void CCorps::Render()
 {
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
-		this->m_pEntityArr[i]->RenderSelectTexture( true );
+		if(this->m_pEntityArr[i] )
+			this->m_pEntityArr[i]->RenderSelectTexture( true );
 	}
 }
 
@@ -65,8 +66,9 @@ void CCorps::SetUnitPattern( const CUnit::eGameEntityPattern & _ePatternKind )
 
 		this->m_eCurPattern = _ePatternKind;
 
-		if ( this->m_eCurPattern == CGameEntity::Pattern_Move )
-		{	
+		if ( this->m_eCurPattern == CGameEntity::Pattern_Move || this->m_eCurPattern == CGameEntity::Pattern_Patrol ||
+			 this->m_eCurPattern == CGameEntity::Pattern_MoveAlert)
+		{
 			this->CalcCorpsMoveKind();
 		}
 
@@ -85,15 +87,57 @@ void CCorps::AddUnit( CGameEntity * _pEntity )
 	}
 }
 
+void CCorps::EraseUnit( CGameEntity * _pEntity )
+{
+	bool bFind = false;
+	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
+	{
+		if ( bFind )
+		{
+			this->m_pEntityArr[i] = this->m_pEntityArr[i + 1];
+		}
+		else if ( this->m_pEntityArr[i] == _pEntity )
+		{
+			bFind = true;
+			this->m_byCurUnitNum--;
+			if ( i == this->m_byCurUnitNum )
+				break;
+
+			this->m_pEntityArr[i] = this->m_pEntityArr[i + 1];
+		}
+	}
+}
+
 void CCorps::ResetCorps( void )
 {
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
-		if ( this->m_pEntityArr )
+		if ( this->m_pEntityArr[i] )
 			this->m_pEntityArr[i] = NULL;
 	}
 
 	this->m_byCurUnitNum = 0;
+}
+
+int CCorps::CheckCorpsOnePlaceMove( const D3DXVECTOR3& _vDestination, const CGameEntity* _pEntity ) const
+{
+	D3DXVECTOR3 vEntityPos = _pEntity->GetPos();
+	if ( this->m_rcEntityInclude.left <= _vDestination.x &&
+		 this->m_rcEntityInclude.top <= _vDestination.y &&
+		 this->m_rcEntityInclude.right >= _vDestination.x &&
+		 this->m_rcEntityInclude.bottom >= _vDestination.y)
+	{
+		if ( _vDestination.x >= vEntityPos.x && _vDestination.y >= vEntityPos.x )
+			return 1;
+		else if ( _vDestination.x <= vEntityPos.x && _vDestination.y >= vEntityPos.x )
+			return 2;
+		else if ( _vDestination.x >= vEntityPos.x && _vDestination.y <= vEntityPos.x )
+			return 3;
+		else
+			return 4;
+	}
+
+	return 0;
 }
 
 void CCorps::CalcCorpsMoveKind()

@@ -99,9 +99,13 @@ protected:
 	void DrawTexture( const TEX_INFO* _pDrawTexture, 
 					  const D3DXMATRIX& _matWorld,
 					  const D3DXVECTOR3& _vCenterPos = D3DXVECTOR3( 0.f, 0.f, 0.f ), 
-					  const D3DCOLOR _color = D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+					  const D3DCOLOR& _color = D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 	void DrawRect( const RECT& _rc, const D3DCOLOR _color = D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+
+	void DrawFont( const D3DXMATRIX& _matWorld,
+				   const wstring& wstrShow,
+				   const D3DCOLOR& _color = D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 public:
 	CGameObject(void);

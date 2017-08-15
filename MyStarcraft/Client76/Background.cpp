@@ -138,46 +138,81 @@ bool CBackground::Picking(const D3DXVECTOR3& vMousePos,
 	return true;
 }
 
-void CBackground::EraseUnitData( const CGameEntity * _pEntity, const D3DXVECTOR3 & _vPos )
+//void CBackground::EraseUnitData( const CGameEntity * _pEntity, const D3DXVECTOR3 & _vPos )
+//{
+//	D3DXVECTOR3 vEntityPos = _vPos;
+//	RECT rcEntityOriginCol = _pEntity->GetOriginColRect();
+//
+//	int iStartX = int(vEntityPos.x + rcEntityOriginCol.left) / (TILECX / ENTITY_TILE_DIV_X);
+//	int iEndX = int(vEntityPos.x + rcEntityOriginCol.right) / (TILECX / ENTITY_TILE_DIV_X);
+//
+//	int iStartY = int(vEntityPos.y + rcEntityOriginCol.top) / (TILECY / ENTITY_TILE_DIV_Y);
+//	int iEndY = int(vEntityPos.y + rcEntityOriginCol.bottom) / (TILECY / ENTITY_TILE_DIV_Y);
+//
+//	for ( int i = iStartY; i <= iEndY; ++i )
+//	{
+//		for ( int j = iStartX; j <= iEndX; ++j )
+//		{
+//			if ( i < 0 || i >= TILEY ||
+//				 j < 0 || j >= TILEX )
+//				continue;
+//
+//			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
+//
+//			auto& checkList = m_entityTileData[iIndex].entityList;
+//			auto iter_end = checkList.end();
+//			for ( auto iter = checkList.begin(); iter != iter_end; ++iter )
+//			{
+//				if ( (*iter) == _pEntity )
+//				{
+//					checkList.erase( iter );
+//					if ( checkList.empty() )
+//						m_entityTileData[iIndex].byTileOption = 0;
+//
+//					return 0;
+//				}
+//			}
+//		}
+//	}
+//}
+
+void CBackground::EraseUnitData( const vector<int>& _vecKey )
 {
-	D3DXVECTOR3 vEntityPos = _vPos;
-	RECT rcEntityOriginCol = _pEntity->GetOriginColRect();
+	if ( _vecKey.empty() )
+		return;
 
-	int iStartX = int(vEntityPos.x + rcEntityOriginCol.left) / (TILECX / ENTITY_TILE_DIV_X);
-	int iEndX = int(vEntityPos.x + rcEntityOriginCol.right) / (TILECX / ENTITY_TILE_DIV_X);
-
-	int iStartY = int(vEntityPos.y + rcEntityOriginCol.top) / (TILECY / ENTITY_TILE_DIV_Y);
-	int iEndY = int(vEntityPos.y + rcEntityOriginCol.bottom) / (TILECY / ENTITY_TILE_DIV_Y);
-
-	for ( int i = iStartY; i <= iEndY; ++i )
+	size_t iLength = _vecKey.size();
+	for ( size_t i = 0; i < iLength; ++i )
 	{
-		for ( int j = iStartX; j <= iEndX; ++j )
+		int iIndex = _vecKey[i] >> 16;
+		int iEntityArrIndex = ((_vecKey[i] << 16) >> 16);
+		m_entityTileData[iIndex].pEntityArr[iEntityArrIndex] = NULL;
+
+		bool bEmptySpace = true;
+		/* 현재 타일의 있는 유닛이 없는지 체크.. */
+		for ( int i = 0; i < ENTITY_TOTAL_TILE_DIV; ++i )
 		{
-			if ( i < 0 || i >= TILEY ||
-				 j < 0 || j >= TILEX )
-				continue;
-
-			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
-
-			auto& checkList = m_entityTileData[iIndex].entityList;
-			auto iter_end = checkList.end();
-			for ( auto iter = checkList.begin(); iter != iter_end; ++iter )
+			if ( m_entityTileData[iIndex].pEntityArr[i] )
 			{
-				if ( (*iter) == _pEntity )
-				{
-					checkList.erase( iter );
-					if ( checkList.empty() )
-						m_entityTileData[iIndex].byTileOption = 0;
-
-					break;
-				}
+				bEmptySpace = false;
+				break;
 			}
 		}
+
+		if ( bEmptySpace )
+			m_entityTileData[iIndex].byTileOption = 0;
 	}
+
+
 }
 
-void CBackground::UpdateUnitData( const CGameEntity * _pEntity )
+void CBackground::UpdateUnitData( const CGameEntity * _pEntity, vector<int>& _vecKey )
 {
+	_vecKey.clear();
+
+	if ( _pEntity->GetIsDie() )
+		return;
+
 	RECT rcEntityCurCol = _pEntity->GetColRect();
 
 	int iStartX = (rcEntityCurCol.left) / (TILECX / ENTITY_TILE_DIV_X);
@@ -196,6 +231,7 @@ void CBackground::UpdateUnitData( const CGameEntity * _pEntity )
 				 j < 0 || j >= TILEX * ENTITY_TILE_DIV_X )
 				continue;
 
+			int iSpaceKey = -1;
 			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
 			bool bFindSameEntity = false;
 			BYTE byDetailSpaceData = 0;
@@ -228,29 +264,27 @@ void CBackground::UpdateUnitData( const CGameEntity * _pEntity )
 			if ( !bFind )
 				indexList.push_back( pair<int, BYTE>( iInputIndex, byDetailSpaceData ) );
 
-			auto& checkList = m_entityTileData[iIndex].entityList;
-			if ( checkList.empty() )
-				m_entityTileData[iIndex].byTileOption = 1;
-
-			for each (auto iter in checkList)
+			for ( int i = 0; i < ENTITY_TOTAL_TILE_DIV; ++i )
 			{
-				if ( iter == _pEntity )
+				if ( m_entityTileData[iIndex].pEntityArr[i] == NULL )
 				{
-					bFindSameEntity = true;
-					break;
+					if ( m_entityTileData[iIndex].byTileOption == 0 )
+						m_entityTileData[iIndex].byTileOption = 1;
+
+					m_entityTileData[iIndex].pEntityArr[i] = _pEntity;
+
+					iSpaceKey = iIndex << 16;
+					iSpaceKey += i;
+					_vecKey.push_back( iSpaceKey );
 				}
 			}
-
-			if ( !bFindSameEntity )
-				checkList.push_back( _pEntity );
-			
 		}
 	}
 
 	const_cast<CGameEntity*>(_pEntity)->SetStandTileIndexList( indexList );
 }
 
-bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGameEntity * _pEntity )
+bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGameEntity * _pEntity, const bool& _bCheckEntityData )
 {
 	/* 인덱스가 타일 범위 밖의 것이라면 ( 예외처리.. ) */
 	if ( _iIndex < 0 || (unsigned int)_iIndex >= this->m_vecTile.size() )
@@ -259,7 +293,13 @@ bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGam
 	if ( this->m_vecTile[_iIndex]->byOption == 1 )
 		return false;
 
+	if ( !_bCheckEntityData )
+		return true;
+
 	BYTE byEntityTileData = this->CalcEntityTileData( _iIndex, _pEntity );
+
+	if ( byEntityTileData == 15 )
+		return false;
 
 	switch ( _byDir )
 	{
@@ -403,7 +443,7 @@ BYTE CBackground::CalcEntityTileData( const int & _iIndex, CGameEntity * _pEntit
 	return byOut;
 }
 
-int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndIndex )
+int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndIndex, const bool& _bCheckEntityData )
 {
 	TILE* pStartTile = this->m_vecTile[_iStartIndex];
 	TILE* pEndTile = this->m_vecTile[_iEndIndex];
@@ -431,7 +471,7 @@ int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndI
 
 		iIndex = (int)((int)fXIndex + ((int)(fYIndex)) * TILEX);
 
-		if ( this->CheckCanGoTile( iIndex, 0, NULL ) )
+		if ( this->CheckCanGoTile( iIndex, 0, NULL, _bCheckEntityData ) )
 			return iIndex;
 
 		if ( iIndex == _iStartIndex )

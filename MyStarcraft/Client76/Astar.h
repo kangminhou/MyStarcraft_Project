@@ -22,14 +22,13 @@ public:
 	void SetEntity( CGameEntity* _pEntity );
 
 public:
-	bool AStarStartPos(const D3DXVECTOR3& vStartPos, const D3DXVECTOR3& vEndPos, vector<D3DXVECTOR3>& vecGetData);
+	bool AStarStartPos(const D3DXVECTOR3& vStartPos, const D3DXVECTOR3& vEndPos, vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntityTile = TRUE);
 
 private:
-	bool AStarStart( const int& iStartIndex,
-					 const int& iEndIndex,
-					 vector<D3DXVECTOR3>& vecGetData );
+	bool AStarStart( vector<D3DXVECTOR3>& vecGetData, 
+					 const bool& _bCheckEntityTile );
 
-	bool MakeRoute(vector<D3DXVECTOR3>& vecGetData);
+	bool MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntityTile);
 	NODE* MakeNode(int iIndex, NODE* pParent, const vector<TILE*>* pTile);
 
 	bool ListCheck(const int& iIndex);

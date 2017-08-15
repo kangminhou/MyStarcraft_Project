@@ -11,10 +11,10 @@ class CPattern_ChaseTarget :
 private:
 	CGameEntity*	m_pTarget;
 	CMove*			m_pMoveComponent;
-	eObjectType		m_eEnemyType;
+	bool			m_bChaseEnemy;
 
 public:
-	CPattern_ChaseTarget();
+	CPattern_ChaseTarget( const bool& _bChaseEnemy = true );
 	virtual ~CPattern_ChaseTarget();
 
 public:

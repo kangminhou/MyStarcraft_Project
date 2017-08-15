@@ -46,9 +46,10 @@ public:
 	 */
 	void SetUnitPattern( const CUnit::eGameEntityPattern& _ePatternKind );
 	void AddUnit( CGameEntity* _pEntity );
+	void EraseUnit( CGameEntity* _pEntity );
 	void ResetCorps(void);
 
-	bool CheckCorpsOnePlaceMove( const D3DXVECTOR3& _vDestination );
+	int CheckCorpsOnePlaceMove( const D3DXVECTOR3& _vDestination, const CGameEntity* _pEntity ) const;
 
 private:
 	void CalcCorpsMoveKind();

@@ -17,17 +17,17 @@ void CAStar::SetEntity( CGameEntity * _pEntity )
 
 bool CAStar::AStarStartPos(const D3DXVECTOR3& vStartPos
 							, const D3DXVECTOR3& vEndPos
-							, vector<D3DXVECTOR3>& vecGetData)
+							, vector<D3DXVECTOR3>& vecGetData
+							, const bool& _bCheckEntityTile /*= TRUE*/)
 {
 	m_iStartIndex = GetTileIndex(vStartPos);
 	m_iEndIndex   = GetTileIndex(vEndPos);
 
-	return AStarStart(m_iStartIndex, m_iEndIndex, vecGetData);
+	return AStarStart( vecGetData, _bCheckEntityTile);
 }
 
-bool CAStar::AStarStart(const int& iStartIndex, 
-						  const int& iEndIndex,
-						  vector<D3DXVECTOR3>& vecGetData)
+bool CAStar::AStarStart( vector<D3DXVECTOR3>& vecGetData,
+						 const bool& _bCheckEntityTile )
 {
 	//if ( iStartIndex == iEndIndex )
 	//	return false;
@@ -37,20 +37,23 @@ bool CAStar::AStarStart(const int& iStartIndex,
 	if ( pVecTile == NULL )
 		return false;
 
-	if ( !this->m_pBackground->CheckCanGoTile(iEndIndex, 0, NULL) )	//이동 불가 타일이라면.
+	if ( !this->m_pBackground->CheckCanGoTile( m_iEndIndex, 0, NULL, _bCheckEntityTile ) )	//이동 불가 타일이라면.
 	{
-		m_iEndIndex = this->m_pBackground->CalcNearCanGoTile( m_iStartIndex, m_iEndIndex );
+		m_iEndIndex = this->m_pBackground->CalcNearCanGoTile( m_iStartIndex, m_iEndIndex, _bCheckEntityTile );
 	}
+
+	if ( m_iEndIndex == -1 )
+		return false;
 
 	Release();
 
 	vecGetData.clear();
 
-	return MakeRoute(vecGetData);
+	return MakeRoute( vecGetData, _bCheckEntityTile );
 
 }
 
-bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
+bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntityTile)
 {
 	NODE* pFirstNode = new NODE;
 
@@ -77,6 +80,8 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 	BYTE byCheckSuccess = 0;
 	NODE* pCheckNode = pFirstNode;
 
+	int	iCnt = 0;
+
 	while(!m_OpenList.empty())
 	{
 		byCheckSuccess = 0;
@@ -97,7 +102,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex - TILEX;
 
 		if( pCheckNode->iIndex >= TILEX			&&
-			this->m_pBackground->CheckCanGoTile(iIndex, 1, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 1, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -110,7 +115,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex + TILEX;
 
 		if( pCheckNode->iIndex < (TILEX * TILEY) - (TILEX) &&
-			this->m_pBackground->CheckCanGoTile(iIndex, 2, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 2, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -123,7 +128,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex - 1;
 
 		if( pCheckNode->iIndex % TILEX != 0  &&
-			this->m_pBackground->CheckCanGoTile(iIndex, 3, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 3, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -136,7 +141,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		iIndex = pCheckNode->iIndex + 1;
 
 		if( pCheckNode->iIndex % TILEX != TILEX - 1  &&
-			this->m_pBackground->CheckCanGoTile(iIndex, 4, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 4, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -152,7 +157,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != (TILEX - 1) &&
 			byCheckSuccess & (1 << 0)					&&
 			byCheckSuccess & (1 << 3)					&&
-			this->m_pBackground->CheckCanGoTile(iIndex, 5, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 5, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -168,7 +173,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != (TILEX - 1)		&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 3)						&&
-			this->m_pBackground->CheckCanGoTile(iIndex, 6, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 6, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -184,7 +189,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != 0				&&
 			byCheckSuccess & (1 << 1)						&&
 			byCheckSuccess & (1 << 2)						&&
-			this->m_pBackground->CheckCanGoTile(iIndex, 7, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 7, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -200,7 +205,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 			pCheckNode->iIndex % (TILEX) != 0	&&
 			byCheckSuccess & (1 << 0)			&&
 			byCheckSuccess & (1 << 2)			&&
-			this->m_pBackground->CheckCanGoTile(iIndex, 8, this->m_pCheckEntity) &&
+			this->m_pBackground->CheckCanGoTile(iIndex, 8, this->m_pCheckEntity, _bCheckEntityTile) &&
 			ListCheck(iIndex)						)
 		{
 			pMakeNode = MakeNode(iIndex, pCheckNode, pVecTile);
@@ -213,13 +218,18 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 		m_CloseList.push_back( pCheckNode );
 		m_OpenList.erase( iter );
 
+		++iCnt;
+
+		if ( iCnt > 50 )
+			return false;
+
 		if(pCheckNode->iIndex == m_iEndIndex)
 		{
 			//pCheckNode = pCheckNode->pParent;
 			//BestList를 얻어내자.
 			while( pCheckNode )
 			{
-				//if ( pCheckNode->iIndex != m_iStartIndex && pCheckNode->iIndex != m_iEndIndex )
+				if ( pCheckNode->iIndex != m_iStartIndex && pCheckNode->iIndex != m_iEndIndex )
 					bestList.push_front( pCheckNode );
 
 				if ( pCheckNode->iIndex == m_iStartIndex )
@@ -238,8 +248,8 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData)
 						{
 							while ( true )
 							{
-								byDecideDetailIndex = RANDOM_RANGE_INTERGER( 1, CBackground::ENTITY_TOTAL_TILE_DIV );
-								if ( !(byDecideDetailIndex & byTempEntityTileData) )
+								byDecideDetailIndex = RANDOM_RANGE_INTERGER( 0, CBackground::ENTITY_TOTAL_TILE_DIV );
+								if ( !((1 << byDecideDetailIndex) & byTempEntityTileData) )
 									break;
 
 							}
@@ -377,12 +387,6 @@ void CAStar::Release(void)
 
 int CAStar::GetTileIndex(const D3DXVECTOR3& vPos)
 {
-	const vector<TILE*>* pVecTile 
-		= CObjMgr::GetInstance()->FindGameObject<CBackground>()->GetTile();
-
-	if(pVecTile == NULL)
-		return -1;
-
 	return int( int(vPos.x / TILECX) + int(vPos.y / TILECY) * TILEX );
 }
 
