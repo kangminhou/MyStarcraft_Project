@@ -24,6 +24,9 @@ CGameEntity::CGameEntity()
 	, m_pTarget(NULL)
 	, m_bDie(false)
 	, m_bDestoryEntity(false)
+	, m_bInfluenceDir(true)
+	, m_byLookAnimIndex(0)
+	, m_bUseDirAnimIndex(false)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
@@ -181,6 +184,11 @@ BYTE CGameEntity::GetDirAnimIndex() const
 	return this->m_byDirAnimIndex;
 }
 
+BYTE CGameEntity::GetLookAnimIndex() const
+{
+	return this->m_byLookAnimIndex;
+}
+
 
 
 HRESULT CGameEntity::Initialize( void )
@@ -331,6 +339,23 @@ bool CGameEntity::CheckAlertEnemy( vector<CGameEntity*>* pVecEntitys, const int 
 	return bOut;
 }
 
+bool CGameEntity::CheckRangeAlertEnemy( const float & _fRange, vector<CGameEntity*>* pVecEntitys, const int & iVecLimitSize )
+{
+	/* eObjectType 타입의 주변 오브젝트를 검사.. */
+	bool bOut = false;
+
+	for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
+	{
+		if ( i == this->GetObjectType() )
+			continue;
+
+		if ( !bOut && CObjMgr::GetInstance()->CheckNearEntitys( pVecEntitys, this, _fRange, (eObjectType)i, iVecLimitSize ) )
+			bOut = true;
+	}
+
+	return bOut;
+}
+
 bool CGameEntity::CheckAlertOurForces( vector<CGameEntity*>* pVecEntitys, const int & iVecLimitSize )
 {
 	/* eObjectType 타입의 주변 오브젝트를 검사.. */
@@ -368,41 +393,73 @@ void CGameEntity::MoveEntity()
 void CGameEntity::UpdateDirAnimIndex()
 {
 	D3DXVECTOR3 vUp( 0.f, -1.f, 0.f );
-	D3DXVECTOR3 vTempDir = this->GetTransform()->GetDir();
+	D3DXVECTOR3 vTempDir = this->GetTransform()->GetLook();
 	float fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
 	fAngle = acosf( fAngle );
 
-	if ( vTempDir.x < 0.f )
-		this->SetSize( -1.f, 1.f );
+	if ( this->m_bInfluenceDir )
+	{
+		if ( vTempDir.x < 0.f )
+			this->SetSize( -1.f, 1.f );
+		else
+			this->SetSize( 1.f, 1.f );
+	}
 	else
 		this->SetSize( 1.f, 1.f );
 
 	fAngle /= (D3DX_PI / 17.f);
 
-	BYTE byDirAnimIndex = BYTE( fAngle );
+	BYTE byLookAnimIndex = BYTE( fAngle );
 
-	if ( byDirAnimIndex == 17 )
-		byDirAnimIndex -= 1;
-	else if ( byDirAnimIndex > 17 || byDirAnimIndex < 0 )
+	if ( byLookAnimIndex == 17 )
+		byLookAnimIndex -= 1;
+	else if ( byLookAnimIndex > 17 || byLookAnimIndex < 0 )
 	{
 		ERROR_MSG( L"byDirAnimIndex Error" );
 		return;
 	}
 
-	if ( byDirAnimIndex != this->m_byDirAnimIndex )
+	if ( this->m_bUseDirAnimIndex )
 	{
-		this->m_byDirAnimIndex = byDirAnimIndex;
+		vTempDir = this->GetTransform()->GetDir();
+		fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
+		fAngle = acosf( fAngle );
+
+		fAngle /= (D3DX_PI / 17.f);
+
+		BYTE byDIrAnimIndex = BYTE( fAngle );
+
+		if ( byDIrAnimIndex == 17 )
+			byDIrAnimIndex -= 1;
+		else if ( byDIrAnimIndex > 17 || byDIrAnimIndex < 0 )
+		{
+			ERROR_MSG( L"byDIrAnimIndex Error" );
+			return;
+		}
+
+		if ( byDIrAnimIndex != this->m_byDirAnimIndex )
+		{
+			this->m_byDirAnimIndex = byDIrAnimIndex;
+		}
+	}
+
+	if ( byLookAnimIndex != this->m_byLookAnimIndex )
+	{
+		this->m_byLookAnimIndex = byLookAnimIndex;
 		this->ChangeDirAnimTexture();
 	}
 }
 
-void CGameEntity::LookPos( const D3DXVECTOR3 & _vPos )
+void CGameEntity::LookPos( const D3DXVECTOR3 & _vPos, const bool& _bDirUpdate /*= TRUE*/ )
 {
 	D3DXVECTOR3 vTempDir;
 	D3DXVec3Normalize( &vTempDir, &(_vPos - this->GetPos()) );
 	
-	this->SetDir( vTempDir );
+	this->SetLook( vTempDir );
 	this->UpdateDirAnimIndex();
+
+	if ( _bDirUpdate )
+		this->SetDir( vTempDir );
 }
 
 void CGameEntity::RenderSelectTexture( bool _bPlayer )
@@ -458,7 +515,7 @@ void CGameEntity::DieEntity()
 
 	this->m_bDie = true;
 	this->SetDir( D3DXVECTOR3( 0.f, 0.f, 0.f ) );
-	this->m_byDirAnimIndex = 0;
+	this->m_byLookAnimIndex = 0;
 
 	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );
@@ -472,7 +529,7 @@ void CGameEntity::ChangeDirAnimTexture()
 		m_vecTexture.clear();
 
 		int iAnimLength = int( pTempCurFrame->fMax );
-		int iStart = iAnimLength * this->m_byDirAnimIndex;
+		int iStart = ((this->m_bInfluenceDir) ? iAnimLength * this->m_byLookAnimIndex : 0);
 		int iEnd = iAnimLength + iStart;
 
 		for ( ; iStart < iEnd; ++iStart )

@@ -4,6 +4,13 @@
 class CFileCopyScene :
 	public CScene
 {
+private:
+	FILE*	m_pOpenFile;
+	FILE*	m_pCopyFile;
+
+	char	m_szImageFileName[128];
+	char	m_szCopyFileName[128];
+
 public:
 	CFileCopyScene();
 	virtual ~CFileCopyScene();
@@ -15,6 +22,8 @@ public:
 
 private:
 	errno_t FileOpen( FILE** ppFp, char szFileName[], char szMode[] );
+
+	bool FileCopy();
 
 };
 

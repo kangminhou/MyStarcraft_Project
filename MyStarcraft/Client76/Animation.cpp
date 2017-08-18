@@ -41,13 +41,21 @@ void CAnimation::ChangeAnimationSpeed( const wstring & _wstrName, const float & 
 
 void CAnimation::ResetFrame()
 {
+	if ( this->m_bPauseAnim )
+		return;
+
 	if ( this->m_pCurAnimation )
-		this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+	{
+		if ( !this->m_bCurFrame_Is_ReverseAnim )
+			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+		else
+			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
+	}
 
 	this->m_bAnimEnd = false;
 }
 
-const FRAME * CAnimation::GetCurAnimation()
+const FRAME* CAnimation::GetCurAnimation()
 {
 	return &m_pCurAnimation->tFrame;
 }
@@ -59,30 +67,22 @@ const bool CAnimation::GetIsAnimEnd() const
 
 void CAnimation::Initialize()
 {
-	
+	this->m_bPauseAnim = false;
+	this->m_bCurFrame_Is_ReverseAnim = false;
+	this->m_bAnimEnd = false;
 }
 
 void CAnimation::UpdateAnim()
 {
+	if ( this->m_bPauseAnim )
+		return;
+
 	if ( this->m_pCurAnimation )
 	{
-		this->m_pCurAnimation->tFrame.fIndex += GET_TIME * this->m_pCurAnimation->tFrame.fCount;
-
-		if ( this->m_pCurAnimation->tFrame.fIndex > this->m_pCurAnimation->tFrame.fMax )
-		{
-			switch ( m_pCurAnimation->eKind )
-			{
-				case Anim_Loop:
-					this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
-					break;
-
-				case Anim_ClampForever:
-					this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
-					this->m_bAnimEnd = true;
-					break;
-
-			}
-		}
+		if ( !m_bCurFrame_Is_ReverseAnim )
+			this->Update();
+		else
+			this->UpdateReverseAnim();
 	}
 }
 
@@ -121,6 +121,63 @@ bool CAnimation::ChangeAnimation( const wstring & _wstrName )
 
 	m_pCurAnimation = iterFindAnimation->second;
 
+	if ( m_pCurAnimation->eKind == Anim_Loop || m_pCurAnimation->eKind == Anim_ClampForever )
+		this->m_bCurFrame_Is_ReverseAnim = false;
+	else
+		this->m_bCurFrame_Is_ReverseAnim = true;
+
 	this->ResetFrame();
 	return true;
+}
+
+void CAnimation::PauseAnim()
+{
+	this->m_bPauseAnim = true;
+}
+
+void CAnimation::StopPauseAnim()
+{
+	this->m_bPauseAnim = false;
+}
+
+void CAnimation::Update()
+{
+	this->m_pCurAnimation->tFrame.fIndex += GET_TIME * this->m_pCurAnimation->tFrame.fCount;
+
+	if ( this->m_pCurAnimation->tFrame.fIndex >= this->m_pCurAnimation->tFrame.fMax )
+	{
+		switch ( m_pCurAnimation->eKind )
+		{
+			case Anim_Loop:
+				this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+				break;
+
+			case Anim_ClampForever:
+				this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
+				this->m_bAnimEnd = true;
+				break;
+
+		}
+	}
+}
+
+void CAnimation::UpdateReverseAnim()
+{
+	this->m_pCurAnimation->tFrame.fIndex -= GET_TIME * this->m_pCurAnimation->tFrame.fCount;
+
+	if ( this->m_pCurAnimation->tFrame.fIndex <= this->m_pCurAnimation->tFrame.fStart )
+	{
+		switch ( m_pCurAnimation->eKind )
+		{
+			case Anim_Reverse_Loop:
+				this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
+				break;
+
+			case Anim_Reverse_ClampForever:
+				this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
+				this->m_bAnimEnd = true;
+				break;
+
+		}
+	}
 }

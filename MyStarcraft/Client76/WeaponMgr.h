@@ -7,9 +7,13 @@ class CWeaponMgr
 public:
 	enum eWeaponKind
 	{
+		Weapon_ArcliteCannon,
+		Weapon_ArcliteShockCannon,
 		Weapon_FlameThrower,
 		Weapon_FragmentationGrenade,
 		Weapon_GaussRifle,
+		Weapon_HelfireMissilePack,
+		Weapon_TwinAutocannons,
 		Weapon_End
 	};
 

@@ -9,6 +9,7 @@
 #include "Effect.h"
 #include "GameEntity.h"
 #include "Effect_HitTarget.h"
+#include "Effect_ChaseTarget.h"
 
 
 IMPLEMENT_SINGLETON( CEffectMgr )
@@ -58,24 +59,27 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 
 	if ( pWeaponData->eEffectShowKind != Effect_Show_None )
 	{
-		pShowEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].front();
-
-
-		/* Entity 객체의 방향에 영향을 받는지 확인.. */
-		if ( pWeaponData->bInfluenceEntityDir )
+		if ( pWeaponData->pImagePath )
 		{
-			int iCount = pWeaponData->pImagePath->iCount / 17;
-			pShowEffect->SetVecTexture(
-				pWeaponData->pImagePath->wstrObjKey, pWeaponData->pImagePath->wstrStateKey, 
-				_pWeapon->GetEntity()->GetDirAnimIndex() * iCount, iCount );
-		}
-		else
-		{
-			pShowEffect->SetVecTexture(
-				pWeaponData->pImagePath->wstrObjKey, pWeaponData->pImagePath->wstrStateKey, 0, pWeaponData->pImagePath->iCount );
-		}
+			pShowEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].front();
+			this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].pop();
 
-		pShowEffect->SetStateKey( pWeaponData->pImagePath->wstrStateKey );
+			/* Entity 객체의 방향에 영향을 받는지 확인.. */
+			if ( pWeaponData->bImagePathInfluenceEntityDir )
+			{
+				int iCount = pWeaponData->pImagePath->iCount / 17;
+				pShowEffect->SetVecTexture(
+					pWeaponData->pImagePath->wstrObjKey, pWeaponData->pImagePath->wstrStateKey,
+					_pWeapon->GetEntity()->GetLookAnimIndex() * iCount, iCount );
+			}
+			else
+			{
+				pShowEffect->SetVecTexture(
+					pWeaponData->pImagePath->wstrObjKey, pWeaponData->pImagePath->wstrStateKey, 0, pWeaponData->pImagePath->iCount );
+			}
+
+			pShowEffect->SetStateKey( pWeaponData->pImagePath->wstrStateKey );
+		}
 
 		/* Effect 가 어디서 나가는지 결정.. */
 		switch ( pWeaponData->eEffectShowKind )
@@ -85,6 +89,36 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 				break;
 			case Effect_Show_Target_Position:
 				pShowEffect->SetPos( _pEntity->GetPos() );
+				break;
+			case Effect_Show_Target_AND_Owner_Position:
+			{
+				CEffect* pEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].front();
+				this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].pop();
+
+				if ( pWeaponData->bImagePath2InfluenceEntityDir )
+				{
+					int iCount = pWeaponData->pImagePath2->iCount / 17;
+					pShowEffect->SetVecTexture(
+						pWeaponData->pImagePath2->wstrObjKey, pWeaponData->pImagePath2->wstrStateKey, 
+						_pWeapon->GetEntity()->GetLookAnimIndex() * iCount, iCount );
+				}
+				else
+				{
+					pEffect->SetVecTexture(
+						pWeaponData->pImagePath2->wstrObjKey, 
+						pWeaponData->pImagePath2->wstrStateKey, 0, 
+						pWeaponData->pImagePath2->iCount );
+				}
+
+				pEffect->SetStateKey( pWeaponData->pImagePath2->wstrStateKey );
+
+				pEffect->SetPos( _pEntity->GetPos() );
+				pEffect->Initialize();
+				m_pEffectList->push_back( pEffect );
+
+				pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+			}
+
 				break;
 			case Effect_Show_Hit_Target:
 			{
@@ -108,12 +142,31 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 			}
 				break;
 			case Effect_Show_Chase_Target:
-				pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+			{
+				CEffect* pEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_ChaseTarget].front();
+				this->m_queueEffectArr[CEffectMgr::Effect_Kind_ChaseTarget].pop();
+
+				CEffect_ChaseTarget* pEffectBridge = dynamic_cast<CEffect_ChaseTarget*>(const_cast<CEffectBridge*>(pEffect->GetEffectBridge()));
+				pEffectBridge->SetWeapon( _pWeapon );
+				pEffectBridge->SetIsUseFollowDustEffect( pWeaponData->pBulletData->bUseFollowDustEffect );
+
+				pEffect->SetVecTexture(
+					pWeaponData->pBulletData->pImagePath->wstrObjKey, 
+					pWeaponData->pBulletData->pImagePath->wstrStateKey, 0, 
+					pWeaponData->pBulletData->pImagePath->iCount );
+
+				pEffect->SetStateKey( pWeaponData->pBulletData->pImagePath->wstrStateKey );
+
+				pEffect->Initialize();
+				pEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				m_pEffectList->push_back( pEffect );
+
+				if ( pShowEffect )
+					pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+			}
 				break;
 
 		}
-
-		this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].pop();
 	}
 
 	pShowEffect->Initialize();

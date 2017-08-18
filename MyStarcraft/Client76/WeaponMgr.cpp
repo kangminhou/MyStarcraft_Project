@@ -20,11 +20,24 @@ void CWeaponMgr::Initialize()
 	/* 무기의 정보 초기화.. ( XML 데이터로 처리할 예정???? ) */
 	this->LoadWeaponData();
 
-	this->m_tWeaponDataArr[Weapon_GaussRifle].bInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_GaussRifle].bImagePathInfluenceEntityDir = false;
 
-	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].bInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].bImagePathInfluenceEntityDir = false;
 
-	this->m_tWeaponDataArr[Weapon_FlameThrower].bInfluenceEntityDir = true;
+	this->m_tWeaponDataArr[Weapon_FlameThrower].bImagePathInfluenceEntityDir = true;
+
+	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePathInfluenceEntityDir = true;
+	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePath2InfluenceEntityDir = false;
+
+	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePathInfluenceEntityDir = true;
+	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePath2InfluenceEntityDir = false;
+
+	this->m_tWeaponDataArr[Weapon_HelfireMissilePack].bImagePathInfluenceEntityDir = false;
+
+	if ( this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData )
+		this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData->bUseFollowDustEffect = true;
+
+	this->m_tWeaponDataArr[Weapon_TwinAutocannons].bImagePathInfluenceEntityDir = false;
 }
 
 CWeapon * CWeaponMgr::GetNewWeapon( const eWeaponKind& _eWeaponKind )
@@ -53,7 +66,7 @@ void CWeaponMgr::LoadWeaponData()
 	pDoc->validateOnParse	= VARIANT_TRUE;
 	pDoc->resolveExternals  = VARIANT_TRUE;
 
-	if(pDoc->load( (_variant_t)L"..\\Data\\UnitWeaponData.xml" ) == E_FAIL )
+	if(pDoc->load( (_variant_t)L"..\\Data\\UnitWeaponData7.xml" ) == E_FAIL )
 	{
 		ERROR_MSG(L"아이템 데이터 로드 실패!");
 		return;
@@ -74,65 +87,73 @@ void CWeaponMgr::LoadWeaponData()
 
 	iTotal = pElementList->Getlength();		//ITEM Element의 총 개수를 받아온다.
 
-	for(int i = 0; i < iTotal; ++i)
+	for ( int i = 0; i < iTotal; ++i )
 	{
 		IMAGE_PATH*	pImagePath = new IMAGE_PATH;
 
-		ZeroMemory(pImagePath, sizeof(IMAGE_PATH));
+		ZeroMemory( pImagePath, sizeof( IMAGE_PATH ) );
 
 		this->m_tWeaponDataArr[i].pBulletData = new BULLET_DATA;
 
 		/* 무기 정보 받기.. */
-		this->m_tWeaponDataArr[i].wstrWeaponName 
-			= pElementList->Getitem(i)->selectNodes(L"//NAME")->Getitem(i)->Gettext();
+		this->m_tWeaponDataArr[i].wstrWeaponName
+			= pElementList->Getitem( i )->selectNodes( L"//NAME" )->Getitem( i )->Gettext();
 
 		this->m_tWeaponDataArr[i].fDamage
-			= atof( pElementList->Getitem( i )->selectNodes( L"//DAMAGE" )->Getitem(i)->Gettext() );
+			= atof( pElementList->Getitem( i )->selectNodes( L"//DAMAGE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].fAttInterval
 			= Calc_Weapon_Interval( atof( pElementList->Getitem( i )->selectNodes( L"//ATTACK_INTERVAL" )->Getitem( i )->Gettext() ) );
 
 		this->m_tWeaponDataArr[i].eUpgradeType
-			= (eWeaponUpgradeType)atoi( pElementList->Getitem( i )->selectNodes( L"//UPGRADE_TYPE" )->Getitem(i)->Gettext() );
+			= (eWeaponUpgradeType)atoi( pElementList->Getitem( i )->selectNodes( L"//UPGRADE_TYPE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iUpgradePlus
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//UPGRADE_PLUS" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//UPGRADE_PLUS" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iMinAttRange
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//MIN_ATTACK_RANGE" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//MIN_ATTACK_RANGE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iMaxAttRange
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//MAX_ATTACK_RANGE" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//MAX_ATTACK_RANGE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].eWeaponAttType
-			= (eWeaponAttType)atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_TYPE" )->Getitem(i)->Gettext() );
+			= (eWeaponAttType)atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_TYPE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iInside
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_INSIDE" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_INSIDE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iMiddle
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_MIDDLE" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_MIDDLE" )->Getitem( i )->Gettext() );
 
 		this->m_tWeaponDataArr[i].iOutSide
-			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_OUTSIDE" )->Getitem(i)->Gettext() );
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//SPLASH_OUTSIDE" )->Getitem( i )->Gettext() );
 
 		/* 이미지 경로 받기.. */
 		pImagePath->wstrObjKey
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_OBJ_KEY" )->Getitem( i )->Gettext();
-		
+
 		pImagePath->wstrStateKey
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_STATE_KEY" )->Getitem( i )->Gettext();
-		
+
 		pImagePath->wstrPath
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_PATH" )->Getitem( i )->Gettext();
-		
+
 		pImagePath->iCount
 			= atoi( pElementList->Getitem( i )->selectNodes( L"//IMAGE_COUNT" )->Getitem( i )->Gettext() );
-		
+
 		if ( pImagePath->wstrObjKey != L"NULL" )
 		{
-			CTextureMgr::GetInstance()->InsertTexture( pImagePath->wstrPath.c_str(), pImagePath->wstrObjKey.c_str(), TEX_MULTI, pImagePath->wstrStateKey.c_str(), pImagePath->iCount,
-													   true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) );
+			D3DCOLOR color = D3DCOLOR_ARGB( 255, 0, 0, 0 );
+			if ( pImagePath->wstrObjKey == L"Effect" &&
+				 pImagePath->wstrStateKey == L"SiegeTankFire" )
+				color = D3DCOLOR_ARGB( 255, 0, 255, 0 );
+
+			CTextureMgr::GetInstance()->InsertTexture( pImagePath->wstrPath.c_str(), 
+													   pImagePath->wstrObjKey.c_str(), TEX_MULTI, 
+													   pImagePath->wstrStateKey.c_str(), 
+													   pImagePath->iCount,
+													   true, color );
 
 			this->m_tWeaponDataArr[i].pImagePath = pImagePath;
 		}
@@ -246,7 +267,40 @@ void CWeaponMgr::LoadWeaponData()
 		else
 			safe_delete( this->m_tWeaponDataArr[i].pBulletData );
 
+		/*
+		pElement_Image2ObjKey = pDoc->createElement( L"IMAGE2_OBJ_KEY" );
+		pElement_Image2StateKey = pDoc->createElement( L"IMAGE2_STATE_KEY" );
+		pElement_Image2Path = pDoc->createElement( L"IMAGE2_PATH" );
+		pElement_Image2Count = pDoc->createElement( L"IMAGE2_COUNT" );
+		*/
 
+		/* 2번째 이미지 데이터 불러오기.. */
+		this->m_tWeaponDataArr[i].pImagePath2 = new IMAGE_PATH;
+
+		this->m_tWeaponDataArr[i].pImagePath2->wstrObjKey
+			= pElementList->Getitem( i )->selectNodes( L"//IMAGE2_OBJ_KEY" )->Getitem( i )->Gettext();
+
+		this->m_tWeaponDataArr[i].pImagePath2->wstrStateKey
+			= pElementList->Getitem( i )->selectNodes( L"//IMAGE2_STATE_KEY" )->Getitem( i )->Gettext();
+
+		this->m_tWeaponDataArr[i].pImagePath2->wstrPath
+			= pElementList->Getitem( i )->selectNodes( L"//IMAGE2_PATH" )->Getitem( i )->Gettext();
+
+		this->m_tWeaponDataArr[i].pImagePath2->iCount
+			= atoi( pElementList->Getitem( i )->selectNodes( L"//IMAGE2_COUNT" )->Getitem( i )->Gettext() );
+
+		if ( this->m_tWeaponDataArr[i].pImagePath2->wstrObjKey == L"NULL" )
+			safe_delete( this->m_tWeaponDataArr[i].pImagePath2 );
+		else
+		{
+			CTextureMgr::GetInstance()->InsertTexture( this->m_tWeaponDataArr[i].pImagePath2->wstrPath.c_str(),
+													   this->m_tWeaponDataArr[i].pImagePath2->wstrObjKey.c_str(),
+													   TEX_MULTI,
+													   this->m_tWeaponDataArr[i].pImagePath2->wstrStateKey.c_str(),
+													   this->m_tWeaponDataArr[i].pImagePath2->iCount,
+													   true,
+													   D3DCOLOR_ARGB( 255, 0, 0, 0 ) );
+		}
 	}
 
 }

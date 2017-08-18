@@ -40,7 +40,7 @@ HRESULT CMarine::Initialize( void )
 	this->m_wstrStateKey = L"Idle";
 
 	/* 유닛의 데이터 초기화.. */
-	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 40.f;
+	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 2000.f;
 	this->m_tInfoData.iDefense = 0;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );

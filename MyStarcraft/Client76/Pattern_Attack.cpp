@@ -16,13 +16,14 @@ CPattern_Attack::~CPattern_Attack()
 
 void CPattern_Attack::Initialize()
 {
-	this->m_tEntityGroundWeapon = this->m_pGameEntity->GetGroundAttackData();
-	this->m_tEntityAirWeapon = this->m_pGameEntity->GetAirAttackData();
 	this->m_pEntityAnim = const_cast<CAnimation*>(this->m_pGameEntity->GetComponent<CAnimation>());
 }
 
 void CPattern_Attack::OnEnable()
 {
+	this->m_tEntityGroundWeapon = this->m_pGameEntity->GetGroundAttackData();
+	this->m_tEntityAirWeapon = this->m_pGameEntity->GetAirAttackData();
+
 	this->m_pTarget = this->m_pGameEntity->GetTarget();
 
 	/* 타겟이 없을 경우 다시 Idle 패턴으로.. */
@@ -32,7 +33,7 @@ void CPattern_Attack::OnEnable()
 		return;
 	}
 
-	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos() );
+	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
 	/* 타겟이 공중유닛이이라면.. */
 	if ( false )
@@ -72,7 +73,7 @@ int CPattern_Attack::Update()
 		return Event_Pattern_Change;
 	}
 
-	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos() );
+	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
 	if ( this->m_pEntityAnim->GetIsAnimEnd() )
 	{

@@ -29,7 +29,7 @@ void CPattern_HealOurForces::OnEnable()
 		return;
 	}
 
-	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos() );
+	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
 	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp() <= EPSILON) )
 	{
@@ -40,7 +40,7 @@ void CPattern_HealOurForces::OnEnable()
 
 int CPattern_HealOurForces::Update()
 {
-	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos() );
+	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
 	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp() <= EPSILON) )
 	{

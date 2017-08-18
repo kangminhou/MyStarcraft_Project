@@ -185,6 +185,12 @@ typedef struct tagBulletData
 	IMAGE_PATH*			pEffectImaePath;
 	IMAGE_PATH*			pImagePath;
 
+	bool				bUseFollowDustEffect;
+
+	tagBulletData()
+		: bUseFollowDustEffect(false)
+	{}
+
 } BULLET_DATA;
 
 /* 무기 데이터.. */
@@ -218,7 +224,8 @@ typedef struct tagWeaponData
 
 	BULLET_DATA*		pBulletData;
 
-	bool				bInfluenceEntityDir;	// Entity 객체의 방향에 따라 텍스쳐 번호에 영향이 가는가??..
+	bool				bImagePathInfluenceEntityDir;	// Entity 객체의 방향에 따라 텍스쳐 번호에 영향이 가는가??..
+	bool				bImagePath2InfluenceEntityDir;
 	
 
 } WEAPON_DATA;

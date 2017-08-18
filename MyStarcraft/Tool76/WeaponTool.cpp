@@ -110,24 +110,24 @@ void CWeaponTool::WeaponListClick( const int & iIndex )
 	}
 	else
 	{
-		if ( iter->second.first->eEffectShowKind == Effect_Show_Target_AND_Owner_Position )
-		{
-			TCHAR str[MAX_PATH] = L"";
-
-			swprintf_s( str, L"%s|%s|%d|%s", iter->second.first->pImagePath2->wstrObjKey.c_str(),
-						iter->second.first->pImagePath2->wstrStateKey.c_str(),
-						iter->second.first->pImagePath2->iCount,
-						iter->second.first->pImagePath2->wstrPath.c_str() );
-
-			m_WeaponCurPathData2 = str;
-		}
-		else
-			m_WeaponCurPathData2 = L"";
-
 		m_BulletTexturePathDirection = L"";
 		m_BulletEffect = L"";
 		m_BulletCastingEffect = L"";
 	}
+
+	if ( iter->second.first->pImagePath2 )
+	{
+		TCHAR str[MAX_PATH] = L"";
+
+		swprintf_s( str, L"%s|%s|%d|%s", iter->second.first->pImagePath2->wstrObjKey.c_str(),
+					iter->second.first->pImagePath2->wstrStateKey.c_str(),
+					iter->second.first->pImagePath2->iCount,
+					iter->second.first->pImagePath2->wstrPath.c_str() );
+
+		m_WeaponCurPathData2 = str;
+	}
+	else
+		m_WeaponCurPathData2 = L"";
 
 	UpdateData( FALSE );
 }
@@ -303,15 +303,21 @@ void CWeaponTool::OnBnClickedButtonAddWeaponData()
 	}
 	else
 	{
-		if ( pWeaponData->eEffectShowKind == Effect_Show_Target_AND_Owner_Position )
-		{
-			pWeaponData->pImagePath2 = this->FindImagePath( m_WeaponCurPathData2 );
-		}
 		pWeaponData->pBulletData = NULL;
 	}
 
+	if ( m_WeaponCurPathData2 != L"" )
+	{
+		pWeaponData->pImagePath2 = this->FindImagePath( m_WeaponCurPathData2 );
+		m_WeaponCurPathData2 = L"";
+	}
+	else
+		pWeaponData->pImagePath2 = NULL;
+
 	IMAGE_PATH* pImagePath = NULL;
 	pImagePath = this->FindImagePath( this->m_WeaponCurPathData );
+
+	this->m_WeaponCurPathData = L"";
 
 	this->m_mapWeaponData.insert( make_pair( m_WeaponName, make_pair( pWeaponData, pImagePath ) ) );
 	this->m_WeaponData_ListBox.AddString( m_WeaponName );
@@ -655,26 +661,6 @@ void CWeaponTool::OnBnClickedButtonSaveWeaponData()
 					pText_Bullet_Casting_Count = pDoc->createTextNode( L"NULL" );
 				}
 			}
-			else if ( iter->second.first->eEffectShowKind == Effect_Show_Target_AND_Owner_Position )
-			{
-				pText_fCastingTime = pDoc->createTextNode( L"NULL" );
-				pText_fSpeed = pDoc->createTextNode( L"NULL" );
-
-				pText_Bullet_ObjKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_StateKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_Path = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_Count = pDoc->createTextNode( L"NULL" );
-
-				pText_Bullet_EffectObjKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_EffectStateKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_EffectPath = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_EffectCount = pDoc->createTextNode( L"NULL" );
-
-				pText_Bullet_Casting_ObjKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_Casting_StateKey = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_Casting_Path = pDoc->createTextNode( L"NULL" );
-				pText_Bullet_Casting_Count = pDoc->createTextNode( L"NULL" );
-			}
 			else
 			{
 				pText_fCastingTime = pDoc->createTextNode( L"NULL" );
@@ -955,8 +941,8 @@ void CWeaponTool::OnBnClickedButtonLoadWeaponData()
 		IMAGE_PATH*	pImagePath = new IMAGE_PATH;
 		WEAPON_DATA* pWeaponData = new WEAPON_DATA;
 
-		ZeroMemory(pImagePath, sizeof(IMAGE_PATH));
-		ZeroMemory(pWeaponData, sizeof(WEAPON_DATA));
+		ZeroMemory(& pImagePath, sizeof(IMAGE_PATH));
+		ZeroMemory(&pWeaponData, sizeof(WEAPON_DATA));
 
 		pWeaponData->pBulletData = new BULLET_DATA;
 
@@ -1116,7 +1102,7 @@ void CWeaponTool::OnDropFiles( HDROP hDropInfo )
 
 	CDialog::OnDropFiles( hDropInfo );
 
-	UpdateData(TRUE);
+	UpdateData( TRUE );
 
 	int iFileCount = DragQueryFile(hDropInfo, -1, NULL, NULL);
 
@@ -1285,6 +1271,15 @@ void CWeaponTool::OnBnClickedButtonModifyWeaponData()
 	int iImagePathIndex = m_listboxPathFind.GetCurSel();
 	IMAGE_PATH* pImagePath = NULL;
 	pImagePath = this->FindImagePath( this->m_WeaponCurPathData );
+	this->m_WeaponCurPathData = L"";
+
+	if ( m_WeaponCurPathData2 != L"" )
+	{
+		pWeaponData->pImagePath2 = this->FindImagePath( m_WeaponCurPathData2 );
+		m_WeaponCurPathData2 = L"";
+	}
+	else
+		pWeaponData->pImagePath2 = NULL;
 
 	m_WeaponData_ListBox.InsertString( iIndex, pWeaponData->wstrWeaponName.c_str() );
 	this->m_mapWeaponData.insert( make_pair( m_WeaponName, make_pair( pWeaponData, pImagePath ) ) );

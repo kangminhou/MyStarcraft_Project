@@ -387,6 +387,9 @@
     <ClCompile Include="Effect_HitTarget.cpp">
       <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
     </ClCompile>
+    <ClCompile Include="Effect_ChaseTarget.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -584,14 +587,11 @@
     <ClInclude Include="EffectFactory.h">
       <Filter>98. Manager\00. Factory</Filter>
     </ClInclude>
-    <ClInclude Include="..\Headers\Enum.h">
-      <Filter>99. Default\헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Effect_HitTarget.h">
       <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
     </ClInclude>
-    <ClInclude Include="..\Headers\Define.h">
-      <Filter>99. Default\헤더 파일</Filter>
+    <ClInclude Include="Effect_ChaseTarget.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

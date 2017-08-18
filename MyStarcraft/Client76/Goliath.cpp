@@ -50,11 +50,11 @@ HRESULT CGoliath::Initialize( void )
 	this->m_tGenerateData.iRequirePopulation = 1;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FlameThrower );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_TwinAutocannons );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 6.f;
 
-	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FlameThrower );
+	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_HelfireMissilePack );
 	this->m_tAirAttWeapon.byAttackNum = 2;
 	this->m_tAirAttWeapon.fAttRange = 5.f;
 
@@ -73,12 +73,30 @@ HRESULT CGoliath::Initialize( void )
 
 int CGoliath::Update( void )
 {
+	if ( this->m_pCannonAnim )
+		this->m_pCannonAnim->UpdateAnim();
+
 	return CUnit::Update();
 }
 
 void CGoliath::Render( void )
 {
 	CUnit::Render();
+
+	/* 그릴 텍스쳐를 찾아냄.. */
+	const TEX_INFO* pDrawTexture = NULL;
+	const FRAME* pFrame = ((this->m_pCannonAnim) ? NULL : this->m_pCannonAnim->GetCurAnimation());
+
+	if ( pFrame )
+		pDrawTexture = this->m_vecDrawCannonTexture[(unsigned int)pFrame->fIndex];
+
+	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+	if ( pDrawTexture )
+	{
+		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
+		this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
+	}
 }
 
 void CGoliath::Release( void )

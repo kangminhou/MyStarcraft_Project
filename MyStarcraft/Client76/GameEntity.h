@@ -29,7 +29,8 @@ public:
 	enum eGameEntitySkillKind
 	{
 		Skill_Heal,
-		Skill_SpiderMine
+		Skill_SpiderMine,
+		Skill_SiegeOnOff,
 	};
 
 	typedef struct tagAttackData
@@ -59,6 +60,9 @@ protected:
 	CCorps*					m_pEntityBelongToCorps;		// 현재 부대..
 
 	BYTE					m_byDirAnimIndex;
+	bool					m_bUseDirAnimIndex;
+
+	BYTE					m_byLookAnimIndex;
 
 	CAStar*					m_pAStar;
 
@@ -73,6 +77,7 @@ protected:
 	bool					m_bCollision;
 	bool					m_bDie;
 	bool					m_bDestoryEntity;
+	bool					m_bInfluenceDir;
 
 	static CBackground*		m_pBackground;
 
@@ -117,6 +122,7 @@ public:
 	float GetAirWeaponAttRange() const;
 	CGameEntity* GetTarget() const;
 	BYTE GetDirAnimIndex() const;
+	BYTE GetLookAnimIndex() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -133,10 +139,11 @@ public:
 
 public:
 	bool CheckAlertEnemy( vector<CGameEntity*>* pVecEntitys = NULL, const int& iVecLimitSize = -1 );
+	bool CheckRangeAlertEnemy( const float& _fRange, vector<CGameEntity*>* pVecEntitys = NULL, const int& iVecLimitSize = -1 );
 	bool CheckAlertOurForces( vector<CGameEntity*>* pVecEntitys = NULL, const int& iVecLimitSize = -1 );
 	void MoveEntity();
 	void UpdateDirAnimIndex();
-	void LookPos( const D3DXVECTOR3& _vPos );
+	void LookPos( const D3DXVECTOR3& _vPos, const bool& _bDirUpdate = TRUE );
 
 	void RenderSelectTexture( bool _bPlayer );
 

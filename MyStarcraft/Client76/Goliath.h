@@ -4,6 +4,20 @@
 class CGoliath :
 	public CUnit
 {
+private:
+	CAnimation*				m_pCannonAnim;
+	vector<const TEX_INFO*>	m_vecCannonTexture[2];
+	vector<const TEX_INFO*>	m_vecDrawCannonTexture;
+	D3DXMATRIX				m_matCannonWorld;
+
+	ATTACK_DATA				m_tNormalTankGroundAttData;
+	ATTACK_DATA				m_tSiegeTankGroundAttData;
+
+	int						m_iModeChangeLevel;
+
+	bool					m_bChangeMode;
+	bool					m_bSiegeMode;
+
 public:
 	CGoliath();
 	virtual ~CGoliath();

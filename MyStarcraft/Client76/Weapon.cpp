@@ -67,14 +67,10 @@ void CWeapon::Attack( CGameEntity * _pAttTarget )
 {
 	this->m_fRestInterval = this->m_pWeaonData->fAttInterval;
 	this->m_pTarget = _pAttTarget;
-
+	
 	/* 즉시 공격인지 투사체 공격인지 판별.. */
-	switch ( this->m_pWeaonData->eEffectShowKind )
-	{
-		case Effect_Show_Owner_Position: case Effect_Show_Target_Position:
-			this->HitTarget();
-			break;
-	}
+	if ( !this->m_pWeaonData->pBulletData )
+		this->HitTarget();
 
 	/* 이펙트 발사.. */
 	CEffectMgr::GetInstance()->ShowEffect( this, _pAttTarget );
