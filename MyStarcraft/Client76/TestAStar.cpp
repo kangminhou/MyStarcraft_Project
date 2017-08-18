@@ -81,7 +81,7 @@ int CTestAStar::Update( void )
 {
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'S' ) )
 	{
-		for(int i = 0; i < 300; ++i )
+		for(int i = 0; i < 1; ++i )
 			this->AStarStart();
 	}
 	else if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'D' ) )
@@ -468,7 +468,9 @@ NODE * CTestAStar::MakeNode( const int & _iIndex, NODE * _pParent )
 	NODE* pNode = new NODE;
 
 	float fHCost = D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[m_iEndIndex]->vPos) );
-	float fGCost = ((_pParent) ? D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[_pParent->iIndex]->vPos) ) : 0.f);
+	//float fGCost = ((_pParent) ? D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[_pParent->iIndex]->vPos) ) : 0.f);
+	float fGCost = (( _iIndex != m_iStartIndex) ? 
+					 D3DXVec3Length( &(m_vecTile[_iIndex]->vPos - m_vecTile[m_iStartIndex]->vPos) ) : 0.f);
 
 	//if ( fHCost <= 100.f )
 		//pNode->fCost = fHCost + fGCost + ((_pParent) ? _pParent->fCost : 0.f);

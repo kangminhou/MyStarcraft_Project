@@ -8,6 +8,7 @@
 #include "TerrainPage.h"
 #include "UnitPage.h"
 #include "ObjectPage.h"
+#include "WeaponPage.h"
 
 
 // CMySheet
@@ -31,11 +32,13 @@ CMySheet::CMySheet( void )
 	m_pPageArr[Terrain] = new CTerrainPage;
 	m_pPageArr[Unit] = new CUnitPage;
 	m_pPageArr[Object] = new CObjectPage;
+	m_pPageArr[Weapon] = new CWeaponPage;
 
 	//[17.07.21_05] : 시트에 페이지를 연결하자.
 	AddPage( m_pPageArr[Terrain] );
 	AddPage( m_pPageArr[Unit] );
 	AddPage( m_pPageArr[Object] );
+	AddPage( m_pPageArr[Weapon] );
 }
 
 CMySheet::~CMySheet()

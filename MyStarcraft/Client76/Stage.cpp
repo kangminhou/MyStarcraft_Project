@@ -3,12 +3,17 @@
 #include "TextureMgr.h"
 #include "objmgr.h"
 #include "Factory.h"
+#include "EffectMgr.h"
 
 #include "Marine.h"
 #include "TestUnit.h"
 #include "Background.h"
 #include "Player.h"
 #include "Medic.h"
+#include "Firebat.h"
+#include "Vulture.h"
+#include "Tank.h"
+#include "Goliath.h"
 
 #include "Include.h"
 #include "Random.h"
@@ -20,30 +25,30 @@ HRESULT CStage::Initialize( void )
 	CUnit::SetWeaponManager( &m_weaponManager );
 
 	CObjMgr::GetInstance()->Initialize();
+	CEffectMgr::GetInstance()->Initialize();
 
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CBackground>::CreateGameObject(), OBJ_TYPE_BACKGROUND );
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CPlayer>::CreateGameObject(), OBJ_TYPE_USER );
 
 	CGameEntity::SetBackground( CObjMgr::GetInstance()->FindGameObject<CBackground>() );
 
-	nCnt = 0;
-
-	//for ( int i = 0; i < 50; ++i )
-	//{
-	//	++nCnt;
-	//	CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject(RANDOM_RANGE_INTERGER(0, 600), RANDOM_RANGE_INTERGER(0, 200)), OBJ_TYPE_USER );
-	//}
-
 
 	//CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(100, 100), OBJ_TYPE_USER);
 	//CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(200, 200), OBJ_TYPE_USER);
 	//CObjMgr::GetInstance()->AddGameObject(CFactory<CMedic>::CreateGameObject(100, 200), OBJ_TYPE_USER);
+	CObjMgr::GetInstance()->AddGameObject(CFactory<CMarine>::CreateGameObject(500, 200), OBJ_TYPE_USER2);
 
-	for ( int i = 0; i < 12; ++i )
-		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject( 100 + (i % 4) * 20, 100 + (i / 4) * 30 ), OBJ_TYPE_USER );
+	CObjMgr::GetInstance()->AddGameObject( CFactory<CFirebat>::CreateGameObject( 100, 400 ), OBJ_TYPE_USER );
 
-	for ( int i = 0; i < 12; ++i )
-		CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject( 400 + (i % 4) * 20, 100 + (i / 4) * 30 ), OBJ_TYPE_USER2 );
+	//CObjMgr::GetInstance()->AddGameObject( CFactory<CVulture>::CreateGameObject( 100, 400 ), OBJ_TYPE_USER );
+	//CObjMgr::GetInstance()->AddGameObject( CFactory<CTank>::CreateGameObject( 100, 400 ), OBJ_TYPE_USER );
+	//CObjMgr::GetInstance()->AddGameObject( CFactory<CGoliath>::CreateGameObject( 100, 400 ), OBJ_TYPE_USER );
+
+	//for ( int i = 0; i < 12; ++i )
+	//	CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject( 100 + (i % 4) * 20, 100 + (i / 4) * 30 ), OBJ_TYPE_USER );
+	
+	//for ( int i = 0; i < 12; ++i )
+	//	CObjMgr::GetInstance()->AddGameObject( CFactory<CMarine>::CreateGameObject( 400 + (i % 4) * 20, 100 + (i / 4) * 30 ), OBJ_TYPE_USER2 );
 
 	return S_OK;
 }
@@ -78,6 +83,7 @@ void CStage::Render(void)
 void CStage::Release(void)
 {
 	CObjMgr::GetInstance()->Release();
+	CEffectMgr::GetInstance()->DestroyInstance();
 }
 
 CStage::CStage(void)

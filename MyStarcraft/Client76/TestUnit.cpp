@@ -51,9 +51,8 @@ void CTestUnit::Release( void )
 {
 }
 
-void CTestUnit::SetPattern( const eGameEntityPattern& _ePatternKind )
+void CTestUnit::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _bPrevPattern /*= FALSE*/ )
 {
-	return;
 }
 
 void CTestUnit::InitAnimation()

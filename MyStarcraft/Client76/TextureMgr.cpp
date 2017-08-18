@@ -118,7 +118,7 @@ HRESULT CTextureMgr::LoadImagePath( wstring wstrImagePath )
 
 		int iCount = _ttoi( szCount );
 
-		if ( FAILED( InsertTexture( szPath, szObjKey, TEX_MULTI, szStateKey, iCount ) ) )
+		if ( FAILED( InsertTexture( szPath, szObjKey, TEX_MULTI, szStateKey, iCount, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
 		{
 			ERROR_MSG( L"PathFind Image Load Failed!!" );
 			return E_FAIL;

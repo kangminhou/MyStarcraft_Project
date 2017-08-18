@@ -5,6 +5,7 @@
 #include "KeyMgr.h"
 #include "Mouse.h"
 #include "ObjMgr.h"
+#include "Device.h"
 
 #include "Mouse.h"
 
@@ -45,7 +46,25 @@ int CPlayer::Update( void )
 void CPlayer::Render( void )
 {
 	if ( this->m_pCurCorps )
+	{
 		this->m_pCurCorps->Render();
+
+		D3DXMATRIX matTrans;
+		D3DXMatrixTranslation( &matTrans, 50.f, 50.f, 0.f );
+
+		TCHAR str[128];
+		swprintf_s( str, L"%d", this->m_pCurCorps->GetCurUnitNum() );
+
+		CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+		CDevice::GetInstance()->GetFont()->DrawTextW(
+			CDevice::GetInstance()->GetSprite(),
+			str,
+			lstrlen( str ),
+			NULL,
+			NULL,
+			D3DCOLOR_ARGB( 255, 255, 255, 0 )
+		);
+	}
 }
 
 void CPlayer::Release( void )

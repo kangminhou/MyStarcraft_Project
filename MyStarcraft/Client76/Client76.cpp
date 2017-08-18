@@ -33,6 +33,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccelTable;
 
+#ifdef _DEBUG
+	// api 에서 콘솔창 띄우기..
+	if ( AllocConsole() )
+		freopen( "CONOUT$", "w", stdout );
+#endif
+
 	msg.message = WM_NULL;
 
 	// 전역 문자열을 초기화합니다.
@@ -49,7 +55,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT76));
 
 	CMainGame MainGame;
-	MainGame.Initialize();
+	if ( MainGame.Initialize() )
+	{
+		ERROR_MSG( L"MainGame 이 정상적으로 초기화되지 않음.." );
+		return FALSE;
+	}
 
 	DWORD dwOldTime, dwCurTime;
 	DWORD dwFramePerSec = 1000 / 100;
@@ -77,6 +87,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			}
 		}
 	}
+
+#ifdef _DEBUG
+	// 콘솔창 해제..
+	FreeConsole();
+#endif
 
 
 	// 기본 메시지 루프입니다.

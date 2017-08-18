@@ -117,10 +117,18 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Corps.cpp" />
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="Effect.cpp" />
+    <ClCompile Include="EffectBridge.cpp" />
+    <ClCompile Include="EffectFactory.cpp" />
+    <ClCompile Include="EffectMgr.cpp" />
+    <ClCompile Include="Effect_Basic.cpp" />
+    <ClCompile Include="Effect_HitTarget.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="FileCopyScene.cpp" />
+    <ClCompile Include="Firebat.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Goliath.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Logo.cpp" />
     <ClCompile Include="MainGame.cpp" />
@@ -153,6 +161,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Tank.cpp" />
     <ClCompile Include="TestAStar.cpp" />
     <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="TestUnit.cpp" />
@@ -161,12 +170,14 @@
     <ClCompile Include="TimeMgr.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Unit.cpp" />
-    <ClCompile Include="UnitFactory.cpp" />
     <ClCompile Include="EntityPattern.cpp" />
+    <ClCompile Include="Vulture.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Headers\Define.h" />
+    <ClInclude Include="..\Headers\Enum.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Astar.h" />
     <ClInclude Include="AStarManager.h" />
@@ -177,10 +188,18 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Corps.h" />
     <ClInclude Include="Device.h" />
+    <ClInclude Include="Effect.h" />
+    <ClInclude Include="EffectBridge.h" />
+    <ClInclude Include="EffectFactory.h" />
+    <ClInclude Include="EffectMgr.h" />
+    <ClInclude Include="Effect_Basic.h" />
+    <ClInclude Include="Effect_HitTarget.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="FileCopyScene.h" />
+    <ClInclude Include="Firebat.h" />
     <ClInclude Include="GameEntity.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Goliath.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Logo.h" />
     <ClInclude Include="MainGame.h" />
@@ -211,6 +230,7 @@
     <ClInclude Include="Skill_HealAliveUnit.h" />
     <ClInclude Include="Stage.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Tank.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestAStar.h" />
     <ClInclude Include="TestScene.h" />
@@ -220,8 +240,8 @@
     <ClInclude Include="TimeMgr.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Unit.h" />
-    <ClInclude Include="UnitFactory.h" />
     <ClInclude Include="EntityPattern.h" />
+    <ClInclude Include="Vulture.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>

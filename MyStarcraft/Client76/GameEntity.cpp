@@ -49,7 +49,7 @@ void CGameEntity::SetPrevPattern()
 				--i;
 			else
 			{
-				this->SetPattern( this->m_vecActPatterns[i] );
+				this->SetPattern( this->m_vecActPatterns[i], TRUE );
 				//this->m_vecActPatterns.pop_back();
 				return;
 			}
@@ -116,6 +116,11 @@ int CGameEntity::GetScope() const
 	return this->m_tInfoData.iScope;
 }
 
+int CGameEntity::GetEntitySpaceDataKey() const
+{
+	return this->m_iEntitySpaceDataKey;
+}
+
 const CCorps * CGameEntity::GetEntityBelongToCorps() const
 {
 	return this->m_pEntityBelongToCorps;
@@ -169,6 +174,11 @@ float CGameEntity::GetAirWeaponAttRange() const
 CGameEntity * CGameEntity::GetTarget() const
 {
 	return this->m_pTarget;
+}
+
+BYTE CGameEntity::GetDirAnimIndex() const
+{
+	return this->m_byDirAnimIndex;
 }
 
 
@@ -267,12 +277,12 @@ void CGameEntity::Render( void )
 		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
-	//D3DXMATRIX matFont;
-	//D3DXMatrixTranslation( &matFont, this->GetPos().x, this->GetPos().y + 100.f, this->GetPos().z );
-	//
-	//TCHAR str[128];
-	//swprintf_s( str, L"HP : %f", this->GetCurHp() );
-	//this->DrawFont( matFont, str );
+	D3DXMATRIX matFont;
+	D3DXMatrixTranslation( &matFont, this->GetPos().x, this->GetPos().y + 100.f, this->GetPos().z );
+	
+	TCHAR str[128];
+	swprintf_s( str, L"HP : %f", this->GetCurHp() );
+	this->DrawFont( matFont, str );
 
 	//this->DrawRect( this->m_tColRect );
 
@@ -300,17 +310,6 @@ void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 
 bool CGameEntity::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _pTarget )
 {
-	switch ( _eSkillKind )
-	{
-		case CGameEntity::Skill_Heal:
-		{
-
-		}
-			break;
-
-		default:
-			return false;
-	}
 
 	return true;
 }

@@ -14,7 +14,7 @@ class CMySheet : public CPropertySheet
 	//페이지를 멤버변수로 가지고 있자.
 
 public:
-	enum ePageKind { Terrain, Unit, Object, End };
+	enum ePageKind { Terrain, Unit, Object, Weapon, End };
 
 private:
 	CPropertyPage*	m_pPageArr[End];

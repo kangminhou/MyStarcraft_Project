@@ -64,6 +64,9 @@ void CGameObject::SetObjKey( const wstring & _wstrObjKey )
 /* Getter.. */
 D3DXVECTOR3 CGameObject::GetPos() const
 {
+	if ( !this->m_pTransform )
+		return D3DXVECTOR3( 0.f, 0.f, 0.f );
+
 	return m_pTransform->GetPos();
 }
 

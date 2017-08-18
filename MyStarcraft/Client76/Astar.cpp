@@ -15,7 +15,7 @@ void CAStar::SetEntity( CGameEntity * _pEntity )
 	this->m_pCheckEntity = _pEntity;
 }
 
-bool CAStar::AStarStartPos(const D3DXVECTOR3& vStartPos
+int CAStar::AStarStartPos(const D3DXVECTOR3& vStartPos
 							, const D3DXVECTOR3& vEndPos
 							, vector<D3DXVECTOR3>& vecGetData
 							, const bool& _bCheckEntityTile /*= TRUE*/)
@@ -26,16 +26,17 @@ bool CAStar::AStarStartPos(const D3DXVECTOR3& vStartPos
 	return AStarStart( vecGetData, _bCheckEntityTile);
 }
 
-bool CAStar::AStarStart( vector<D3DXVECTOR3>& vecGetData,
+int CAStar::AStarStart( vector<D3DXVECTOR3>& vecGetData,
 						 const bool& _bCheckEntityTile )
 {
 	//if ( iStartIndex == iEndIndex )
 	//	return false;
 
-	const vector<TILE*>* pVecTile = m_pBackground->GetTile();
+	if ( !this->m_pBackground->CheckCanGoTile( this->m_iStartIndex, 0, m_pCheckEntity, _bCheckEntityTile ) )
+		return Event_Fail_Find_NearIndex;
 
-	if ( pVecTile == NULL )
-		return false;
+	if ( m_iEndIndex < 0 || m_iEndIndex >= TILEX * TILEY )
+		return Event_Index_OutRange_TileSize;
 
 	if ( !this->m_pBackground->CheckCanGoTile( m_iEndIndex, 0, NULL, _bCheckEntityTile ) )	//이동 불가 타일이라면.
 	{
@@ -43,7 +44,7 @@ bool CAStar::AStarStart( vector<D3DXVECTOR3>& vecGetData,
 	}
 
 	if ( m_iEndIndex == -1 )
-		return false;
+		return Event_Fail_Find_NearIndex;
 
 	Release();
 
@@ -53,7 +54,7 @@ bool CAStar::AStarStart( vector<D3DXVECTOR3>& vecGetData,
 
 }
 
-bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntityTile)
+int CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntityTile)
 {
 	NODE* pFirstNode = new NODE;
 
@@ -221,7 +222,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntit
 		++iCnt;
 
 		if ( iCnt > 50 )
-			return false;
+			return Event_Fail_PathFind;
 
 		if(pCheckNode->iIndex == m_iEndIndex)
 		{
@@ -315,7 +316,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntit
 
 			//원소를 반전시킨다.
 			//bestList.reverse();
-			return true;
+			return Event_Success_PathFind;
 		}
 
 		//OpenList에 담긴 비용을 정렬한다.
@@ -323,7 +324,7 @@ bool CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntit
 
 	}//While문 끝.
 
-	return false;
+	return Event_Fail_PathFind;
 }
 
 NODE * CAStar::MakeNode( int iIndex, NODE * pParent, const vector<TILE*>* pTile )

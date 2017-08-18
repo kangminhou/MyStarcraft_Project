@@ -6,9 +6,9 @@ enum eObjectType
 {
 	//eObjectType.
 	OBJ_TYPE_BACKGROUND,
-	OBJ_TYPE_EFFECT,
 	OBJ_TYPE_USER,
 	OBJ_TYPE_USER2,
+	OBJ_TYPE_EFFECT,
 	OBJ_TYPE_MAX,
 	OBJ_TYPE_USER_MAX = 2
 };
@@ -49,6 +49,24 @@ enum eGameObjectEvent
 {
 	Event_None,
 	Event_DestoryObject,
+};
+
+enum eWeaponAttType
+{
+	Weapon_Normal,
+	Weapon_Splash_Noraml,
+	Weapon_Splash_Circle,
+	Weapon_LockDown
+};
+
+enum eEffectShowKind
+{
+	Effect_Show_None,						// 이펙트 안 띄움..
+	Effect_Show_Owner_Position,				// 이펙트가 공격한 객체 쪽에서 띄움..
+	Effect_Show_Target_Position,			// 이펙트가 공격 당한 객체 쪽에서 띄움..
+	Effect_Show_Hit_Target,					// 이펙트가 공격 당한 객체의 좌표로 날아감 ( 발사했을 때 객체의 좌표로 (유도X,체력은 깎임) )..
+	Effect_Show_Chase_Target,				// 이펙트가 공격 당한 객체를 쫓아가 맞힘 ( 유도O )..
+	Effect_Show_Target_AND_Owner_Position,	// 이펙트가 공격 당한 객체와 공격한 객체 좌표에서 띄움..
 };
 
 //enum eItemType

@@ -80,5 +80,9 @@
 #include <afxdlgs.h>
 ////##[17.07.18_01]
 
+#import <msxml4.dll>
+
+using namespace MSXML2;	//하위 버전의 msxml도 사용하기 위해서.
+
 #define _PROJECT_MFC_
 

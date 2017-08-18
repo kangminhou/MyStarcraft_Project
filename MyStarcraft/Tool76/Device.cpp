@@ -218,6 +218,7 @@ CDevice::CDevice(void)
 :m_pD3D(NULL)
 ,m_pD3dDevice(NULL)
 {
+	Init3D();
 }
 
 CDevice::~CDevice(void)

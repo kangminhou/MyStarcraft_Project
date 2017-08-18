@@ -130,34 +130,37 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"Map", TEX_SINGLE ) ) )
 		return false;
 
-	/* Marine Image.. */
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Idle/marine%d.png", L"Marine", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	if ( FAILED( CTextureMgr::GetInstance()->LoadImagePath( L"../Data/ImagePath.txt" ) ) )
 		return false;
 
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Work/marine%d.png", L"Marine", TEX_MULTI, L"Move", 153, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Attack/marine%d.png", L"Marine", TEX_MULTI, L"Attack", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Die/marine%d.png", L"Marine", TEX_MULTI, L"Die", 8, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	/* Medic Image.. */
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Idle/medic%d.png", L"Medic", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Work/medic%d.png", L"Medic", TEX_MULTI, L"Move", 119, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Attack/medic%d.png", L"Medic", TEX_MULTI, L"Attack", 34, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Magic/medic%d.png", L"Medic", TEX_MULTI, L"Magic", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
-
-	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Die/medic%d.png", L"Medic", TEX_MULTI, L"Die", 9, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-		return false;
+	///* Marine Image.. */
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Idle/marine%d.png", L"Marine", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Work/marine%d.png", L"Marine", TEX_MULTI, L"Move", 153, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Attack/marine%d.png", L"Marine", TEX_MULTI, L"Attack", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Die/marine%d.png", L"Marine", TEX_MULTI, L"Die", 8, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	///* Medic Image.. */
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Idle/medic%d.png", L"Medic", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Work/medic%d.png", L"Medic", TEX_MULTI, L"Move", 119, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Attack/medic%d.png", L"Medic", TEX_MULTI, L"Attack", 34, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Magic/medic%d.png", L"Medic", TEX_MULTI, L"Magic", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
+	//
+	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Die/medic%d.png", L"Medic", TEX_MULTI, L"Die", 9, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+	//	return false;
 
 	return true;
 

@@ -172,6 +172,27 @@
     <Filter Include="01. GameObject\00. GameEntity\00. Unit\01. Medic">
       <UniqueIdentifier>{54e69ae4-25c0-4067-a42b-ad8c8a2d27f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\02. Firebat">
+      <UniqueIdentifier>{2f3f2977-1550-494f-8907-f556b0d653a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\03. Effect">
+      <UniqueIdentifier>{4cda4a23-80f4-4feb-a5c2-33b0a4b313e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\03. Vulture">
+      <UniqueIdentifier>{41e2d949-5a1e-404b-b0cf-ce597666163b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\04. Tank">
+      <UniqueIdentifier>{6bcc50c5-9385-411c-82e3-d1fa003cecda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\05. Goliath">
+      <UniqueIdentifier>{87ee482f-f749-4a32-87f6-272d7e69dca0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\10. EffectMgr">
+      <UniqueIdentifier>{a67ff15d-c202-4699-8f95-2641f8983852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\03. Effect\00. EffectBridge">
+      <UniqueIdentifier>{f1c2ba69-a737-4cf5-8a77-16dc8d58ab55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -242,9 +263,6 @@
     </ClCompile>
     <ClCompile Include="Unit.cpp">
       <Filter>01. GameObject\00. GameEntity\00. Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="UnitFactory.cpp">
-      <Filter>98. Manager\00. Factory</Filter>
     </ClCompile>
     <ClCompile Include="Building.cpp">
       <Filter>01. GameObject\00. GameEntity\01. Building</Filter>
@@ -339,6 +357,36 @@
     <ClCompile Include="Skill_HealAliveUnit.cpp">
       <Filter>03. Component\04. Skill</Filter>
     </ClCompile>
+    <ClCompile Include="Firebat.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\02. Firebat</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
+      <Filter>01. GameObject\03. Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Vulture.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\03. Vulture</Filter>
+    </ClCompile>
+    <ClCompile Include="Tank.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\04. Tank</Filter>
+    </ClCompile>
+    <ClCompile Include="Goliath.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\05. Goliath</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectMgr.cpp">
+      <Filter>98. Manager\10. EffectMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectBridge.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect_Basic.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectFactory.cpp">
+      <Filter>98. Manager\00. Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect_HitTarget.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -415,9 +463,6 @@
     </ClInclude>
     <ClInclude Include="Unit.h">
       <Filter>01. GameObject\00. GameEntity\00. Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="UnitFactory.h">
-      <Filter>98. Manager\00. Factory</Filter>
     </ClInclude>
     <ClInclude Include="Building.h">
       <Filter>01. GameObject\00. GameEntity\01. Building</Filter>
@@ -511,6 +556,42 @@
     </ClInclude>
     <ClInclude Include="Skill_HealAliveUnit.h">
       <Filter>03. Component\04. Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="Firebat.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\02. Firebat</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>01. GameObject\03. Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Vulture.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\03. Vulture</Filter>
+    </ClInclude>
+    <ClInclude Include="Tank.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\04. Tank</Filter>
+    </ClInclude>
+    <ClInclude Include="Goliath.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\05. Goliath</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectMgr.h">
+      <Filter>98. Manager\10. EffectMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectBridge.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect_Basic.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectFactory.h">
+      <Filter>98. Manager\00. Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\Enum.h">
+      <Filter>99. Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect_HitTarget.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\Define.h">
+      <Filter>99. Default\헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

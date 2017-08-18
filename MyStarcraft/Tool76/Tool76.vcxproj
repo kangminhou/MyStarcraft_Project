@@ -139,6 +139,8 @@
     <ClCompile Include="Tool76Doc.cpp" />
     <ClCompile Include="Tool76View.cpp" />
     <ClCompile Include="UnitPage.cpp" />
+    <ClCompile Include="WeaponPage.cpp" />
+    <ClCompile Include="WeaponTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackGround.h" />
@@ -163,6 +165,8 @@
     <ClInclude Include="Tool76Doc.h" />
     <ClInclude Include="Tool76View.h" />
     <ClInclude Include="UnitPage.h" />
+    <ClInclude Include="WeaponPage.h" />
+    <ClInclude Include="WeaponTool.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Tool76.ico" />

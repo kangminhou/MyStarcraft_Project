@@ -17,11 +17,14 @@ public:
 protected:
 	CGameEntity*	m_pGameEntity;
 
+	bool			m_bPrevPattern;
+
 public:
 	CEntityPattern();
 	virtual ~CEntityPattern();
 
 public:
+	void SetPrevPattern( const bool& _bPrevPattern );
 	void SetGameEntity( CGameEntity* _pGameEntity );
 
 public:

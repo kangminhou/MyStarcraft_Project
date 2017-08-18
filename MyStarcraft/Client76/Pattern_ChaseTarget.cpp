@@ -57,7 +57,7 @@ void CPattern_ChaseTarget::OnEnable()
 
 	m_pTarget = this->m_pGameEntity->GetTarget();
 
-	this->m_pMoveComponent->SetDestination( m_pTarget->GetPos() );
+	this->m_pMoveComponent->SetDestination( m_pTarget->GetPos(), true );
 }
 
 int CPattern_ChaseTarget::Update()

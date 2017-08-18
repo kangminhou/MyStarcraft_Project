@@ -20,10 +20,10 @@ public:
 
 public:
 	// CUnit을(를) 통해 상속됨
-	virtual void SetPattern( const eGameEntityPattern & _ePatternKind ) override;
+	virtual void SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _bPrevPattern = FALSE ) override;
 
 public:
-	virtual bool UseSkill( const eGameEntitySkillKind& wstrSkillName, CGameEntity* _pTarget ) override;
+	virtual bool UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget );
 
 protected:
 	virtual void InitAnimation() override;

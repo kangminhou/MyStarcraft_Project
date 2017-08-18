@@ -7,6 +7,8 @@ class CWeaponMgr
 public:
 	enum eWeaponKind
 	{
+		Weapon_FlameThrower,
+		Weapon_FragmentationGrenade,
 		Weapon_GaussRifle,
 		Weapon_End
 	};
@@ -19,7 +21,10 @@ public:
 	~CWeaponMgr();
 
 	void Initialize();
-	CWeapon* GetNewWeapon( eWeaponKind eWeaponKind );
+	CWeapon* GetNewWeapon( const eWeaponKind& _eWeaponKind );
+
+private:
+	void LoadWeaponData();
 
 };
 

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<WEAPON_DATA><WEAPON><NAME>GaussRifle</NAME><DAMAGE>6</DAMAGE><AttInterval>22</AttInterval><UPGRADE_TYPE>0</UPGRADE_TYPE><UPGRADE_PLUS>1</UPGRADE_PLUS><MinAttRange>0</MinAttRange><MaxAttRange>8</MaxAttRange><SplashType>0</SplashType><SplashInside>0</SplashInside><SplashMiddle>0</SplashMiddle><SplashOuside>0</SplashOuside></WEAPON></WEAPON_DATA>

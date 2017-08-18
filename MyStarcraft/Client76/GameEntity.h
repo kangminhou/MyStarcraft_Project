@@ -29,6 +29,7 @@ public:
 	enum eGameEntitySkillKind
 	{
 		Skill_Heal,
+		Skill_SpiderMine
 	};
 
 	typedef struct tagAttackData
@@ -85,7 +86,7 @@ public:
 	virtual ~CGameEntity();
 
 public:
-	virtual void SetPattern( const eGameEntityPattern& _ePatternKind ) PURE;
+	virtual void SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bPrevPattern = FALSE ) PURE;
 	void SetPrevPattern();
 	void SetCurHp( const float& fHp );
 	void SetEntityBelongToCorps( CCorps* _pEntityBelongToCorps );
@@ -102,6 +103,7 @@ public:
 	float GetMaxHp() const;
 	float GetSpeed() const;
 	int GetScope() const;
+	int GetEntitySpaceDataKey() const;
 	const CCorps* GetEntityBelongToCorps() const;
 	CAStar*	GetAStar() const { return m_pAStar; }
 	RECT GetColRect() const;
@@ -114,6 +116,7 @@ public:
 	float GetGroundWeaponAttRange() const;
 	float GetAirWeaponAttRange() const;
 	CGameEntity* GetTarget() const;
+	BYTE GetDirAnimIndex() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨

@@ -42,6 +42,8 @@
 
 #include <fstream>
 
+#import <msxml4.dll>
+
 #ifdef _DEBUG
 #include <vld.h>
 #endif

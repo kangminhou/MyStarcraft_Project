@@ -28,10 +28,6 @@ public:
 	virtual void Release( void ) override;
 
 public:
-	// CGameEntity을(를) 통해 상속됨
-	virtual void SetPattern( const eGameEntityPattern& _ePatternKind ) PURE;
-
-public:
 	virtual void InitAnimation() PURE;
 	virtual void InitPattern() PURE;
 

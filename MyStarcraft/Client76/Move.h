@@ -31,11 +31,14 @@ private:
 	eMoveKind			m_eMoveKind;
 
 	std::vector<D3DXVECTOR3>	m_vecMovePath;
-	int							m_iCurIndexNum;
+
+	int					m_iCurIndexNum;
 
 	float				m_fRestReFindPath;
 	float				m_fReFindPathCycle;
+
 	bool				m_bCanRestReFindPath;
+	bool				m_bCanMove;
 
 public:
 	CMove();
@@ -48,7 +51,7 @@ public:
 
 public:
 	int Update();
-	virtual void SetDestination( const D3DXVECTOR3& _vDestination );
+	void SetDestination( const D3DXVECTOR3& _vDestination, const bool& _bChaseTarget = false );
 	void PathFind();
 	void ReFindPath();
 

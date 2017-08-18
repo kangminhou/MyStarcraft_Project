@@ -19,15 +19,24 @@ void CObjMgr::InsertEntitySpaceData( CGameEntity* _pGameEntity )
 	int iReturnSpaceData = -1;
 
 	/* 오브젝트가 빈 오브젝트라면 ( 예외처리.. ) */
-	if ( !_pGameEntity || _pGameEntity->GetObjectType() < 0 || _pGameEntity->GetObjectType() >= OBJ_TYPE_MAX )
+	if ( !_pGameEntity )
 		return;
+	else if ( _pGameEntity->GetObjectType() < 0 || _pGameEntity->GetObjectType() >= OBJ_TYPE_MAX )
+	{
+		_pGameEntity->SetEntitySpaceDataKey( iReturnSpaceData );
+		return;
+	}
 
 	int iEntityObjectType = _pGameEntity->GetObjectType();
 	int iCurSpaceIndex = this->GetSpaceIndex( _pGameEntity->GetPos() );
 
 	/* 검사할 인덱스나 현재 인덱스가 리스트의 크기를 벗어났다면 ( 예외처리.. ) */
 	if ( iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
+	{
+		_pGameEntity->SetEntitySpaceDataKey( iReturnSpaceData );
+		ERROR_MSG( L"CObjMgr Class - InsertEntitySpaceData Function" );
 		return;
+	}
 
 	for ( int i = 0; i < EntitySpaceArrSize; ++i )
 	{
@@ -193,7 +202,7 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _
 				{
 					pCheckEntity = this->m_EntitySpaceArr[k][iIndex][l];
 
-					if ( !pCheckEntity )
+					if ( !pCheckEntity || pCheckEntity->GetIsDie() )
 						break;
 						
 					if ( pCheckEntity== _pGameEntity )
@@ -223,13 +232,18 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _
 
 bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity * _pGameEntity, eObjectType _eCheckID, int iVecLimitSize )
 {
+	return this->CheckNearEntitys( _pOut, _pGameEntity, _pGameEntity->GetScope() * Object_Scope_Mul, _eCheckID, iVecLimitSize );
+}
+
+bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity * _pGameEntity, const float & _fCheckRadius, const eObjectType & _eCheckID, int iVecLimitSize )
+{
 	bool bFind = false;
 
 	D3DXVECTOR3 vEntityPos = _pGameEntity->GetPos();
 
-	float fScope = _pGameEntity->GetScope() * Object_Scope_Mul;
+	float fScope = _fCheckRadius;
 
-	RECT _rcCol = { vEntityPos.x - fScope * 0.5f, vEntityPos.y - fScope * 0.5f, vEntityPos.x + fScope * 0.5f, vEntityPos.y + fScope * 0.5f };
+	RECT _rcCol = { vEntityPos.x - fScope * 1.f, vEntityPos.y - fScope * 1.f, vEntityPos.x + fScope * 1.f, vEntityPos.y + fScope * 1.f };
 
 	int iStartX = int( _rcCol.left ) / SPACECX;
 	int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
@@ -253,6 +267,11 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 
 				if ( !pCheckEntity )
 					break;
+				else if ( pCheckEntity->GetIsDie() )
+				{
+					EraseEntitySpaceData( pCheckEntity, pCheckEntity->GetEntitySpaceDataKey() );
+					continue;
+				}
 
 				if ( pCheckEntity == _pGameEntity )
 					continue;

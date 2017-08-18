@@ -9,6 +9,7 @@ class CWeapon :
 protected:
 	WEAPON_DATA*			m_pWeaonData;			// 웨폰 매니저에서 받아올 것 ( 메모리 절약을 위해?? )..
 	CGameEntity*			m_pOwnerEntity;
+	CGameEntity*			m_pTarget;
 
 	float					m_fRestInterval;
 
@@ -22,8 +23,9 @@ public:
 	void SetWeaponOwner( CGameEntity* _pOwnerEntity );
 
 public:
-	const vector<TEX_INFO*>* GetHitTexture() const;
 	const WEAPON_DATA* GetWeaponData() const;
+	const CGameEntity* GetEntity() const;
+	const CGameEntity* GetTarget() const;
 
 public:
 	// CComponent을(를) 통해 상속됨
@@ -31,14 +33,15 @@ public:
 	virtual void Release();
 
 	void Attack( CGameEntity* _pAttTarget );
+	void HitTarget();
 	bool AttackCoolTimeUpdate();
 
 	bool IsCanAttack();
 
 private:
-	void NormalAttack( CGameEntity* _pAttTarget );
-	void NormalSplashAttack( CGameEntity* _pAttTarget );
-	void CircleSplashAttack( CGameEntity* _pAttTarget );
+	void NormalAttack();
+	void NormalSplashAttack();
+	void CircleSplashAttack();
 
 };
 

@@ -176,20 +176,32 @@ typedef struct tagImagePath
 
 }IMAGE_PATH;
 
+typedef struct tagBulletData
+{
+	float				fCastingTime;
+	float				fSpeed;
+
+	IMAGE_PATH*			pCastingImagePath;
+	IMAGE_PATH*			pEffectImaePath;
+	IMAGE_PATH*			pImagePath;
+
+} BULLET_DATA;
+
 /* 무기 데이터.. */
 typedef struct tagWeaponData
 {
-	int iUpgradePlus;
-	int iMinAttRange;
-	int iMaxAttRange;
-
 	float fDamage;
 	float fAttInterval;
 
 	eWeaponUpgradeType eUpgradeType;
+	int iUpgradePlus;
 
-	wstring				wstrWeaponName;
-	vector <TEX_INFO*>	vecHitTexture;
+	int iMinAttRange;
+	int iMaxAttRange;
+
+	wstring						wstrWeaponName;
+	IMAGE_PATH*					pImagePath;
+	IMAGE_PATH*					pImagePath2;
 
 	/* 스플래시 데미지 여부.. */
 	/*
@@ -197,10 +209,16 @@ typedef struct tagWeaponData
 	 * 받는 데미지 : 안쪽 100%, 중간 50%, 바깥쪽 25%
 	 * 범위는 픽셀 단위 ( 32픽셀 == 타일1개 )
 	 */
-	bool bSplash;
+	eWeaponAttType		eWeaponAttType;
 	int iInside;		// 안쪽 범위..
 	int iMiddle;		// 중간 범위..
 	int iOutSide;		// 바깥쪽 범위..
+
+	eEffectShowKind		eEffectShowKind;
+
+	BULLET_DATA*		pBulletData;
+
+	bool				bInfluenceEntityDir;	// Entity 객체의 방향에 따라 텍스쳐 번호에 영향이 가는가??..
 	
 
 } WEAPON_DATA;

@@ -73,7 +73,7 @@ void CMedic::Release( void )
 {
 }
 
-void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind )
+void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _bPrevPattern /*= FALSE*/ )
 {
 	if ( m_curActPatternKind == CGameEntity::Pattern_Die )
 		return;
@@ -101,14 +101,14 @@ void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind )
 
 		case CGameEntity::Pattern_Move:
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Move" )->second;
-			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Move" );
-			this->m_wstrStateKey = L"Move";
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Work" );
+			this->m_wstrStateKey = L"Work";
 			break;
 
 		case CGameEntity::Pattern_MoveAlert:
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"MoveAlert" )->second;
-			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Move" );
-			this->m_wstrStateKey = L"Move";
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Work" );
+			this->m_wstrStateKey = L"Work";
 			break;
 
 		case CGameEntity::Pattern_Stop:
@@ -125,8 +125,8 @@ void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind )
 
 		case CGameEntity::Pattern_Patrol:
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Patrol" )->second;
-			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Move" );
-			this->m_wstrStateKey = L"Idle";
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Work" );
+			this->m_wstrStateKey = L"Work";
 			break;
 
 		case CGameEntity::Pattern_Attack:
@@ -137,8 +137,8 @@ void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind )
 
 		case CGameEntity::Pattern_ChaseTarget:
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"ChaseTarget" )->second;
-			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Move" );
-			this->m_wstrStateKey = L"Move";
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Work" );
+			this->m_wstrStateKey = L"Work";
 			break;
 
 		case CGameEntity::Pattern_Die:
@@ -162,15 +162,27 @@ void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind )
 
 }
 
-bool CMedic::UseSkill( const eGameEntitySkillKind & wstrSkillName, CGameEntity * _pTarget )
+bool CMedic::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _pTarget )
 {
-	return false;
+	switch ( _eSkillKind )
+	{
+		case CGameEntity::Skill_Heal:
+		{
+			_pTarget->SetCurHp( _pTarget->GetCurHp() + 0.01f );
+		}
+		break;
+
+		default:
+			return false;
+	}
+
+	return true;
 }
 
 void CMedic::InitAnimation()
 {
 	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_Loop );
-	this->m_pAnimCom->AddAnimation( L"Move", FRAME( 0.f, 7.f, 7.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pAnimCom->AddAnimation( L"Work", FRAME( 0.f, 7.f, 7.f, 0.f ), CAnimation::Anim_Loop );
 	this->m_pAnimCom->AddAnimation( L"Attack", FRAME( 0.f, 5.f, 2.f, 0.f ), CAnimation::Anim_ClampForever );
 	this->m_pAnimCom->AddAnimation( L"Magic", FRAME( 0.f, 10.f, 3.f, 0.f ), CAnimation::Anim_ClampForever );
 	this->m_pAnimCom->AddAnimation( L"Die", FRAME( 0.f, 10.f, 9.f, 0.f ), CAnimation::Anim_ClampForever );
