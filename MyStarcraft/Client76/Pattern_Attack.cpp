@@ -60,12 +60,20 @@ int CPattern_Attack::Update()
 {
 	if ( !this->m_pTarget || this->m_pTarget->GetIsDie() )
 	{
-		this->m_pGameEntity->SetTarget( NULL );
-		this->m_pGameEntity->SetPrevPattern();
-		return Event_Pattern_Change;
+		if ( this->m_pCurUseWeapon->pWeapon->IsCanAttack() )
+		{
+			this->m_pGameEntity->SetTarget( NULL );
+			this->m_pGameEntity->SetPrevPattern();
+			return Event_Pattern_Change;
+		}
+
+		this->m_pCurUseWeapon->pWeapon->AttackCoolTimeUpdate();
+		this->m_pEntityAnim->ResetFrame();
+		return Event_None;
 	}
 
-	float fEntityAttRange = ((/* 공중 유닛이라면.. */ false) ? this->m_pGameEntity->GetAirWeaponAttRange() : this->m_pGameEntity->GetGroundWeaponAttRange());
+	//float fEntityAttRange = ((/* 공중 유닛이라면.. */ false) ? this->m_pGameEntity->GetAirWeaponAttRange() : this->m_pGameEntity->GetGroundWeaponAttRange());
+	float fEntityAttRange = m_pCurUseWeapon->fAttRange;
 
 	if ( D3DXVec3Length( &(this->m_pTarget->GetPos() - this->m_pGameEntity->GetPos()) ) > fEntityAttRange * Object_Scope_Mul )
 	{

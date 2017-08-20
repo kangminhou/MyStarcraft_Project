@@ -23,6 +23,8 @@
 
 
 CTank::CTank()
+	: m_wstrCannonObjKey(L"")
+	, m_wstrCannonStateKey(L"")
 {
 }
 
@@ -34,8 +36,13 @@ CTank::~CTank()
 
 HRESULT CTank::Initialize( void )
 {
-	this->SetObjKey( L"TankLower" );
-	this->m_wstrStateKey = L"Idle"; 
+	this->SetObjKey( L"TankUpper" );
+	this->m_wstrStateKey = L"All";
+
+	this->m_wstrFaceKey = L"FaceTank";
+	this->m_wstrWireFrameKey = L"Tank";
+
+	this->m_byFaceFrameNum = 45;
 
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 80.f;
@@ -43,12 +50,6 @@ HRESULT CTank::Initialize( void )
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(3.75f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
-
-	/* 생성 데이터 초기화.. */
-	this->m_tGenerateData.fGenerateTime = 1.f;
-	this->m_tGenerateData.iRequireMineral = 75;
-	this->m_tGenerateData.iRequireGas = 0;
-	this->m_tGenerateData.iRequirePopulation = 1;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tNormalTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_ArcliteCannon );
@@ -76,25 +77,19 @@ HRESULT CTank::Initialize( void )
 	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
 	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );
 
-	for ( int i = 0; i < 17; ++i )
-	{
-		this->m_vecCannonTexture[0].push_back( CTextureMgr::GetInstance()->GetTexture( L"TankUpper", L"All", i ) );
-		this->m_vecCannonTexture[1].push_back( CTextureMgr::GetInstance()->GetTexture( L"STankUpper", L"Attack", i ) );
-	}
-
-	for ( int i = 0; i < 5; ++i )
-	{
-		this->m_vecCannonCangeMotionTexture.push_back( CTextureMgr::GetInstance()->GetTexture( L"STankUpper", L"Idle", i ) );
-	}
-
 	this->m_bSiegeMode = false;
 	this->m_bChangeMode = false;
 	this->m_iModeChangeLevel = 0;
+	this->m_bUseDirAnimIndex = true;
+
+	m_wstrCannonObjKey = L"TankLower";
+	m_wstrCannonStateKey = L"Move";
+	this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
+	this->UpdateLookAnimIndex();
 
 	return S_OK;
 }
 
-#include "Mouse.h"
 int CTank::Update( void )
 {
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'O' ) )
@@ -110,41 +105,31 @@ int CTank::Update( void )
 		this->UpdateModeChange();
 	}
 
-	static float fX = -14.f;
-	static float fY = -10.f;
+	//static float fX = -14.f;
+	//static float fY = -10.f;
+	//
+	//if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'J' ) )
+	//{
+	//	fX -= 10.f * CTimeMgr::GetInstance()->GetTime();
+	//}
+	//if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'L' ) )
+	//{
+	//	fX += 10.f * CTimeMgr::GetInstance()->GetTime();
+	//}
+	//if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'I' ) )
+	//{
+	//	fY -= 10.f * CTimeMgr::GetInstance()->GetTime();
+	//}
+	//if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'K' ) )
+	//{
+	//	fY += 10.f * CTimeMgr::GetInstance()->GetTime();
+	//}
+	//if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'M' ) )
+	//{
+	//	D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos() + m_vScroll;
+	//	this->LookPos( vMouse );
+	//}
 
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'J' ) )
-	{
-		fX -= 10.f * CTimeMgr::GetInstance()->GetTime();
-	}
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'L' ) )
-	{
-		fX += 10.f * CTimeMgr::GetInstance()->GetTime();
-	}
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'I' ) )
-	{
-		fY -= 10.f * CTimeMgr::GetInstance()->GetTime();
-	}
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'K' ) )
-	{
-		fY += 10.f * CTimeMgr::GetInstance()->GetTime();
-	}
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'M' ) )
-	{
-		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos() + m_vScroll;
-		this->LookPos( vMouse );
-	}
-
-	return CUnit::Update();
-}
-
-void CTank::Render( void )
-{
-	CUnit::Render();
-
-	/*
-	 * 탱크 캐논 그리기.. 
-	 */
 	if ( this->m_bSiegeMode || this->m_bChangeMode )
 	{
 		D3DXMATRIX matTrans, matScale;
@@ -157,20 +142,40 @@ void CTank::Render( void )
 		this->m_matCannonWorld = this->GetWorldMatrix();
 	}
 
+	return CUnit::Update();
+}
+
+void CTank::Render( void )
+{
+	/*
+	* 탱크 몸체 그리기.. 
+	*/
+
 	/* 그릴 텍스쳐를 찾아냄.. */
 	const TEX_INFO* pDrawTexture = NULL;
 
-	if ( !this->m_bChangeMode )
-	{
-		pDrawTexture = this->m_vecCannonTexture[this->m_bSiegeMode][this->m_byLookAnimIndex];
-	}
-	else
-	{
-		const FRAME* pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
+	const FRAME* pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
 
-		if ( pCurAnimation )
-			pDrawTexture = this->m_vecCannonCangeMotionTexture[(unsigned int)pCurAnimation->fIndex];
+	if ( pCurAnimation )
+	{
+		pDrawTexture = this->m_vecTankTrunkTexture[(unsigned int)pCurAnimation->fIndex];
 	}
+
+	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+	if ( pDrawTexture )
+	{
+		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
+		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+	}
+
+	/* 그릴 텍스쳐를 찾아냄.. */
+	pDrawTexture = NULL;
+	pCurAnimation = this->m_pAnimCom->GetCurAnimation();
+
+	size_t u = (size_t)pCurAnimation->fIndex;
+	if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
+		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
 
 	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
 	if ( pDrawTexture )
@@ -179,29 +184,30 @@ void CTank::Render( void )
 		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
 		this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
 	}
-	else
-	{
-		int a = 10;
-		return;
-	}
 }
 
 void CTank::Release( void )
 {
 	safe_delete( m_pCannonAnim );
+	if ( this->m_bSiegeMode )
+		safe_delete( this->m_tNormalTankGroundAttData.pWeapon );
+	else
+		safe_delete( this->m_tSiegeTankGroundAttData.pWeapon );
+	//safe_delete( this->m_tNormalTankGroundAttData.pWeapon );
+	//safe_delete( this->m_tSiegeTankGroundAttData.pWeapon );
 }
 
 void CTank::InitAnimation()
 {
-	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
-	this->m_pAnimCom->AddAnimation( L"Move", FRAME( 0.f, 3.f, 3.f, 0.f ), CAnimation::Anim_ClampForever );
-	this->m_pAnimCom->AddAnimation( L"Change_Normal_to_Siege", FRAME( 0.f, 6.f, 6.f, 0.f ), CAnimation::Anim_ClampForever );
-	this->m_pAnimCom->AddAnimation( L"Change_Siege_to_Normal", FRAME( 0.f, 6.f, 6.f, 0.f ), CAnimation::Anim_Reverse_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"Attack", FRAME( 0.f, 3.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"Change_Normal_to_Siege", FRAME( 0.f, 5.f, 5.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"Change_Siege_to_Normal", FRAME( 0.f, 5.f, 5.f, 0.f ), CAnimation::Anim_Reverse_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"All", FRAME( 0.f, 3.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
 
-	this->m_pCannonAnim->AddAnimation( L"Normal_Attack", FRAME( 0.f, 3.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
-	this->m_pCannonAnim->AddAnimation( L"Change_Normal_to_Siege", FRAME( 0.f, 5.f, 5.f, 0.f ), CAnimation::Anim_ClampForever );
-	this->m_pCannonAnim->AddAnimation( L"Change_Siege_to_Normal", FRAME( 0.f, 5.f, 5.f, 0.f ), CAnimation::Anim_Reverse_ClampForever );
-	this->m_pCannonAnim->AddAnimation( L"Normal_Attack", FRAME( 0.f, 3.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pCannonAnim->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pCannonAnim->AddAnimation( L"Move", FRAME( 0.f, 3.f, 3.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pCannonAnim->AddAnimation( L"Change_Normal_to_Siege", FRAME( 0.f, 6.f, 6.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pCannonAnim->AddAnimation( L"Change_Siege_to_Normal", FRAME( 0.f, 6.f, 6.f, 0.f ), CAnimation::Anim_Reverse_ClampForever );
 }
 
 void CTank::InitPattern()
@@ -215,6 +221,25 @@ void CTank::InitPattern()
 	this->m_mapPatterns.insert( make_pair( L"Attack", new CPattern_Attack ) );
 	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
 	this->m_mapPatterns.insert( make_pair( L"Patrol", new CPattern_Patrol) );
+}
+
+void CTank::ChangeDirAnimIndex()
+{
+	const FRAME* pTempCurFrame = this->m_pCannonAnim->GetCurAnimation();
+	if ( pTempCurFrame )
+	{
+		m_vecTankTrunkTexture.clear();
+
+		int iAnimLength = int( pTempCurFrame->fMax );
+		int iStart = ((this->m_bInfluenceDir) ? iAnimLength * this->m_byDirAnimIndex : 0);
+		int iEnd = iAnimLength + iStart;
+
+		for ( ; iStart < iEnd; ++iStart )
+		{
+			const TEX_INFO* pAnimTex = CTextureMgr::GetInstance()->GetTexture( this->m_wstrCannonObjKey.c_str(), m_wstrCannonStateKey.c_str(), iStart );
+			m_vecTankTrunkTexture.push_back( pAnimTex );
+		}
+	}
 }
 
 void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bPrevPattern /*= FALSE */ )
@@ -249,8 +274,15 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Idle";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				//m_wstrStateKey = L"All";
+				//bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+
+				m_wstrCannonStateKey = L"Idle";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
+			}
+			else
+			{
+
 			}
 		}
 		break;
@@ -260,8 +292,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Move";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Move";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -270,8 +302,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Move";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Move";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -280,8 +312,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Idle";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Idle";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -290,8 +322,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Idle";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Idle";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -300,8 +332,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Move";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Move";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -310,8 +342,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Idle";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Idle";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -320,8 +352,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Move";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Move";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -330,8 +362,8 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 
 			if ( !this->m_bSiegeMode )
 			{
-				m_wstrStateKey = L"Move";
-				bChangeAnimation = this->m_pAnimCom->ChangeAnimation( m_wstrStateKey.c_str() );
+				m_wstrCannonStateKey = L"Move";
+				bChangeAnimation = this->m_pCannonAnim->ChangeAnimation( m_wstrCannonStateKey.c_str() );
 			}
 			break;
 
@@ -356,7 +388,7 @@ void CTank::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bP
 	this->m_curActPatternKind = _ePatternKind;
 
 	if ( bChangeAnimation )
-		this->ChangeDirAnimTexture();
+		this->ChangeLookAnimTexture();
 }
 
 bool CTank::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )
@@ -381,38 +413,51 @@ void CTank::UpdateModeChange()
 		{
 			case 0:
 			{
+				this->m_bInfluenceDir = false;
+				this->m_bInfluenceLook = false;
+
 				D3DXVECTOR3 vLook, vDir;
 				D3DXVec3Normalize( &vLook, &D3DXVECTOR3( 1.f, -1.f, 0.f ) );
 				this->SetLook( vLook );
 
 				this->m_tGroundAttWeapon = this->m_tSiegeTankGroundAttData;
-				this->m_bInfluenceDir = false;
 
 				this->m_pAnimCom->ChangeAnimation( L"Change_Normal_to_Siege" );
+				this->m_pAnimCom->PauseAnim();
+
+				this->m_wstrCannonObjKey = L"STankLower";
+				this->m_wstrCannonStateKey = L"All";
 
 				this->m_pCannonAnim->ChangeAnimation( L"Change_Normal_to_Siege" );
-				this->m_pCannonAnim->PauseAnim();
 
-				this->SetObjKey( L"STankLower" );
-				this->m_wstrStateKey = L"All";
+				this->SetObjKey( L"STankUpper" );
+				this->m_wstrStateKey = L"Idle";
 				this->SetSize( 1.f, 1.f );
-				this->ChangeDirAnimTexture();
+
+				this->ChangeLookAnimTexture();
+				this->ChangeDirAnimIndex();
 
 				this->m_iModeChangeLevel = 1;
 			}
 				break;
 			case 1:
-				if ( this->m_pAnimCom->GetIsAnimEnd() )
+				if ( this->m_pCannonAnim->GetIsAnimEnd() )
 				{
-					this->m_pCannonAnim->StopPauseAnim();
+					this->m_pAnimCom->StopPauseAnim();
 
 					this->m_iModeChangeLevel = 2;
 				}
 				break;
 			case 2:
-				if ( this->m_pCannonAnim->GetIsAnimEnd() )
+				if ( this->m_pAnimCom->GetIsAnimEnd() )
 				{
-					this->m_pAnimCom->PauseAnim();
+					//this->m_pAnimCom->PauseAnim();
+					this->m_bInfluenceLook = true;
+					this->m_wstrStateKey = L"Attack";
+
+					this->m_pAnimCom->ChangeAnimation( L"Attack" );
+
+					this->UpdateLookAnimIndex();
 
 					this->ModeChangeEnd();
 				}
@@ -425,38 +470,48 @@ void CTank::UpdateModeChange()
 		{
 			case 0:
 			{
+				D3DXVECTOR3 vLook, vDir;
+				D3DXVec3Normalize( &vLook, &D3DXVECTOR3( 1.f, 1.f, 0.f ) );
+				this->SetDir( vLook );
+				this->SetLook( vLook );
+
 				this->m_pAnimCom->StopPauseAnim();
 				this->m_tGroundAttWeapon = this->m_tNormalTankGroundAttData;
 
+				this->m_wstrStateKey = L"Idle";
+
 				this->m_pAnimCom->ChangeAnimation( L"Change_Siege_to_Normal" );
-				this->m_pAnimCom->PauseAnim();
 
 				this->m_pCannonAnim->ChangeAnimation( L"Change_Siege_to_Normal" );
+				this->m_pCannonAnim->PauseAnim();
+
+				this->UpdateLookAnimIndex();
 
 				this->m_iModeChangeLevel = 1;
 			}
 				break;
 			case 1:
-				if ( this->m_pCannonAnim->GetIsAnimEnd() )
+				if ( this->m_pAnimCom->GetIsAnimEnd() )
 				{
-					this->m_pAnimCom->StopPauseAnim();
+					this->m_pCannonAnim->StopPauseAnim();
 					this->m_iModeChangeLevel = 2;
 				}
 				break;
 			case 2:
-				if ( this->m_pAnimCom->GetIsAnimEnd() )
+				if ( this->m_pCannonAnim->GetIsAnimEnd() )
 				{
-					D3DXVECTOR3 vLook, vDir;
-					D3DXVec3Normalize( &vLook, &D3DXVECTOR3( 1.f, 1.f, 0.f ) );
-					this->SetDir( vLook );
-					this->SetLook( vLook );
-
 					this->m_bInfluenceDir = true;
+					this->m_bInfluenceLook = true;
 
-					this->SetObjKey( L"TankLower" );
-					this->m_wstrStateKey = L"Idle";
-					this->m_pAnimCom->ChangeAnimation( L"Idle" );
-					this->UpdateDirAnimIndex();
+					this->SetObjKey( L"TankUpper" );
+					this->m_wstrStateKey = L"All";
+					this->m_pAnimCom->ChangeAnimation( L"All" );
+
+					this->m_wstrCannonObjKey = L"TankLower";
+					this->m_wstrCannonStateKey = L"Idle";
+					this->m_pCannonAnim->ChangeAnimation( L"Idle" );
+
+					this->UpdateLookAnimIndex();
 
 					this->ModeChangeEnd();
 				}

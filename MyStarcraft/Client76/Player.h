@@ -26,6 +26,14 @@ private:
 
 	CMouse*			m_pMouse;
 
+	vector<BUTTON_DATA*>	m_vecCurCanActButton;
+	BUTTON_DATA*			m_pCancelButton;
+
+	const BUTTON_DATA*		m_pPushButtonData;
+	bool					m_bOrderAct;
+
+	vector<CGameEntity*>	m_vecClickEventEntity;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -36,6 +44,15 @@ public:
 	virtual int Update( void ) override;
 	virtual void Render( void ) override;
 	virtual void Release( void ) override;
+
+public:
+	void OrderActPattern( const BUTTON_DATA* _pButtonData );
+	void DecideShowButton();
+	void ShowOnlyCancelButtonInterface();
+
+	void ResetMouseClickEventEntity();
+	void AddMouseClickEventEntity(CGameEntity* _pEntity);
+	void EraseMouseClickEventEntity( CGameEntity* _pEntity );
 
 private:
 	void KeyCheck( void );

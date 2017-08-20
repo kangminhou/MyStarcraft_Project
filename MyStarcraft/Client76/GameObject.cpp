@@ -55,6 +55,11 @@ void CGameObject::SetObjectType( const eObjectType & eType )
 	this->m_eType = eType;
 }
 
+void CGameObject::SetMatrix( const D3DXMATRIX & _matWorld )
+{
+	this->m_matWorld = _matWorld;
+}
+
 void CGameObject::SetObjKey( const wstring & _wstrObjKey )
 {
 	this->m_wstrObjKey = _wstrObjKey;
@@ -148,7 +153,7 @@ void CGameObject::UpdateMatrix( void )
 
 void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX & _matWorld, const D3DXVECTOR3 & _vCenterPos, const D3DCOLOR& _color )
 {
-	if ( _pDrawTexture )
+	if ( this->m_pTempSprite && _pDrawTexture )
 	{
 		this->m_pTempSprite->SetTransform( &_matWorld );
 
@@ -172,7 +177,7 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 	vPoint[1] = D3DXVECTOR3( FLOAT(_rc.left), FLOAT(_rc.top), 0.f );
 	vPoint[2] = D3DXVECTOR3( FLOAT(_rc.left), FLOAT(_rc.bottom), 0.f );
 	vPoint[3] = D3DXVECTOR3( FLOAT(_rc.right), FLOAT(_rc.top), 0.f );
-
+	  
 	for ( int i = 0; i < 4; ++i )
 	{
 		D3DXMatrixTranslation( &matTrans, vPoint[i].x, vPoint[i].y, vPoint[i].z );
@@ -181,14 +186,14 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 		else
 			D3DXMatrixScaling( &matScale, FLOAT( _rc.right - _rc.left), 1.f, 1.f );
 
-		matWorld = matScale * matTrans;	
+		matWorld = matScale * matTrans;
 		CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
 		CDevice::GetInstance()->GetSprite()->Draw(
 			m_pDragTexture->pTexture,
 			NULL,
 			NULL,
 			NULL,
-			D3DCOLOR_ARGB( 255, 255, 255, 255 )
+			_color
 		);
 	}
 }
@@ -209,6 +214,7 @@ void CGameObject::DrawFont( const D3DXMATRIX & _matWorld, const wstring & wstrSh
 
 CGameObject::CGameObject(void)
 	: m_wstrObjKey(L"")
+	, m_pTempSprite(NULL)
 {
 	m_pTransform = new CTransform;
 	m_vecComponent.push_back( m_pTransform );

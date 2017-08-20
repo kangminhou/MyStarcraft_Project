@@ -941,8 +941,8 @@ void CWeaponTool::OnBnClickedButtonLoadWeaponData()
 		IMAGE_PATH*	pImagePath = new IMAGE_PATH;
 		WEAPON_DATA* pWeaponData = new WEAPON_DATA;
 
-		ZeroMemory(& pImagePath, sizeof(IMAGE_PATH));
-		ZeroMemory(&pWeaponData, sizeof(WEAPON_DATA));
+		ZeroMemory(pImagePath, sizeof(IMAGE_PATH));
+		ZeroMemory(pWeaponData, sizeof(WEAPON_DATA));
 
 		pWeaponData->pBulletData = new BULLET_DATA;
 

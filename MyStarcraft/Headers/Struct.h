@@ -137,6 +137,8 @@ typedef struct tagCommonData
 	int iDefense;
 	int iScope;
 
+	SHORT	nDefenceIconFrame;
+
 	/* 유닛 타입.. */
 
 }COMMON_DATA;
@@ -156,7 +158,41 @@ typedef struct tagUnitGenerateData
 	int iRequireMineral;		// 생성 시 필요한 미네랄..
 	int iRequireGas;			// 생성 시 필요한 가스..
 	int iRequirePopulation;		// 생성 시 필요한 인구 수..
+
+	vector<int>	vecRequireBuilding;		// 생성 하기위해 지어져야 하는 건물..
+
+	SHORT	nIconFrame;			// 아이콘 프레임..
+
+	tagUnitGenerateData()
+	{}
+
+	tagUnitGenerateData(const float& _fGenerateTime, const int& _iRequireMineral, const int& _iRequireGas,
+						 const int& _iRequirePopulation, const SHORT& _nIconFrame)
+		: fGenerateTime(_fGenerateTime)
+		, iRequireMineral(_iRequireMineral)
+		, iRequireGas(_iRequireGas)
+		, iRequirePopulation(_iRequirePopulation)
+		, nIconFrame(_nIconFrame)
+	{}
+
 }UNIT_GENERATE_DATA;
+
+typedef struct tagUnitSelectShowData
+{
+	wstring wstrName;
+	wstring wstrRank;
+
+	tagUnitSelectShowData()
+		: wstrName(L"")
+		, wstrRank(L"")
+	{}
+
+	tagUnitSelectShowData(const wstring& _wstrName, const wstring& _wstrRank)
+		: wstrName(_wstrName)
+		, wstrRank(_wstrRank)
+	{}
+
+}SELECT_UNIT_SHOW_DATA;
 
 
 //[17.07.21_06] : 파일이름을 찾기 위한 구조체
@@ -176,6 +212,35 @@ typedef struct tagImagePath
 
 }IMAGE_PATH;
 
+typedef struct tagButtonData
+{
+	int		iFunc;			// 실행할 기능 ( SetPattern 함수나 UseSkill 함수를 호출할 때 인자로 넘길 예정 )..
+	int		iMessage;
+
+	SHORT	nIconFrame;		// 아이콘 프레임이 몇인가..
+
+	BYTE	byShortCutKey;	// 단축키..
+	BYTE	byDrawColumn;	// 그릴 행..
+
+	bool	bSkill;			// 스킬인가??..
+	bool	bCanUse;		// 현재 사용 가능한가??..
+
+	tagButtonData()
+	{}
+
+	tagButtonData( const int& _iFunc, const SHORT& _nIconFrame, const BYTE& _byShortCutKey, const BYTE& _byDrawColumn,
+				   const bool& _bSkill, const bool& _bCanUse, const int& _iMessage = -1 )
+		: iFunc( _iFunc )
+		, nIconFrame( _nIconFrame )
+		, byShortCutKey( _byShortCutKey )
+		, byDrawColumn( _byDrawColumn )
+		, bSkill( _bSkill )
+		, bCanUse( _bCanUse )
+		, iMessage(_iMessage)
+	{}
+
+}BUTTON_DATA;
+
 typedef struct tagBulletData
 {
 	float				fCastingTime;
@@ -189,6 +254,11 @@ typedef struct tagBulletData
 
 	tagBulletData()
 		: bUseFollowDustEffect(false)
+		, pImagePath(nullptr)
+		, pCastingImagePath(nullptr)
+		, pEffectImaePath(nullptr)
+		, fSpeed(0.f)
+		, fCastingTime(0.f)
 	{}
 
 } BULLET_DATA;
@@ -223,6 +293,8 @@ typedef struct tagWeaponData
 	eEffectShowKind		eEffectShowKind;
 
 	BULLET_DATA*		pBulletData;
+
+	SHORT				nIconFrame;
 
 	bool				bImagePathInfluenceEntityDir;	// Entity 객체의 방향에 따라 텍스쳐 번호에 영향이 가는가??..
 	bool				bImagePath2InfluenceEntityDir;

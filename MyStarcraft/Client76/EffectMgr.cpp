@@ -61,8 +61,7 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 	{
 		if ( pWeaponData->pImagePath )
 		{
-			pShowEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].front();
-			this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].pop();
+			pShowEffect = this->PopEffect( CEffectMgr::Effect_Kind_Basic );
 
 			/* Entity 객체의 방향에 영향을 받는지 확인.. */
 			if ( pWeaponData->bImagePathInfluenceEntityDir )
@@ -85,15 +84,14 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 		switch ( pWeaponData->eEffectShowKind )
 		{
 			case Effect_Show_Owner_Position:
-				pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				break;
 			case Effect_Show_Target_Position:
-				pShowEffect->SetPos( _pEntity->GetPos() );
+				pShowEffect->SetPos( _pEntity->GetHitShowPos() );
 				break;
 			case Effect_Show_Target_AND_Owner_Position:
 			{
-				CEffect* pEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].front();
-				this->m_queueEffectArr[CEffectMgr::Effect_Kind_Basic].pop();
+				CEffect* pEffect = this->PopEffect( CEffectMgr::Effect_Kind_Basic );
 
 				if ( pWeaponData->bImagePath2InfluenceEntityDir )
 				{
@@ -112,17 +110,17 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 
 				pEffect->SetStateKey( pWeaponData->pImagePath2->wstrStateKey );
 
-				pEffect->SetPos( _pEntity->GetPos() );
+				pEffect->SetPos( _pEntity->GetHitShowPos() );
 				pEffect->Initialize();
 				m_pEffectList->push_back( pEffect );
 
-				pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
 
 				break;
 			case Effect_Show_Hit_Target:
 			{
-				CEffect* pEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_HitTarget].front();
+				CEffect* pEffect = this->PopEffect( CEffectMgr::Effect_Kind_HitTarget );
 				dynamic_cast<CEffect_HitTarget*>(const_cast<CEffectBridge*>(pEffect->GetEffectBridge()))->SetWeapon( _pWeapon );
 
 				pEffect->SetVecTexture(
@@ -133,18 +131,15 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 				pEffect->SetStateKey( pWeaponData->pBulletData->pImagePath->wstrStateKey );
 
 				pEffect->Initialize();
-				pEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				pEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				m_pEffectList->push_back( pEffect );
 
-				this->m_queueEffectArr[CEffectMgr::Effect_Kind_HitTarget].pop();
-
-				pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
 				break;
 			case Effect_Show_Chase_Target:
 			{
-				CEffect* pEffect = this->m_queueEffectArr[CEffectMgr::Effect_Kind_ChaseTarget].front();
-				this->m_queueEffectArr[CEffectMgr::Effect_Kind_ChaseTarget].pop();
+				CEffect* pEffect = this->PopEffect( CEffectMgr::Effect_Kind_ChaseTarget );
 
 				CEffect_ChaseTarget* pEffectBridge = dynamic_cast<CEffect_ChaseTarget*>(const_cast<CEffectBridge*>(pEffect->GetEffectBridge()));
 				pEffectBridge->SetWeapon( _pWeapon );
@@ -158,11 +153,11 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 				pEffect->SetStateKey( pWeaponData->pBulletData->pImagePath->wstrStateKey );
 
 				pEffect->Initialize();
-				pEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+				pEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				m_pEffectList->push_back( pEffect );
 
 				if ( pShowEffect )
-					pShowEffect->SetPos( _pWeapon->GetEntity()->GetPos() );
+					pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
 				break;
 
@@ -171,6 +166,25 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 
 	pShowEffect->Initialize();
 	m_pEffectList->push_back( pShowEffect );
+}
+
+void CEffectMgr::PushEffect( CEffect *_pPushEffect, const eEffectKind & _eKind )
+{
+	this->m_queueEffectArr[_eKind].push( _pPushEffect );
+}
+
+CEffect * CEffectMgr::PopEffect( const eEffectKind & _eKind )
+{
+	if ( this->m_queueEffectArr[_eKind].empty() )
+	{
+		for ( int i = 0; i < 50; ++i )
+			this->AddEffect( _eKind );
+	}
+
+	CEffect* pEffect = this->m_queueEffectArr[_eKind].front();
+	pEffect->SetEffectType( _eKind );
+	this->m_queueEffectArr[_eKind].pop();
+	return pEffect;
 }
 
 void CEffectMgr::AddEffect( const CEffectMgr::eEffectKind & _eEffectKind )

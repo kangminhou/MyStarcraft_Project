@@ -11,6 +11,7 @@ public:
 		Weapon_ArcliteShockCannon,
 		Weapon_FlameThrower,
 		Weapon_FragmentationGrenade,
+		Weapon_FusionCutter,
 		Weapon_GaussRifle,
 		Weapon_HelfireMissilePack,
 		Weapon_TwinAutocannons,
@@ -25,6 +26,7 @@ public:
 	~CWeaponMgr();
 
 	void Initialize();
+	void Release();
 	CWeapon* GetNewWeapon( const eWeaponKind& _eWeaponKind );
 
 private:

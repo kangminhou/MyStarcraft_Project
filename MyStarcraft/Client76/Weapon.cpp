@@ -59,6 +59,7 @@ void CWeapon::Initialize()
 
 void CWeapon::Release()
 {
+
 }
 
 #include "Marine.h"

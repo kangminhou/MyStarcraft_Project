@@ -16,22 +16,23 @@ CBackground* CGameEntity::m_pBackground = NULL;
 
 
 CGameEntity::CGameEntity()
-	: m_wstrStateKey(L"")
-	, m_pAnimCom(NULL)
-	, m_pCurActPattern(NULL)
-	, m_bCollision(false)
-	, m_pEntityBelongToCorps(NULL)
-	, m_pTarget(NULL)
-	, m_bDie(false)
-	, m_bDestoryEntity(false)
-	, m_bInfluenceDir(true)
-	, m_byLookAnimIndex(0)
-	, m_bUseDirAnimIndex(false)
+	: m_wstrStateKey( L"" )
+	, m_pAnimCom( NULL )
+	, m_pCurActPattern( NULL )
+	, m_bCollision( false )
+	, m_pEntityBelongToCorps( NULL )
+	, m_pTarget( NULL )
+	, m_bDie( false )
+	, m_bDestoryEntity( false )
+	, m_bInfluenceLook( true )
+	, m_bUseDirAnimIndex( false )
+	, m_vHitShowPos( 0.f, 0.f, 0.f ), m_vEffectShowPos( 0.f, 0.f, 0.f )
+	, m_byKillEnemy(0)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
 	ZeroMemory( &this->m_tAirAttWeapon, sizeof( ATTACK_DATA ) );
-	
+
 	this->m_tGroundAttWeapon.pAttackEntity = this->m_tAirAttWeapon.pAttackEntity = this;
 }
 
@@ -65,6 +66,11 @@ void CGameEntity::SetPrevPattern()
 	this->SetPattern( eGameEntityPattern::Pattern_Idle );
 }
 
+void CGameEntity::SetEntityType( const CEntityMgr::eEntityType & _eEntityType )
+{
+	this->m_eEntityType = _eEntityType;
+}
+
 void CGameEntity::SetCurHp( const float & fHp )
 {
 	if ( fHp > this->m_tInfoData.fMaxHp )
@@ -85,6 +91,11 @@ void CGameEntity::SetTarget( CGameEntity * _pTarget )
 	this->m_pTarget = _pTarget;
 }
 
+void CGameEntity::SetGenerateData( const UNIT_GENERATE_DATA * _pGenData )
+{
+	this->m_pGenerateData = _pGenData;
+}
+
 
 
 
@@ -97,6 +108,16 @@ void CGameEntity::SetStandTileIndexList( const list<pair<int, BYTE>>& _standTile
 void CGameEntity::SetEntitySpaceDataKey( const int & _iEntitySpaceDataKey )
 {
 	this->m_iEntitySpaceDataKey = _iEntitySpaceDataKey;
+}
+
+void CGameEntity::SetSelectShowData( const SELECT_UNIT_SHOW_DATA* _pSelectShowData )
+{
+	this->m_pSelectShowData = _pSelectShowData;
+}
+
+void CGameEntity::SetButtonData( vector<BUTTON_DATA*>* _pVecButtonData )
+{
+	this->m_pVecActButton = _pVecButtonData;
 }
 
 float CGameEntity::GetCurHp() const
@@ -189,6 +210,81 @@ BYTE CGameEntity::GetLookAnimIndex() const
 	return this->m_byLookAnimIndex;
 }
 
+BYTE CGameEntity::GetFaceFrameNum() const
+{
+	return this->m_byFaceFrameNum;
+}
+
+D3DXVECTOR3 CGameEntity::GetHitShowPos() const
+{
+	return this->GetPos() + this->m_vHitShowPos;
+}
+
+D3DXVECTOR3 CGameEntity::GetEffectShowPos() const
+{
+	return this->GetPos() + this->m_vEffectShowPos;
+}
+
+UNIT_GENERATE_DATA CGameEntity::GetGenerateData() const
+{
+	return (*this->m_pGenerateData);
+}
+
+wstring CGameEntity::GetWireFrameKey() const
+{
+	return this->m_wstrWireFrameKey;
+}
+
+wstring CGameEntity::GetFaceKey() const
+{
+	return this->m_wstrFaceKey;
+}
+
+COMMON_DATA CGameEntity::GetCommanData() const
+{
+	return this->m_tInfoData;
+}
+
+const SELECT_UNIT_SHOW_DATA* CGameEntity::GetSelectShowData() const
+{
+	return this->m_pSelectShowData;
+}
+
+BYTE CGameEntity::GetKillCount() const
+{
+	return this->m_byKillEnemy;
+}
+
+vector<BUTTON_DATA*>* CGameEntity::GetButtonData() const
+{
+	return this->m_pVecActButton;
+}
+
+bool CGameEntity::GetCheckUnitInformation( const eEntityInformation & _eEntityInfo )
+{
+	for ( size_t i = 0; i < this->m_vecEntityInformation.size(); ++i )
+	{
+		if ( m_vecEntityInformation[i] == _eEntityInfo )
+			return true;
+
+	}
+
+	return false;
+}
+
+void CGameEntity::KillEnemy()
+{
+	if ( this->m_byKillEnemy >= 255 )
+		return;
+
+	++this->m_byKillEnemy;
+}
+
+void CGameEntity::PushMessage( const BUTTON_DATA* _pButtonData )
+{
+	m_pPushData = _pButtonData;
+}
+
 
 
 HRESULT CGameEntity::Initialize( void )
@@ -225,11 +321,13 @@ HRESULT CGameEntity::Initialize( void )
 	}
 
 	this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey );
-	this->UpdateDirAnimIndex();
+	this->UpdateLookAnimIndex();
 
 	this->CollisionUpdate();
 
 	this->SetPattern( CGameEntity::Pattern_Idle );
+
+	this->m_tColRect = this->m_tOriginColRect;
 
 	CGameObject::Initialize();
 
@@ -285,14 +383,14 @@ void CGameEntity::Render( void )
 		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
-	D3DXMATRIX matFont;
-	D3DXMatrixTranslation( &matFont, this->GetPos().x, this->GetPos().y + 100.f, this->GetPos().z );
-	
-	TCHAR str[128];
-	swprintf_s( str, L"HP : %f", this->GetCurHp() );
-	this->DrawFont( matFont, str );
+	//D3DXMATRIX matFont;
+	//D3DXMatrixTranslation( &matFont, this->GetPos().x, this->GetPos().y + 100.f, this->GetPos().z );
+	//
+	//TCHAR str[128];
+	//swprintf_s( str, L"HP : %f", this->GetCurHp() );
+	//this->DrawFont( matFont, str );
 
-	//this->DrawRect( this->m_tColRect );
+	this->DrawRect( this->m_tColRect );
 
 }
 
@@ -314,6 +412,10 @@ void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
 
 	CGameObject::UpdatePosition( vPrevPos );
+}
+
+void CGameEntity::MouseEvent()
+{
 }
 
 bool CGameEntity::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _pTarget )
@@ -390,14 +492,14 @@ void CGameEntity::MoveEntity()
 	this->Translate( this->m_tInfoData.fSpeed * GET_TIME );
 }
 
-void CGameEntity::UpdateDirAnimIndex()
+void CGameEntity::UpdateLookAnimIndex()
 {
 	D3DXVECTOR3 vUp( 0.f, -1.f, 0.f );
 	D3DXVECTOR3 vTempDir = this->GetTransform()->GetLook();
 	float fAngle = D3DXVec3Dot( &vUp, &(vTempDir) );
 	fAngle = acosf( fAngle );
 
-	if ( this->m_bInfluenceDir )
+	if ( this->m_bInfluenceLook )
 	{
 		if ( vTempDir.x < 0.f )
 			this->SetSize( -1.f, 1.f );
@@ -440,13 +542,14 @@ void CGameEntity::UpdateDirAnimIndex()
 		if ( byDIrAnimIndex != this->m_byDirAnimIndex )
 		{
 			this->m_byDirAnimIndex = byDIrAnimIndex;
+			this->ChangeDirAnimIndex();
 		}
 	}
 
 	if ( byLookAnimIndex != this->m_byLookAnimIndex )
 	{
 		this->m_byLookAnimIndex = byLookAnimIndex;
-		this->ChangeDirAnimTexture();
+		this->ChangeLookAnimTexture();
 	}
 }
 
@@ -456,7 +559,7 @@ void CGameEntity::LookPos( const D3DXVECTOR3 & _vPos, const bool& _bDirUpdate /*
 	D3DXVec3Normalize( &vTempDir, &(_vPos - this->GetPos()) );
 	
 	this->SetLook( vTempDir );
-	this->UpdateDirAnimIndex();
+	this->UpdateLookAnimIndex();
 
 	if ( _bDirUpdate )
 		this->SetDir( vTempDir );
@@ -469,15 +572,21 @@ void CGameEntity::RenderSelectTexture( bool _bPlayer )
 
 	if ( _bPlayer )
 	{
-		float fX = this->m_pSelectTexture[0]->ImageInfo.Width * 0.5f;
-		float fY = this->m_pSelectTexture[0]->ImageInfo.Height * 0.5f;
-		this->DrawTexture( this->m_pSelectTexture[0], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		if ( m_pSelectTexture[0] )
+		{
+			float fX = this->m_pSelectTexture[0]->ImageInfo.Width * 0.5f;
+			float fY = this->m_pSelectTexture[0]->ImageInfo.Height * 0.5f;
+			this->DrawTexture( this->m_pSelectTexture[0], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		}
 	}
 	else
 	{
-		float fX = this->m_pSelectTexture[1]->ImageInfo.Width * 0.5f;
-		float fY = this->m_pSelectTexture[1]->ImageInfo.Height * 0.5f;
-		this->DrawTexture( this->m_pSelectTexture[1], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		if ( m_pSelectTexture[1] )
+		{
+			float fX = this->m_pSelectTexture[1]->ImageInfo.Width * 0.5f;
+			float fY = this->m_pSelectTexture[1]->ImageInfo.Height * 0.5f;
+			this->DrawTexture( this->m_pSelectTexture[1], this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		}
 	}
 }
 
@@ -495,7 +604,7 @@ void CGameEntity::HitEntity( CGameEntity * _pAttackedObject, float _fDamage )
 	if ( this->m_curActPatternKind == CGameEntity::Pattern_Idle ||
 		 this->m_curActPatternKind == CGameEntity::Pattern_MoveAlert ||
 		 this->m_curActPatternKind == CGameEntity::Pattern_Patrol ||
-		 this->m_curActPatternKind == CGameEntity::Pattern_ChaseTarget)
+		 this->m_curActPatternKind == CGameEntity::Pattern_ChaseTarget )
 	{
 		this->m_pTarget = _pAttackedObject;
 		this->SetPattern( CGameEntity::Pattern_Hit );
@@ -521,7 +630,7 @@ void CGameEntity::DieEntity()
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );
 }
 
-void CGameEntity::ChangeDirAnimTexture()
+void CGameEntity::ChangeLookAnimTexture()
 {
 	const FRAME* pTempCurFrame = this->m_pAnimCom->GetCurAnimation();
 	if ( pTempCurFrame )
@@ -529,7 +638,7 @@ void CGameEntity::ChangeDirAnimTexture()
 		m_vecTexture.clear();
 
 		int iAnimLength = int( pTempCurFrame->fMax );
-		int iStart = ((this->m_bInfluenceDir) ? iAnimLength * this->m_byLookAnimIndex : 0);
+		int iStart = ((this->m_bInfluenceLook) ? iAnimLength * this->m_byLookAnimIndex : 0);
 		int iEnd = iAnimLength + iStart;
 
 		for ( ; iStart < iEnd; ++iStart )
@@ -586,4 +695,8 @@ void CGameEntity::CollisionCheck()
 			m_bCollision = false;
 	}
 
+}
+
+void CGameEntity::ChangeDirAnimIndex()
+{
 }

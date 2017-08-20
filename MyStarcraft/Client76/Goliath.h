@@ -6,17 +6,13 @@ class CGoliath :
 {
 private:
 	CAnimation*				m_pCannonAnim;
-	vector<const TEX_INFO*>	m_vecCannonTexture[2];
-	vector<const TEX_INFO*>	m_vecDrawCannonTexture;
+	vector<const TEX_INFO*>	m_vecTrunkTexture;
 	D3DXMATRIX				m_matCannonWorld;
 
-	ATTACK_DATA				m_tNormalTankGroundAttData;
-	ATTACK_DATA				m_tSiegeTankGroundAttData;
+	wstring					m_wstrCannonObjKey;
+	wstring					m_wstrCannonStateKey;
 
-	int						m_iModeChangeLevel;
-
-	bool					m_bChangeMode;
-	bool					m_bSiegeMode;
+	bool					m_bInfluenceDir;
 
 public:
 	CGoliath();
@@ -31,6 +27,8 @@ public:
 protected:
 	virtual void InitAnimation() override;
 	virtual void InitPattern() override;
+
+	virtual void ChangeDirAnimIndex() override;
 
 public:
 	virtual void SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bPrevPattern = FALSE ) override;

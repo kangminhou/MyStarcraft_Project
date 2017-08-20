@@ -49,6 +49,7 @@ enum eGameObjectEvent
 {
 	Event_None,
 	Event_DestoryObject,
+	Event_EraseObjList,
 };
 
 enum eWeaponAttType

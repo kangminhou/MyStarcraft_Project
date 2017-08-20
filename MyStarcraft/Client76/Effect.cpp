@@ -11,6 +11,7 @@ CEffect::CEffect()
 
 CEffect::~CEffect()
 {
+	Release();
 }
 
 void CEffect::SetEffectBridge( CEffectBridge* _pEffectBridge )
@@ -33,6 +34,11 @@ void CEffect::SetVecTexture( const vector<const TEX_INFO*>* _pVecTexture )
 {
 	if ( this->m_pEffectBridge && _pVecTexture )
 		this->m_pEffectBridge->SetVecTexture( _pVecTexture );
+}
+
+void CEffect::SetEffectType( const CEffectMgr::eEffectKind & _eKind )
+{
+	this->m_eKind = _eKind;
 }
 
 wstring CEffect::GetStateKey() const
@@ -58,6 +64,12 @@ HRESULT CEffect::Initialize( void )
 int CEffect::Update( void )
 {
 	int iEvent = this->m_pEffectBridge->Update();
+
+	if ( iEvent == CEffectBridge::Event_DestroyObject )
+	{
+		CEffectMgr::GetInstance()->PushEffect( this, this->m_eKind );
+		return Event_EraseObjList;
+	}
 
 	return iEvent;
 }

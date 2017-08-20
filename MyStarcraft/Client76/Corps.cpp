@@ -31,6 +31,19 @@ bool CCorps::GetGatherEntitys() const
 	return this->m_bGatherEntitys;
 }
 
+bool CCorps::GetSameUnit() const
+{
+	return this->m_bSameEntity;
+}
+
+CGameEntity * CCorps::GetEntity( const BYTE& _byUnitIndex )
+{
+	if ( _byUnitIndex >= m_byCurUnitNum )
+		return NULL;
+
+	return m_pEntityArr[_byUnitIndex];
+}
+
 void CCorps::Initialize()
 {
 	this->m_eCurPattern = CGameEntity::Pattern_Idle;
@@ -38,6 +51,8 @@ void CCorps::Initialize()
 
 	for (int i = 0; i < MAX_UNIT; ++i)
 		this->m_pEntityArr[i] = NULL;
+
+	this->m_pPushData = NULL;
 }
 
 void CCorps::Release()
@@ -57,7 +72,7 @@ void CCorps::Render()
 	}
 }
 
-void CCorps::SetUnitPattern( const CUnit::eGameEntityPattern & _ePatternKind )
+void CCorps::SetUnitPattern( const CGameEntity::eGameEntityPattern & _ePatternKind )
 {
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
@@ -72,9 +87,39 @@ void CCorps::SetUnitPattern( const CUnit::eGameEntityPattern & _ePatternKind )
 			this->CalcCorpsMoveKind();
 		}
 
+		if ( this->m_pPushData )
+			this->m_pEntityArr[i]->PushMessage( this->m_pPushData );
+
 		this->m_pEntityArr[i]->SetPattern( _ePatternKind );
 
 	}
+
+	if ( this->m_pPushData )
+		this->m_pPushData = NULL;
+	
+}
+
+void CCorps::PushMessage( const BUTTON_DATA* pButtonData )
+{
+	this->m_pPushData = pButtonData;
+}
+
+void CCorps::SetUnitSkill( const CGameEntity::eGameEntitySkillKind & _eSkillKind )
+{
+	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
+	{
+		if ( !this->m_pEntityArr[i] )
+			continue;
+
+		if ( this->m_pPushData )
+			this->m_pEntityArr[i]->PushMessage( this->m_pPushData );
+
+		this->m_pEntityArr[i]->UseSkill( _eSkillKind, NULL );
+
+	}
+
+	if ( this->m_pPushData )
+		this->m_pPushData = NULL;
 }
 
 void CCorps::AddUnit( CGameEntity * _pEntity )
@@ -84,6 +129,15 @@ void CCorps::AddUnit( CGameEntity * _pEntity )
 		this->m_pEntityArr[this->m_byCurUnitNum] = _pEntity;
 		this->m_pEntityArr[this->m_byCurUnitNum]->SetEntityBelongToCorps( this );
 		++this->m_byCurUnitNum;
+
+		for ( size_t i = 0; i < this->m_byCurUnitNum - 1; ++i )
+		{
+			if ( typeid(*_pEntity) != typeid(*this->m_pEntityArr[i]) )
+				return;
+		}
+
+		this->m_bSameEntity = true;
+
 	}
 }
 

@@ -13,10 +13,13 @@ private:
 	CGameEntity*	m_pEntityArr[MAX_UNIT];	// 부대원..
 	BYTE			m_byCurUnitNum;			// 부대원 개수..
 	CGameEntity::eGameEntityPattern	m_eCurPattern;
+	const BUTTON_DATA*				m_pPushData;
 
 	RECT			m_rcEntityInclude;
 	D3DXVECTOR3		m_vCenterPos;
+
 	bool			m_bGatherEntitys;		// 모여 있나??..
+	bool			m_bSameEntity;
 
 public:
 	CCorps();
@@ -27,6 +30,8 @@ public:
 	BYTE GetCurUnitNum() const;
 	D3DXVECTOR3 GetCenterPos() const;
 	bool GetGatherEntitys() const;
+	bool GetSameUnit() const;
+	CGameEntity* GetEntity( const BYTE& _byUnitIndex );
 
 public:
 	// CComponent을(를) 통해 상속됨
@@ -44,7 +49,9 @@ public:
 	 * 매개변수
 	  - ePatternKind : 부대원들에게 내린 명령..
 	 */
-	void SetUnitPattern( const CUnit::eGameEntityPattern& _ePatternKind );
+	void SetUnitPattern( const CGameEntity::eGameEntityPattern& _ePatternKind );
+	void PushMessage( const BUTTON_DATA* pButtonData );
+	void SetUnitSkill( const CGameEntity::eGameEntitySkillKind& _eSkillKind );
 	void AddUnit( CGameEntity* _pEntity );
 	void EraseUnit( CGameEntity* _pEntity );
 	void ResetCorps(void);

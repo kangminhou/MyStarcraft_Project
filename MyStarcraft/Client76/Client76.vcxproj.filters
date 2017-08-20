@@ -160,9 +160,6 @@
     <Filter Include="01. GameObject\00. GameEntity\02. Mouse">
       <UniqueIdentifier>{68ea502d-2be1-4adb-b165-518886df475f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02. Scene\05. RayTestScene">
-      <UniqueIdentifier>{8c99fa05-4275-4e4a-b0e5-cfe220c7287f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="03. Component\03. EntityPattern\00. Unit\05. Attack">
       <UniqueIdentifier>{ee8d0973-1e15-487c-93c7-644c3227e8cd}</UniqueIdentifier>
     </Filter>
@@ -192,6 +189,39 @@
     </Filter>
     <Filter Include="01. GameObject\03. Effect\00. EffectBridge">
       <UniqueIdentifier>{f1c2ba69-a737-4cf5-8a77-16dc8d58ab55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\01. Building\01. Build">
+      <UniqueIdentifier>{ad27cf24-d703-40f1-b84d-a73cfee02cde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\11. UIMgr">
+      <UniqueIdentifier>{a5697672-a3fa-433e-8b5d-fabc9c9a9ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\03. UI">
+      <UniqueIdentifier>{90cbfa95-66c4-4f82-96dd-750aadd8c189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\12. EntityMgr">
+      <UniqueIdentifier>{88d1b25d-4938-4aef-afe4-abfad2d448d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\04. Button">
+      <UniqueIdentifier>{8e746267-2401-474f-af3f-11dd2bcdd878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\06. SCV">
+      <UniqueIdentifier>{95a68cff-f286-4595-b88a-9f59a2882553}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\07. Build">
+      <UniqueIdentifier>{c088b4e3-2ac5-4a18-a700-5a8549ef7fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\00. CommandCenter">
+      <UniqueIdentifier>{93235170-7753-4488-b96f-54b51e976b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\01. Barrack">
+      <UniqueIdentifier>{4f7c0d95-ab68-4ed3-ab7a-13d5d2bcc32b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\02. Academy">
+      <UniqueIdentifier>{4b01792a-311b-4203-91ec-c07bfc96e235}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\03. Factory">
+      <UniqueIdentifier>{fe779002-63f0-402a-8879-231dd7905ea5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -318,15 +348,6 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
     </ClCompile>
-    <ClCompile Include="RayTestScene.cpp">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClCompile>
-    <ClCompile Include="RayObject.cpp">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClCompile>
-    <ClCompile Include="RayTestBackground.cpp">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClCompile>
     <ClCompile Include="AStarManager.cpp">
       <Filter>98. Manager\08, AStar</Filter>
     </ClCompile>
@@ -389,6 +410,39 @@
     </ClCompile>
     <ClCompile Include="Effect_ChaseTarget.cpp">
       <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Building_Build.cpp">
+      <Filter>03. Component\03. EntityPattern\01. Building\01. Build</Filter>
+    </ClCompile>
+    <ClCompile Include="UIMgr.cpp">
+      <Filter>98. Manager\11. UIMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>01. GameObject\00. GameEntity\03. UI</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityMgr.cpp">
+      <Filter>98. Manager\12. EntityMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="MyButton.cpp">
+      <Filter>01. GameObject\04. Button</Filter>
+    </ClCompile>
+    <ClCompile Include="SCV.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\06. SCV</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Unit_Build_Building.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\07. Build</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandCenter.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\00. CommandCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="Barrack.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\01. Barrack</Filter>
+    </ClCompile>
+    <ClCompile Include="Academy.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\02. Academy</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory_Building.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\03. Factory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -521,15 +575,6 @@
     <ClInclude Include="Mouse.h">
       <Filter>01. GameObject\00. GameEntity\02. Mouse</Filter>
     </ClInclude>
-    <ClInclude Include="RayTestScene.h">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClInclude>
-    <ClInclude Include="RayObject.h">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClInclude>
-    <ClInclude Include="RayTestBackground.h">
-      <Filter>02. Scene\05. RayTestScene</Filter>
-    </ClInclude>
     <ClInclude Include="AStarManager.h">
       <Filter>98. Manager\08, AStar</Filter>
     </ClInclude>
@@ -592,6 +637,39 @@
     </ClInclude>
     <ClInclude Include="Effect_ChaseTarget.h">
       <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Building_Build.h">
+      <Filter>03. Component\03. EntityPattern\01. Building\01. Build</Filter>
+    </ClInclude>
+    <ClInclude Include="UIMgr.h">
+      <Filter>98. Manager\11. UIMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>01. GameObject\00. GameEntity\03. UI</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityMgr.h">
+      <Filter>98. Manager\12. EntityMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="MyButton.h">
+      <Filter>01. GameObject\04. Button</Filter>
+    </ClInclude>
+    <ClInclude Include="SCV.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\06. SCV</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Unit_Build_Building.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\07. Build</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandCenter.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\00. CommandCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="Barrack.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\01. Barrack</Filter>
+    </ClInclude>
+    <ClInclude Include="Academy.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\02. Academy</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory_Building.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\03. Factory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

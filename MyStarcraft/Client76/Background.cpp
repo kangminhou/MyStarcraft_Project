@@ -290,7 +290,7 @@ bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGam
 	if ( _iIndex < 0 || (unsigned int)_iIndex >= this->m_vecTile.size() )
 		return false;
 
-	if ( this->m_vecTile[_iIndex]->byOption == 1 )
+	if ( this->m_vecTile[_iIndex]->byOption != 0 )
 		return false;
 
 	if ( !_bCheckEntityData )
@@ -480,6 +480,28 @@ int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndI
 	}
 
 	return -1;
+}
+
+void CBackground::BuildingDataUpdate( CGameEntity * pEntity )
+{
+	RECT rcCol = pEntity->GetColRect();
+	D3DXVECTOR3 vPos = pEntity->GetPos();
+
+	int iStartX = (vPos.x + rcCol.left)   / TILECX;
+	int iEndX =   (vPos.x + rcCol.right)  / TILECX;
+	int iStartY = (vPos.y + rcCol.top)    / TILECY;
+	int iEndY =   (vPos.y + rcCol.bottom) / TILECY;
+
+	for ( int i = iStartY; i < iEndY; ++i )
+	{
+		for ( int j = iStartX; j <= iEndX; ++j )
+		{
+			int iIndex = j + i * TILEX;
+			this->m_vecTile[iIndex]->byOption = 1;
+			this->m_vecTile[iIndex]->byDrawID = 1;
+		}
+	}
+
 }
 
 HRESULT CBackground::Initialize(void)

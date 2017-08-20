@@ -7,11 +7,14 @@
 #include "ObjMgr.h"
 #include "Device.h"
 
+#include "UIMgr.h"
+
 #include "Mouse.h"
 
 
 CPlayer::CPlayer()
 	: m_pCurCorps(NULL)
+	, m_bOrderAct(false)
 {
 	ZeroMemory( &this->m_tResourceData, sizeof( RESOURCE_DATA ) );
 }
@@ -19,10 +22,13 @@ CPlayer::CPlayer()
 
 CPlayer::~CPlayer()
 {
+	this->Release();
 }
 
 HRESULT CPlayer::Initialize( void )
 {
+	this->m_pCancelButton = new BUTTON_DATA( CGameEntity::Pattern_Cancel, 236, VK_ESCAPE, 3, false, true );
+
 	this->m_tResourceData.byTotalPopulation = 200;
 	this->m_tResourceData.iMineral = 50;
 
@@ -33,11 +39,27 @@ HRESULT CPlayer::Initialize( void )
 
 	this->m_pMouse = CMouse::GetInstance();
 
+	CUIMgr::GetInstance()->SetPlayer( this );
+
 	return S_OK;
 }
 
 int CPlayer::Update( void )
 {
+	if ( m_bOrderAct )
+	{
+		this->m_pCurCorps->PushMessage( this->m_pPushButtonData );
+
+		if ( this->m_pPushButtonData->bSkill )
+			this->m_pCurCorps->SetUnitSkill( CGameEntity::eGameEntitySkillKind( this->m_pPushButtonData->iFunc ) );
+		else
+			this->m_pCurCorps->SetUnitPattern( CGameEntity::eGameEntityPattern( this->m_pPushButtonData->iFunc ) );
+
+		this->m_bOrderAct = false;
+		
+		return 0;
+	}
+
 	this->KeyCheck();
 
 	return 0;
@@ -69,6 +91,76 @@ void CPlayer::Render( void )
 
 void CPlayer::Release( void )
 {
+	safe_delete( m_pCancelButton );
+}
+
+void CPlayer::OrderActPattern( const BUTTON_DATA * _pButtonData )
+{
+	this->m_bOrderAct = true;
+	this->m_pPushButtonData = _pButtonData;
+}
+
+void CPlayer::DecideShowButton()
+{
+	m_vecCurCanActButton.clear();
+	if ( this->m_pCurCorps->GetCurUnitNum() > 0 )
+	{
+		int iLength = ((this->m_pCurCorps->GetSameUnit()) ? 1 : this->m_pCurCorps->GetCurUnitNum());
+		for ( int i = 0; i < iLength; ++i )
+		{
+			vector<BUTTON_DATA*>* pVecButtonData = this->m_pCurCorps->GetEntity( i )->GetButtonData();
+
+			for ( size_t j = 0; j < pVecButtonData->size(); ++j )
+			{
+				bool bFind = false;
+				for ( size_t k = 0; k < m_vecCurCanActButton.size(); ++k )
+				{
+					if ( this->m_vecCurCanActButton[k] == (*pVecButtonData)[j] )
+					{
+						bFind = true;
+						break;
+					}
+				}
+
+				if ( !bFind )
+				{
+					if ( (*pVecButtonData)[j]->bSkill && !this->m_pCurCorps->GetSameUnit() )
+						continue;
+
+					this->m_vecCurCanActButton.push_back( (*pVecButtonData)[j] );
+				}
+			}
+
+		}
+
+		CUIMgr::GetInstance()->ShowButton( &this->m_vecCurCanActButton );
+	}
+}
+
+void CPlayer::ShowOnlyCancelButtonInterface()
+{
+	CUIMgr::GetInstance()->ShowButton( &this->m_vecCurCanActButton );
+}
+
+void CPlayer::ResetMouseClickEventEntity()
+{
+	m_vecClickEventEntity.clear();
+}
+
+void CPlayer::AddMouseClickEventEntity( CGameEntity * _pEntity )
+{
+	m_vecClickEventEntity.push_back( _pEntity );
+}
+
+void CPlayer::EraseMouseClickEventEntity( CGameEntity * _pEntity )
+{
+	for ( size_t i = 0; i < m_vecClickEventEntity.size(); ++i )
+	{
+		if ( m_vecClickEventEntity[i] == _pEntity )
+		{
+			m_vecClickEventEntity.erase( m_vecClickEventEntity.begin() + i );
+		}
+	}
 }
 
 void CPlayer::KeyCheck( void )
@@ -76,6 +168,11 @@ void CPlayer::KeyCheck( void )
 	/* 부대 관련 키 체크.. */
 	if ( CKeyMgr::GetInstance()->GetKeyUp( VK_LBUTTON ) )
 	{
+		for ( size_t i = 0; i < this->m_vecClickEventEntity.size(); ++i )
+		{
+			this->m_vecClickEventEntity[i]->MouseEvent();
+		}
+
 		this->MakeDragUnitCorps();
 	}
 
@@ -163,12 +260,19 @@ void CPlayer::MakeDragUnitCorps()
 
 	CObjMgr::GetInstance()->CheckDragEntitys( vecEntity, mouseDragData, this->GetObjectType() );
 
-	this->m_clickCorps.ResetCorps();
+	if ( !vecEntity.empty() )
+	{
+		this->m_clickCorps.ResetCorps();
 
-	for ( size_t i = 0; i < vecEntity.size(); ++i )
-		this->m_clickCorps.AddUnit( vecEntity[i] );
+		for ( size_t i = 0; i < vecEntity.size(); ++i )
+			this->m_clickCorps.AddUnit( vecEntity[i] );
 
-	this->m_pCurCorps = &this->m_clickCorps;
+		this->m_pCurCorps = &this->m_clickCorps;
+
+		this->DecideShowButton();
+
+		CUIMgr::GetInstance()->ShowEntityUI( this->m_pCurCorps );
+	}
 }
 
 void CPlayer::UnitMove()

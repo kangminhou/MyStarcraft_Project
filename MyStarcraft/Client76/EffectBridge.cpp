@@ -16,6 +16,7 @@ CEffectBridge::CEffectBridge()
 
 CEffectBridge::~CEffectBridge()
 {
+	this->Release();
 }
 
 void CEffectBridge::SetVecTexture( const wstring & _wstrObjKey, const wstring & _wstrStateKey, const int& _iStart, const int & _iCount )
@@ -86,4 +87,10 @@ void CEffectBridge::Render()
 			);
 		}
 	}
+}
+
+void CEffectBridge::Release()
+{
+	safe_delete( this->m_pAnimation );
+	this->m_vecDrawTexture.clear();
 }

@@ -29,18 +29,17 @@ HRESULT CMedic::Initialize( void )
 	this->SetObjKey( L"Medic" );
 	this->m_wstrStateKey = L"Idle";
 
+	this->m_wstrFaceKey = L"FaceMedic";
+	this->m_wstrWireFrameKey = L"Medic";
+
+	this->m_byFaceFrameNum = 45;
+
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 60.f;
 	this->m_tInfoData.iDefense = 1;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 9;
-
-	/* 생성 데이터 초기화.. */
-	this->m_tGenerateData.fGenerateTime = 1.f;
-	this->m_tGenerateData.iRequireMineral = 50;
-	this->m_tGenerateData.iRequireGas = 25;
-	this->m_tGenerateData.iRequirePopulation = 1;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.fAttRange = 1.5f;
@@ -158,7 +157,7 @@ void CMedic::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & 
 	this->m_curActPatternKind = _ePatternKind;
 
 	if ( bChangeAnimation )
-		this->ChangeDirAnimTexture();
+		this->ChangeLookAnimTexture();
 
 }
 

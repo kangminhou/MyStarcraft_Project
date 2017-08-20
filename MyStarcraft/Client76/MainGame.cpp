@@ -114,6 +114,12 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/ESelect/ESelect%d.png", L"SelectArea", TEX_MULTI, L"Enemy", 10, true, D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) )
 		return false;
 
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/MainUi.png", L"MainUi", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/UnitUpgrade_Back.png", L"UnitUpgradeBack", TEX_SINGLE ) ) )
+		return false;
+
 	/* Map Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"

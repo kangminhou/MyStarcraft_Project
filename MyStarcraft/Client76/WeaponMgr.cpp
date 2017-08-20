@@ -13,6 +13,7 @@ CWeaponMgr::CWeaponMgr()
 
 CWeaponMgr::~CWeaponMgr()
 {
+	Release();
 }
 
 void CWeaponMgr::Initialize()
@@ -21,23 +22,59 @@ void CWeaponMgr::Initialize()
 	this->LoadWeaponData();
 
 	this->m_tWeaponDataArr[Weapon_GaussRifle].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_GaussRifle].nIconFrame = 323;
 
 	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].nIconFrame = 325;
 
 	this->m_tWeaponDataArr[Weapon_FlameThrower].bImagePathInfluenceEntityDir = true;
+	this->m_tWeaponDataArr[Weapon_FlameThrower].nIconFrame = 335;
+
+	this->m_tWeaponDataArr[Weapon_FusionCutter].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_FusionCutter].nIconFrame = 329;
 
 	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePathInfluenceEntityDir = true;
 	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePath2InfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_ArcliteCannon].nIconFrame = 328;
 
 	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePathInfluenceEntityDir = true;
 	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePath2InfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].nIconFrame = 336;
 
 	this->m_tWeaponDataArr[Weapon_HelfireMissilePack].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_HelfireMissilePack].nIconFrame = 327;
 
 	if ( this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData )
 		this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData->bUseFollowDustEffect = true;
 
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_TwinAutocannons].nIconFrame = 326;
+}
+
+void CWeaponMgr::Release()
+{
+	for ( int i = 0; i < Weapon_End; ++i )
+	{
+		if ( this->m_tWeaponDataArr[i].pBulletData )
+		{
+			if ( this->m_tWeaponDataArr[i].pBulletData->pImagePath )
+				safe_delete( this->m_tWeaponDataArr[i].pBulletData->pImagePath );
+
+			if ( this->m_tWeaponDataArr[i].pBulletData->pEffectImaePath )
+				safe_delete( this->m_tWeaponDataArr[i].pBulletData->pEffectImaePath );
+
+			if ( this->m_tWeaponDataArr[i].pBulletData->pCastingImagePath )
+				safe_delete( this->m_tWeaponDataArr[i].pBulletData->pCastingImagePath );
+			
+			safe_delete( this->m_tWeaponDataArr[i].pBulletData );
+		}
+
+		if ( this->m_tWeaponDataArr[i].pImagePath )
+			safe_delete( this->m_tWeaponDataArr[i].pImagePath );
+
+		if ( this->m_tWeaponDataArr[i].pImagePath2 )
+			safe_delete( this->m_tWeaponDataArr[i].pImagePath2 );
+	}
 }
 
 CWeapon * CWeaponMgr::GetNewWeapon( const eWeaponKind& _eWeaponKind )
@@ -66,7 +103,7 @@ void CWeaponMgr::LoadWeaponData()
 	pDoc->validateOnParse	= VARIANT_TRUE;
 	pDoc->resolveExternals  = VARIANT_TRUE;
 
-	if(pDoc->load( (_variant_t)L"..\\Data\\UnitWeaponData7.xml" ) == E_FAIL )
+	if(pDoc->load( (_variant_t)L"..\\Data\\UnitWeaponData.xml" ) == E_FAIL )
 	{
 		ERROR_MSG(L"아이템 데이터 로드 실패!");
 		return;
@@ -90,8 +127,6 @@ void CWeaponMgr::LoadWeaponData()
 	for ( int i = 0; i < iTotal; ++i )
 	{
 		IMAGE_PATH*	pImagePath = new IMAGE_PATH;
-
-		ZeroMemory( pImagePath, sizeof( IMAGE_PATH ) );
 
 		this->m_tWeaponDataArr[i].pBulletData = new BULLET_DATA;
 
@@ -132,13 +167,13 @@ void CWeaponMgr::LoadWeaponData()
 		/* 이미지 경로 받기.. */
 		pImagePath->wstrObjKey
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_OBJ_KEY" )->Getitem( i )->Gettext();
-
+		
 		pImagePath->wstrStateKey
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_STATE_KEY" )->Getitem( i )->Gettext();
-
+		
 		pImagePath->wstrPath
 			= pElementList->Getitem( i )->selectNodes( L"//IMAGE_PATH" )->Getitem( i )->Gettext();
-
+		
 		pImagePath->iCount
 			= atoi( pElementList->Getitem( i )->selectNodes( L"//IMAGE_COUNT" )->Getitem( i )->Gettext() );
 
@@ -149,16 +184,19 @@ void CWeaponMgr::LoadWeaponData()
 				 pImagePath->wstrStateKey == L"SiegeTankFire" )
 				color = D3DCOLOR_ARGB( 255, 0, 255, 0 );
 
-			CTextureMgr::GetInstance()->InsertTexture( pImagePath->wstrPath.c_str(), 
-													   pImagePath->wstrObjKey.c_str(), TEX_MULTI, 
-													   pImagePath->wstrStateKey.c_str(), 
+			CTextureMgr::GetInstance()->InsertTexture( pImagePath->wstrPath.c_str(),
+													   pImagePath->wstrObjKey.c_str(), TEX_MULTI,
+													   pImagePath->wstrStateKey.c_str(),
 													   pImagePath->iCount,
 													   true, color );
 
 			this->m_tWeaponDataArr[i].pImagePath = pImagePath;
 		}
 		else
+		{
 			this->m_tWeaponDataArr[i].pImagePath = NULL;
+			safe_delete( pImagePath );
+		}
 
 		this->m_tWeaponDataArr[i].eEffectShowKind
 			= (eEffectShowKind)atoi( pElementList->Getitem( i )->selectNodes( L"//SHOW_EFFECT_KIND" )->Getitem( i )->Gettext() );

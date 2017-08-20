@@ -59,6 +59,8 @@ public:
 
 	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex, const bool& _bCheckEntityData );
 
+	void	BuildingDataUpdate( CGameEntity* pEntity );
+
 public:
 	HRESULT Initialize(void);
 	int     Update(void);

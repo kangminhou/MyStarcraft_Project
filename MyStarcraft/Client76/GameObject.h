@@ -30,6 +30,7 @@ public:
 	void SetSize( const D3DXVECTOR3& _vSize );
 	void SetSize( const float& _fX, const float& _fY );
 	void SetObjectType( const eObjectType& eType );
+	void SetMatrix( const D3DXMATRIX& _matWorld );
 
 protected:
 	void SetObjKey( const wstring& _wstrObjKey );

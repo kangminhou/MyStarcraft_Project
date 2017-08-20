@@ -113,7 +113,7 @@ void CMove::PathFind()
 	switch ( iEvent )
 	{
 		case CAStar::Event_Fail_PathFind:
-			cout << "이동 경로를 못찾음" << endl;
+			//cout << "이동 경로를 못찾음" << endl;
 			if ( D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) <= TILECX * 2 )
 			{
 				this->m_bCanMove = false;
@@ -122,7 +122,7 @@ void CMove::PathFind()
 			break;
 		case CAStar::Event_Fail_Find_NearIndex:
 			//this->m_fRestReFindPath = RANDOM_FLOAT( 0.0f, 0.3f );
-			cout << "도착 타일을 못찾음" << endl;
+			//cout << "도착 타일을 못찾음" << endl;
 			this->m_bCanMove = false;
 			return;
 	}
@@ -145,7 +145,7 @@ void CMove::PathFind()
 
 void CMove::ReFindPath()
 {
-	cout << "경로 재탐색" << endl;
+	//cout << "경로 재탐색" << endl;
 	this->PathFind();
 }
 

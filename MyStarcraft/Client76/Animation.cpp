@@ -49,7 +49,7 @@ void CAnimation::ResetFrame()
 		if ( !this->m_bCurFrame_Is_ReverseAnim )
 			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fStart;
 		else
-			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax - 0.1f;
+			this->m_pCurAnimation->tFrame.fIndex = this->m_pCurAnimation->tFrame.fMax + this->m_pCurAnimation->tFrame.fStart - 0.1f;
 	}
 
 	this->m_bAnimEnd = false;
@@ -105,7 +105,8 @@ void CAnimation::AddAnimation( const wstring& _wstrName, const FRAME& _tFrame, c
 	ANIM_DATA*	pAnimData = new ANIM_DATA;
 	pAnimData->tFrame = _tFrame;
 	pAnimData->eKind = eAnimKind;
-	m_mapAnimation.insert( make_pair( _wstrName, pAnimData ) );
+	m_mapAnimation.emplace( make_pair( _wstrName, pAnimData ) );
+	//m_mapAnimation.insert( make_pair( _wstrName, pAnimData ) );
 }
 
 bool CAnimation::ChangeAnimation( const wstring & _wstrName )
@@ -144,7 +145,7 @@ void CAnimation::Update()
 {
 	this->m_pCurAnimation->tFrame.fIndex += GET_TIME * this->m_pCurAnimation->tFrame.fCount;
 
-	if ( this->m_pCurAnimation->tFrame.fIndex >= this->m_pCurAnimation->tFrame.fMax )
+	if ( this->m_pCurAnimation->tFrame.fIndex >= this->m_pCurAnimation->tFrame.fMax + this->m_pCurAnimation->tFrame.fStart )
 	{
 		switch ( m_pCurAnimation->eKind )
 		{

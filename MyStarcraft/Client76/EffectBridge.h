@@ -38,7 +38,7 @@ public:
 	virtual void Initialize();
 	virtual int Update() PURE;
 	virtual void Render();
-	virtual void Release() PURE;
+	virtual void Release();
 
 };
 

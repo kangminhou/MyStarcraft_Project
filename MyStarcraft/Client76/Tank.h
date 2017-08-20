@@ -6,9 +6,11 @@ class CTank :
 {
 private:
 	CAnimation*				m_pCannonAnim;
-	vector<const TEX_INFO*>	m_vecCannonTexture[2];
-	vector<const TEX_INFO*>	m_vecCannonCangeMotionTexture;
+	vector<const TEX_INFO*>	m_vecTankTrunkTexture;
 	D3DXMATRIX				m_matCannonWorld;
+
+	wstring					m_wstrCannonObjKey;
+	wstring					m_wstrCannonStateKey;
 
 	ATTACK_DATA				m_tNormalTankGroundAttData;
 	ATTACK_DATA				m_tSiegeTankGroundAttData;
@@ -17,6 +19,7 @@ private:
 
 	bool					m_bChangeMode;
 	bool					m_bSiegeMode;
+	bool					m_bInfluenceDir;
 
 public:
 	CTank();
@@ -31,6 +34,8 @@ public:
 protected:
 	virtual void InitAnimation() override;
 	virtual void InitPattern() override;
+
+	virtual void ChangeDirAnimIndex() override;
 
 public:
 	virtual void SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bPrevPattern = FALSE ) override;

@@ -6,7 +6,6 @@
 #include "TestScene.h"
 #include "FileCopyScene.h"
 #include "AStarTestScene.h"
-#include "RayTestScene.h"
 
 IMPLEMENT_SINGLETON(CSceneMgr);
 
@@ -34,10 +33,6 @@ void CSceneMgr::SetScene(eSceneType eType)
 
 	case SCENE_ASTAR_TEST:
 		m_pScene = new CAStarTestScene;
-		break;
-
-	case SCENE_Ray_TEST:
-		m_pScene = new CRayTestScene;
 		break;
 
 	}

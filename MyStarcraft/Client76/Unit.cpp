@@ -14,7 +14,6 @@ CWeaponMgr* CUnit::m_pWeaponMgr = NULL;
 
 CUnit::CUnit()
 {
-	ZeroMemory( &m_tGenerateData, sizeof( UNIT_GENERATE_DATA ) );
 }
 
 

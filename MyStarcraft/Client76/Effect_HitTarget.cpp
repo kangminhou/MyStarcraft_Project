@@ -34,7 +34,7 @@ void CEffect_HitTarget::Initialize()
 
 	CEffectBridge::Initialize();
 
-	FRAME tFrame = FRAME( 0.f, this->m_vecDrawTexture.size(), this->m_vecDrawTexture.size(), 0.f );
+	FRAME tFrame = FRAME( 0.f, (float)this->m_vecDrawTexture.size(), (float)this->m_vecDrawTexture.size(), 0.f );
 	this->m_pAnimation->AddAnimation( this->m_pEffect->GetStateKey(), tFrame, CAnimation::Anim_Loop );
 
 	this->m_pAnimation->ChangeAnimation( this->m_pEffect->GetStateKey() );

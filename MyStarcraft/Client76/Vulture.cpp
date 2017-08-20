@@ -43,12 +43,6 @@ HRESULT CVulture::Initialize( void )
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
 
-	/* 생성 데이터 초기화.. */
-	this->m_tGenerateData.fGenerateTime = 1.f;
-	this->m_tGenerateData.iRequireMineral = 75;
-	this->m_tGenerateData.iRequireGas = 0;
-	this->m_tGenerateData.iRequirePopulation = 1;
-
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FragmentationGrenade );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
@@ -184,7 +178,7 @@ void CVulture::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 	this->m_curActPatternKind = _ePatternKind;
 
 	if ( bChangeAnimation )
-		this->ChangeDirAnimTexture();
+		this->ChangeLookAnimTexture();
 }
 
 bool CVulture::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )

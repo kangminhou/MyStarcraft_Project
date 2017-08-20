@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Marine.h"
 
-#include "Include.h"
-
 #include "Animation.h"
 #include "WeaponMgr.h"
 #include "Device.h"
@@ -39,18 +37,18 @@ HRESULT CMarine::Initialize( void )
 	this->SetObjKey( L"Marine" );
 	this->m_wstrStateKey = L"Idle";
 
+	this->m_wstrFaceKey = L"FaceMarine";
+	this->m_wstrWireFrameKey = L"Marine";
+
+	this->m_byFaceFrameNum = 45;
+
 	/* 유닛의 데이터 초기화.. */
-	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 2000.f;
+	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 40.f;
 	this->m_tInfoData.iDefense = 0;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 7;
-
-	/* 생성 데이터 초기화.. */
-	this->m_tGenerateData.fGenerateTime = 1.f;
-	this->m_tGenerateData.iRequireMineral = 50;
-	this->m_tGenerateData.iRequireGas = 0;
-	this->m_tGenerateData.iRequirePopulation = 1;
+	this->m_tInfoData.nDefenceIconFrame = 292;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
@@ -190,8 +188,8 @@ void CMarine::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _
 			break;
 
 		case CGameEntity::Pattern_Attack:
-			//this->m_pCurActPattern = this->m_mapPatterns.find( L"Attack" )->second;
-			this->m_pCurActPattern = nullptr;
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"Attack" )->second;
+			//this->m_pCurActPattern = nullptr;
 			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Attack" );
 			this->m_wstrStateKey = L"Attack";
 			break;
@@ -231,7 +229,7 @@ void CMarine::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _
 	this->m_curActPatternKind = _ePatternKind;
 
 	if ( bChangeAnimation )
-		this->ChangeDirAnimTexture();
+		this->ChangeLookAnimTexture();
 
 }
 

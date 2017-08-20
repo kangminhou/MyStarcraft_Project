@@ -10,7 +10,7 @@ class CEffectMgr
 {
 	DECLARE_SINGLETON( CEffectMgr )
 
-private:
+public:
 	enum eEffectKind
 	{
 		Effect_Kind_Basic,
@@ -33,8 +33,10 @@ public:
 
 public:
 	void ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity );
+	void PushEffect( CEffect* _pPushEffect, const eEffectKind& _eKind );
 
 private:
+	CEffect* PopEffect( const eEffectKind& _eKind );
 	void AddEffect( const CEffectMgr::eEffectKind& _eEffectKind );
 
 };

@@ -34,7 +34,7 @@ void CObjMgr::InsertEntitySpaceData( CGameEntity* _pGameEntity )
 	if ( iCurSpaceIndex < 0 || iCurSpaceIndex > TOTAL_SPACE_NUM )
 	{
 		_pGameEntity->SetEntitySpaceDataKey( iReturnSpaceData );
-		ERROR_MSG( L"CObjMgr Class - InsertEntitySpaceData Function" );
+		//ERROR_MSG( L"CObjMgr Class - InsertEntitySpaceData Function" );
 		return;
 	}
 
@@ -92,7 +92,7 @@ void CObjMgr::EraseEntitySpaceData( CGameEntity * _pGameEntity, const int & iSpa
 	}
 	else
 	{
-		ERROR_MSG( L"Error - CObjMgr Class - EraseEntitySpaceData Function" );
+		//ERROR_MSG( L"Error - CObjMgr Class - EraseEntitySpaceData Function" );
 		return;
 	}
 }
@@ -518,6 +518,10 @@ int CObjMgr::Update(void)
 			if ( iEvent == Event_DestoryObject )
 			{
 				vecDeleteObject.push_back( (*iter) );
+				iter = m_ObjList[i].erase( iter );
+			}
+			else if ( iEvent == Event_EraseObjList )
+			{
 				iter = m_ObjList[i].erase( iter );
 			}
 			else if ( iEvent == Event_None )
