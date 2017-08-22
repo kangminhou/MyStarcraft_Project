@@ -44,16 +44,10 @@ HRESULT CAcademy::Initialize( void )
 	RECT tRect = { -40, -32, 40, 32 };
 	this->m_tOriginColRect = tRect;
 
-	for ( int i = 0; i < 3; ++i )
-	{
-		this->m_vecTexture.push_back(
-			CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
-	}
-
 	CBuilding::Initialize();
 
-	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
-	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );	
+	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 6 );
+	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 6 );	
 
 	return S_OK;
 }
@@ -138,6 +132,8 @@ void CAcademy::DecideTexture()
 			--iIndex;
 		this->m_pCurDrawTexture = this->m_vecTexture[iIndex];
 	}
+	else
+		this->m_pCurDrawTexture = this->m_vecTexture[m_vecTexture.size() - 1];
 }
 
 void CAcademy::InitAnimation()

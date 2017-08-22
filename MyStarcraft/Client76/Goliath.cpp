@@ -37,7 +37,12 @@ CGoliath::~CGoliath()
 HRESULT CGoliath::Initialize( void )
 {
 	this->SetObjKey( L"GoliathtUpper" );
-	this->m_wstrStateKey = L"Idle"; 
+	this->m_wstrStateKey = L"Idle";
+
+	this->m_wstrFaceKey = L"FaceGoliath";
+	this->m_wstrWireFrameKey = L"Goliatht";
+
+	this->m_byFaceFrameNum = 45;
 
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 125.f;
@@ -45,6 +50,7 @@ HRESULT CGoliath::Initialize( void )
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed( 2.64375f );
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
+	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_TwinAutocannons );
@@ -122,32 +128,35 @@ void CGoliath::Render( void )
 	const TEX_INFO* pDrawTexture = NULL;
 	const FRAME* pCurAnimation = NULL;
 
-	pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
-	if ( pCurAnimation )
-		pDrawTexture = this->m_vecTrunkTexture[(unsigned int)pCurAnimation->fIndex];
-
-	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
-	if ( pDrawTexture )
+	if ( this->m_pCannonAnim )
 	{
-		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
-		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
-		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
-	}
+		pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
+		if ( pCurAnimation )
+			pDrawTexture = this->m_vecTrunkTexture[(unsigned int)pCurAnimation->fIndex];
 
-	/* 그릴 텍스쳐를 찾아냄.. */
-	pDrawTexture = NULL;
-	pCurAnimation = this->m_pAnimCom->GetCurAnimation();
+		/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+		if ( pDrawTexture )
+		{
+			float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+			float fY = pDrawTexture->ImageInfo.Height * 0.5f;
+			this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		}
 
-	size_t u = (size_t)pCurAnimation->fIndex;
-	if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
-		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
+		/* 그릴 텍스쳐를 찾아냄.. */
+		pDrawTexture = NULL;
+		pCurAnimation = this->m_pAnimCom->GetCurAnimation();
 
-	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
-	if ( pDrawTexture )
-	{
-		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
-		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
-		this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
+		size_t u = (size_t)pCurAnimation->fIndex;
+		if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
+			pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
+
+		/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+		if ( pDrawTexture )
+		{
+			float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+			float fY = pDrawTexture->ImageInfo.Height * 0.5f;
+			this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
+		}
 	}
 }
 

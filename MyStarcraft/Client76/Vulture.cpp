@@ -36,12 +36,18 @@ HRESULT CVulture::Initialize( void )
 	this->SetObjKey( L"Vulture" );
 	this->m_wstrStateKey = L"All"; 
 
+	this->m_wstrFaceKey = L"FaceVulture";
+	this->m_wstrWireFrameKey = L"Vulture";
+
+	this->m_byFaceFrameNum = 45;
+
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 80.f;
 	this->m_tInfoData.iDefense = 0;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(3.75f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
+	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FragmentationGrenade );

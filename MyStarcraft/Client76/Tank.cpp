@@ -50,6 +50,7 @@ HRESULT CTank::Initialize( void )
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(3.75f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
+	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tNormalTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_ArcliteCannon );

@@ -8,6 +8,7 @@ class CAStar;
 class CWeapon;
 class CCorps;
 class CBackground;
+class CPlayer;
 
 class CGameEntity :
 	public CGameObject
@@ -88,6 +89,7 @@ protected:
 	vector<eGameEntityPattern>	m_vecActPatterns;
 
 	CCorps*					m_pEntityBelongToCorps;		// 현재 부대..
+	static CPlayer*			m_pPlayer;
 
 	BYTE					m_byDirAnimIndex;
 	bool					m_bUseDirAnimIndex;
@@ -142,6 +144,7 @@ public:
 	void SetEntitySpaceDataKey( const int& _iEntitySpaceDataKey );
 	void SetSelectShowData( const SELECT_UNIT_SHOW_DATA* _pSelectShowData );
 	void SetButtonData( vector<BUTTON_DATA*>* _pVecButtonData );
+	void ChangeAnimation( const wstring& _wstrName );
 
 public:
 	float GetCurHp() const;

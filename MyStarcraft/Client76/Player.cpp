@@ -142,6 +142,11 @@ void CPlayer::ShowOnlyCancelButtonInterface()
 	CUIMgr::GetInstance()->ShowButton( &this->m_vecCurCanActButton );
 }
 
+void CPlayer::ShowEntityUI()
+{
+	CUIMgr::GetInstance()->ShowEntityUI( this->m_pCurCorps );
+}
+
 void CPlayer::ResetMouseClickEventEntity()
 {
 	m_vecClickEventEntity.clear();
@@ -208,8 +213,12 @@ void CPlayer::KeyCheck( void )
 		{
 			if (CKeyMgr::GetInstance()->GetKeyOnceDown(i))
 			{
-				if (m_hotKeyCorps[i - '0'].GetCurUnitNum() > 0)
+				if ( m_hotKeyCorps[i - '0'].GetCurUnitNum() > 0 )
+				{
 					m_pCurCorps = &m_hotKeyCorps[i - '0'];
+					this->DecideShowButton();
+					CUIMgr::GetInstance()->ShowEntityUI( this->m_pCurCorps );
+				}
 				else
 					m_pCurCorps = NULL;
 			}
@@ -247,6 +256,19 @@ void CPlayer::KeyCheck( void )
 		this->m_bScrollMove = true;
 	}
 
+	if ( this->m_bScrollMove )
+	{
+		if ( this->m_vScroll.x < 0.f )
+			this->m_vScroll.x = 0.f;
+		else if ( this->m_vScroll.x >= TILECX * TILEX - WINCX )
+			m_vScroll.x = TILECX * TILEX - WINCX;
+
+		if ( this->m_vScroll.y < 0.f )
+			this->m_vScroll.y = 0.f;
+		else if ( this->m_vScroll.y >= TILECY * TILEY - WINCY )
+			this->m_vScroll.y = TILECY * TILEY - WINCY;
+	}
+
 }
 
 void CPlayer::MakeDragUnitCorps()
@@ -264,14 +286,44 @@ void CPlayer::MakeDragUnitCorps()
 	{
 		this->m_clickCorps.ResetCorps();
 
+		bool bFindBuildingEntity = false;
+		bool bErawBuildingEntity = false;
 		for ( size_t i = 0; i < vecEntity.size(); ++i )
-			this->m_clickCorps.AddUnit( vecEntity[i] );
+		{
+			if ( !bFindBuildingEntity )
+			{
+				bFindBuildingEntity = vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building );
+			}
+			else 
+			{
+				if ( !vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+				{
+					bErawBuildingEntity = true;
+					for ( size_t j = 0; j < vecEntity.size(); )
+					{
+						if ( vecEntity[j]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+							vecEntity.erase( vecEntity.begin() + j );
+						else
+							++j;
+					}
+					break;
+
+				}
+			}
+		}
+
+		if ( bFindBuildingEntity && !bErawBuildingEntity )
+			this->m_clickCorps.AddUnit( vecEntity[0] );
+		else
+		{
+			for ( size_t i = 0; i < vecEntity.size(); ++i )
+				this->m_clickCorps.AddUnit( vecEntity[i] );
+		}
 
 		this->m_pCurCorps = &this->m_clickCorps;
 
 		this->DecideShowButton();
-
-		CUIMgr::GetInstance()->ShowEntityUI( this->m_pCurCorps );
+		this->ShowEntityUI();
 	}
 }
 

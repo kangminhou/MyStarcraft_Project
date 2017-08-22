@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="Academy.cpp" />
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Armory.cpp" />
     <ClCompile Include="Astar.cpp" />
     <ClCompile Include="AStarManager.cpp" />
     <ClCompile Include="AStarTestScene.cpp" />
@@ -187,6 +188,7 @@
   <ItemGroup>
     <ClInclude Include="Academy.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Armory.h" />
     <ClInclude Include="Astar.h" />
     <ClInclude Include="AStarManager.h" />
     <ClInclude Include="AStarTestScene.h" />

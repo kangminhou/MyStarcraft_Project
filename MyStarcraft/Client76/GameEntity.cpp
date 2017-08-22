@@ -11,8 +11,11 @@
 #include "Astar.h"
 #include "Background.h"
 #include "Weapon.h"
+#include "Corps.h"
+#include "Player.h"
 
 CBackground* CGameEntity::m_pBackground = NULL;
+CPlayer* CGameEntity::m_pPlayer = NULL;
 
 
 CGameEntity::CGameEntity()
@@ -118,6 +121,15 @@ void CGameEntity::SetSelectShowData( const SELECT_UNIT_SHOW_DATA* _pSelectShowDa
 void CGameEntity::SetButtonData( vector<BUTTON_DATA*>* _pVecButtonData )
 {
 	this->m_pVecActButton = _pVecButtonData;
+}
+
+void CGameEntity::ChangeAnimation( const wstring & _wstrName )
+{
+	if ( this->m_pAnimCom->ChangeAnimation( _wstrName ) )
+	{
+		this->m_wstrStateKey = _wstrName;
+		this->ChangeLookAnimTexture();
+	}
 }
 
 float CGameEntity::GetCurHp() const
@@ -390,7 +402,10 @@ void CGameEntity::Render( void )
 	//swprintf_s( str, L"HP : %f", this->GetCurHp() );
 	//this->DrawFont( matFont, str );
 
-	this->DrawRect( this->m_tColRect );
+	RECT rcDraw = { this->m_tColRect.left - m_vScroll.x, this->m_tColRect.top - m_vScroll.y, 
+					this->m_tColRect.right - m_vScroll.x, this->m_tColRect.bottom - m_vScroll.y };
+
+	this->DrawRect( rcDraw );
 
 }
 
@@ -590,7 +605,7 @@ void CGameEntity::RenderSelectTexture( bool _bPlayer )
 	}
 }
 
-void CGameEntity::HitEntity( CGameEntity * _pAttackedObject, float _fDamage )
+void CGameEntity::HitEntity( CGameEntity* _pAttackedObject, float _fDamage )
 {
 	if(_fDamage >= 0.f )
 		this->m_tInfoData.fCurHp -= _fDamage;
@@ -625,6 +640,17 @@ void CGameEntity::DieEntity()
 	this->m_bDie = true;
 	this->SetDir( D3DXVECTOR3( 0.f, 0.f, 0.f ) );
 	this->m_byLookAnimIndex = 0;
+
+	if ( this->m_pEntityBelongToCorps )
+		this->m_pEntityBelongToCorps->EraseUnit( this );
+
+	if ( this->GetObjectType() == OBJ_TYPE_USER )
+	{
+		if ( !m_pPlayer )
+			m_pPlayer = dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front());
+
+		m_pPlayer->ShowEntityUI();
+	}
 
 	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );

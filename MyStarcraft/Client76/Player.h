@@ -49,6 +49,7 @@ public:
 	void OrderActPattern( const BUTTON_DATA* _pButtonData );
 	void DecideShowButton();
 	void ShowOnlyCancelButtonInterface();
+	void ShowEntityUI();
 
 	void ResetMouseClickEventEntity();
 	void AddMouseClickEventEntity(CGameEntity* _pEntity);

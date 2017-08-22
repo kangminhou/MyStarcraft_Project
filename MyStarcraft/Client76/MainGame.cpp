@@ -64,6 +64,8 @@ HRESULT CMainGame::Initialize(void)
 	CSceneMgr::GetInstance()->Initialize();
 	CSceneMgr::GetInstance()->SetChangeScene(SCENE_STAGE);
 
+	//CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/a.png", L"Test", TEX_SINGLE );
+
 	return S_OK;
 }
 
@@ -84,6 +86,32 @@ void CMainGame::Render(void)
 	CSceneMgr::GetInstance()->Render();
 
 	CMouse::GetInstance()->Render();
+
+	//const TEX_INFO* pTex = CTextureMgr::GetInstance()->GetTexture( L"Test" );
+	//static float fY = 0.f;
+	//if ( GetAsyncKeyState( 'Z' ) )
+	//{
+	//	fY -= 0.01f;
+	//}
+	//else if ( GetAsyncKeyState( 'C' ) )
+	//{
+	//	fY += 0.01f;
+	//}
+	//RECT rc = { 0, fY, 56, 56 };
+
+	//D3DXMATRIX matWorld;
+	//D3DXMatrixTranslation( &matWorld, 100.f, 100.f + fY, 0.f );
+
+	//CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
+
+	//CDevice::GetInstance()->GetSprite()->Draw(
+	//	pTex->pTexture,
+	//	&rc,
+	//	&D3DXVECTOR3(pTex->ImageInfo.Width * 0.5f, pTex->ImageInfo.Height * 0.5f, 0.f),
+	//	//NULL,
+	//	NULL,
+	//	D3DCOLOR_ARGB(255,255,255,255)
+	//);
 
 	FPS_Render();
 	

@@ -223,6 +223,9 @@
     <Filter Include="01. GameObject\00. GameEntity\01. Building\03. Factory">
       <UniqueIdentifier>{fe779002-63f0-402a-8879-231dd7905ea5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\04. Armory">
+      <UniqueIdentifier>{bb1b11cd-26e8-494c-92a7-817d6d8642fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -443,6 +446,9 @@
     </ClCompile>
     <ClCompile Include="Factory_Building.cpp">
       <Filter>01. GameObject\00. GameEntity\01. Building\03. Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="Armory.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\04. Armory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -670,6 +676,9 @@
     </ClInclude>
     <ClInclude Include="Factory_Building.h">
       <Filter>01. GameObject\00. GameEntity\01. Building\03. Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Armory.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\04. Armory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

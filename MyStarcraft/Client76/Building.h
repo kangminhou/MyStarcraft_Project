@@ -28,6 +28,10 @@ public:
 
 public:
 	void SetApplyCol( const bool& _bApplyCol );
+
+public:
+	bool GetIsSuccessBuild() const;
+
 public:
 	virtual HRESULT Initialize( void );
 	virtual int Update( void );

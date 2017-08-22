@@ -135,6 +135,8 @@ void CMove::PathFind()
 	//	this->m_fRestReFindPath = RANDOM_FLOAT( 0.0f, 0.3f );
 	//}
 
+	cout << "x : " << m_vDestination.x << ", y : " << m_vDestination.y << endl;
+
 	this->m_vecMovePath.push_back( m_vDestination );
 
 	this->m_iCurIndexNum = 0;

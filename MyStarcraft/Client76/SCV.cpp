@@ -18,6 +18,7 @@
 #include "Pattern_Attack.h"
 #include "Pattern_Die.h"
 #include "Pattern_Patrol.h"
+#include "Pattern_Unit_Build_Building.h"
 #include "Move.h"
 #include "Background.h"
 #include "Weapon.h"
@@ -33,6 +34,7 @@ CSCV::CSCV()
 	: m_bRenderBuildingArea(false)
 	, m_bCanBuild(false)
 	, m_bBuildAdvancedStructure(false)
+	, m_bUnder_Construction(false)
 {
 }
 
@@ -40,6 +42,16 @@ CSCV::CSCV()
 CSCV::~CSCV()
 {
 	Release();
+}
+
+CGameEntity * CSCV::GetBuildEntity() const
+{
+	return this->m_pBuildEntity;
+}
+
+bool CSCV::GetIsUnderConstruction() const
+{
+	return this->m_bUnder_Construction;
 }
 
 HRESULT CSCV::Initialize( void )
@@ -100,10 +112,10 @@ void CSCV::Render( void )
 
 		this->m_pDrawBuilding->FrameRender( matTrans );
 
-		rcCol.left += vMousePos.x;
-		rcCol.right += vMousePos.x;
-		rcCol.top += vMousePos.y;
-		rcCol.bottom += vMousePos.y;
+		rcCol.left += (LONG)vMousePos.x;
+		rcCol.right += (LONG)vMousePos.x;
+		rcCol.top += (LONG)vMousePos.y;
+		rcCol.bottom += (LONG)vMousePos.y;
 
 		this->DrawRect( rcCol );
 	}
@@ -113,26 +125,23 @@ void CSCV::Release( void )
 {
 	if ( this->m_bRenderBuildingArea )
 	{
-		safe_delete( this->m_pDrawBuilding );
-		this->m_bRenderBuildingArea = false;
-	}
-
-	if ( this->m_bCanBuild )
-	{
 		if ( this->m_bBuildAdvancedStructure )
-		{
-			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
-			this->m_pVecActButton = this->m_pVecStructureButton;
-			this->m_pVecStructureButton = pTemp;
-			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
-		}
-		else
 		{
 			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 			this->m_pVecActButton = this->m_pVecAdvancedStructureButton;
 			this->m_pVecAdvancedStructureButton = pTemp;
 			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
 		}
+		else
+		{
+			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
+			this->m_pVecActButton = this->m_pVecStructureButton;
+			this->m_pVecStructureButton = pTemp;
+			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+		}
+
+		safe_delete( this->m_pDrawBuilding );
+		this->m_bRenderBuildingArea = false;
 	}
 }
 
@@ -165,7 +174,8 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 			break;
 
 		case CGameEntity::Pattern_MoveAlert:
-			this->m_pCurActPattern = this->m_mapPatterns.find( L"MoveAlert" )->second;
+			if(!this->m_bCanBuild )
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"MoveAlert" )->second;
 			break;
 
 		case CGameEntity::Pattern_Stop:
@@ -214,7 +224,7 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 			}
 			else
 			{
-				//this->m_pCurActPattern = this->m_mapPatterns.find(L"")
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 			}
 		}
 			break;
@@ -268,8 +278,7 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 void CSCV::InitAnimation()
 {
 	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_Loop );
-	this->m_pAnimCom->AddAnimation( L"Work", FRAME( 0.f, 9.f, 9.f, 0.f ), CAnimation::Anim_Loop );
-	this->m_pAnimCom->AddAnimation( L"Attack", FRAME( 0.f, 10.f, 3.f, 0.f ), CAnimation::Anim_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"Attack", FRAME( 0.f, 2.f, 2.f, 0.f ), CAnimation::Anim_ClampForever );
 }
 
 void CSCV::InitPattern()
@@ -282,7 +291,8 @@ void CSCV::InitPattern()
 	this->m_mapPatterns.insert( make_pair( L"Stop", nullptr) );
 	this->m_mapPatterns.insert( make_pair( L"Attack", new CPattern_Attack ) );
 	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
-	this->m_mapPatterns.insert( make_pair( L"Patrol", new CPattern_Patrol) );
+	this->m_mapPatterns.insert( make_pair( L"Patrol", new CPattern_Patrol ) );
+	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Unit_Build_Building ) );
 }
 
 bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )
@@ -328,8 +338,6 @@ void CSCV::MouseEvent()
 		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
 		vMousePos -= D3DXVECTOR3( float(int(vMousePos.x) % TILECX), float(int(vMousePos.y) % TILECY), 0.f ) - D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
 		this->BuildBuilding( this->m_pDrawBuilding, vMousePos );
-		this->m_bRenderBuildingArea = false;
-		this->m_bCanBuild = false;
 
 		if ( this->m_bBuildAdvancedStructure )
 		{
@@ -347,6 +355,11 @@ void CSCV::MouseEvent()
 		}
 
 		this->m_pPlayer->EraseMouseClickEventEntity( this );
+		this->SetPattern( CGameEntity::Pattern_Build );
+
+		this->m_bRenderBuildingArea = false;
+		this->m_bCanBuild = false;
+
 	}
 }
 
@@ -360,11 +373,31 @@ void CSCV::RenderBuildingArea( CGameEntity * pBuilding )
 void CSCV::BuildBuilding( CGameEntity * pEntity, const D3DXVECTOR3 & _vPos )
 {
 	pEntity->SetPos( _vPos );
-	dynamic_cast<CBuilding*>(pEntity)->SetApplyCol( true );
-	CObjMgr::GetInstance()->GetList( this->GetObjectType() )->push_back( pEntity );
+	//dynamic_cast<CBuilding*>(pEntity)->SetApplyCol( true );
+
+	m_pBuildEntity = pEntity;
+
+	//CObjMgr::GetInstance()->GetList( this->GetObjectType() )->push_back( pEntity );
 }
 
-void CSCV::InitButton(vector<BUTTON_DATA*>* _pVecButtonData, vector<BUTTON_DATA*>* _pVecAdvancedStructureButton)
+void CSCV::BuildStart()
+{
+	dynamic_cast<CBuilding*>(m_pBuildEntity)->SetApplyCol( true );
+
+	this->m_bUnder_Construction = true;
+	//CObjMgr::GetInstance()->AddGameObject( m_pBuildEntity, this->GetObjectType() );
+	CObjMgr::GetInstance()->GetList( this->GetObjectType() )->push_back( m_pBuildEntity );
+	this->m_pAnimCom->ChangeAnimation( L"Attack" );
+	this->m_wstrStateKey = L"Attack";
+	this->ChangeLookAnimTexture();
+}
+
+void CSCV::SuccessBuild()
+{
+	this->m_bUnder_Construction = false;
+}
+
+void CSCV::InitButton(vector<BUTTON_DATA*>*& _pVecButtonData, vector<BUTTON_DATA*>*& _pVecAdvancedStructureButton)
 {
 	if ( !m_pVecStructureButton )
 	{
@@ -381,21 +414,11 @@ void CSCV::DeleteButton()
 {
 	if ( m_pVecStructureButton )
 	{
-		for ( size_t i = 0; i < m_pVecStructureButton->size(); ++i )
-		{
-			safe_delete((*m_pVecStructureButton)[i]);
-		}
-
 		m_pVecStructureButton->clear();
 		safe_delete( m_pVecStructureButton );
 	}
 	if ( m_pVecAdvancedStructureButton )
 	{
-		for ( size_t i = 0; i < m_pVecAdvancedStructureButton->size(); ++i )
-		{
-			safe_delete((*m_pVecAdvancedStructureButton)[i]);
-		}
-
 		m_pVecAdvancedStructureButton->clear();
 		safe_delete( m_pVecAdvancedStructureButton );
 	}

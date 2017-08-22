@@ -68,7 +68,8 @@ int CPattern_ChaseTarget::Update()
 		return Event_Pattern_Change;
 	}
 
-	float fEntityAttRange = ((/* 공중 유닛이라면.. */ false) ? this->m_pGameEntity->GetAirWeaponAttRange() : this->m_pGameEntity->GetGroundWeaponAttRange());
+	float fEntityAttRange = ((m_pTarget->GetCheckUnitInformation( CGameEntity::Entity_AirUnit )) ? 
+							  this->m_pGameEntity->GetAirWeaponAttRange() : this->m_pGameEntity->GetGroundWeaponAttRange());
 
 	this->m_pMoveComponent->Update();
 

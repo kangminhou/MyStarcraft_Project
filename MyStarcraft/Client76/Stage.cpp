@@ -33,7 +33,7 @@ HRESULT CStage::Initialize( void )
 
 	CGameEntity::SetBackground( CObjMgr::GetInstance()->FindGameObject<CBackground>() );
 
-	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit( 
+	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit(
 		CEntityMgr::Entity_SCV, D3DXVECTOR3(300.f, 100.f, 0.f), OBJ_TYPE_USER );
 	
 	CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
@@ -45,8 +45,16 @@ HRESULT CStage::Initialize( void )
 
 	//for ( int i = 0; i < 12; ++i )
 	//{
-	//	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit( 
-	//		CEntityMgr::Entity_Tank, D3DXVECTOR3(100 + (i % 10) * 20, 100 + (i / 10) * 30, 0.f), OBJ_TYPE_USER );
+	//	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit(
+	//		CEntityMgr::Entity_Marine, D3DXVECTOR3(100 + (i % 10) * 20, 100 + (i / 10) * 30, 0.f), OBJ_TYPE_USER );
+	//
+	//	CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
+	//}
+	//
+	//for ( int i = 0; i < 2; ++i )
+	//{
+	//	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit(
+	//		CEntityMgr::Entity_Medic, D3DXVECTOR3(100 + (i % 10) * 20, 400 + (i / 10) * 30, 0.f), OBJ_TYPE_USER );
 	//
 	//	CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
 	//}
@@ -59,13 +67,13 @@ HRESULT CStage::Initialize( void )
 	//	CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
 	//}
 
-	//for ( int i = 0; i < 100; ++i )
-	//{
-	//	CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit( 
-	//		CEntityMgr::Entity_Marine, D3DXVECTOR3(1500 + (i % 10) * 20, 100 + (i / 10) * 30, 0.f), OBJ_TYPE_USER2 );
-	//
-	//	CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
-	//}
+	for ( int i = 0; i < 12; ++i )
+	{
+		CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit( 
+			CEntityMgr::Entity_Marine, D3DXVECTOR3(1500 + (i % 10) * 20, 100 + (i / 10) * 30, 0.f), OBJ_TYPE_USER2 );
+	
+		CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
+	}
 
 	//CObjMgr::GetInstance()->AddGameObject(
 	//	CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::Entity_SCV, D3DXVECTOR3( 400, 400, 0.f ), OBJ_TYPE_USER ), OBJ_TYPE_USER
@@ -76,8 +84,6 @@ HRESULT CStage::Initialize( void )
 	return S_OK;
 }
 
-#include "KeyMgr.h"
-#include "Mouse.h"
 int CStage::Update(void)
 {
 	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )

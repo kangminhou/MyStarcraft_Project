@@ -15,6 +15,7 @@
 #include "Barrack.h"
 #include "Academy.h"
 #include "Factory_Building.h"
+#include "Armory.h"
 
 
 IMPLEMENT_SINGLETON(CEntityMgr)
@@ -115,6 +116,15 @@ void CEntityMgr::Initialize()
 	m_mapAllEntityActButton.insert( 
 		make_pair( L"Train Medic", new BUTTON_DATA( CGameEntity::Pattern_Make_Unit, 34, 'C', 1, false, false, CEntityMgr::Entity_Medic ) ) );
 
+	m_mapAllEntityActButton.insert(
+		make_pair( L"Train Vulture", new BUTTON_DATA( CGameEntity::Pattern_Make_Unit, 2, 'V', 0, false, true, CEntityMgr::Entity_Vulture ) ) );
+
+	m_mapAllEntityActButton.insert(
+		make_pair( L"Train Tank", new BUTTON_DATA( CGameEntity::Pattern_Make_Unit, 5, 'T', 0, false, false, CEntityMgr::Entity_Tank ) ) );
+
+	m_mapAllEntityActButton.insert(
+		make_pair( L"Train Goliath", new BUTTON_DATA( CGameEntity::Pattern_Make_Unit, 3, 'G', 0, false, false, CEntityMgr::Entity_Goliath ) ) );
+
 	/* 건물 건설 관련 버튼들.. */
 	m_mapAllEntityActButton.insert(
 		make_pair( L"Build Command Center", new BUTTON_DATA( CGameEntity::Pattern_Build, 106, 'C', 0, false, true, CEntityMgr::Entity_Control ) ) );
@@ -165,8 +175,10 @@ void CEntityMgr::Initialize()
 	m_pEntityGenDataArr[Entity_Medic] = make_pair( m_mapAllEntityActButton.find( L"Train Medic" )->second, new UNIT_GENERATE_DATA( 15, 50, 25, 1, 1 ) );
 	m_pEntityGenDataArr[Entity_Medic].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Academy );
 	m_pEntityGenDataArr[Entity_Vulture] = make_pair( nullptr, new UNIT_GENERATE_DATA( 15, 75, 0, 1, 1 ) );
-	m_pEntityGenDataArr[Entity_Tank] = make_pair( nullptr, new UNIT_GENERATE_DATA( 15, 150, 100, 1, 1 ) );
-	m_pEntityGenDataArr[Entity_Goliath] = make_pair( nullptr, new UNIT_GENERATE_DATA( 15, 100, 50, 1, 1 ) );
+	m_pEntityGenDataArr[Entity_Tank] = make_pair( m_mapAllEntityActButton.find( L"Train Tank" )->second, new UNIT_GENERATE_DATA( 15, 150, 100, 1, 1 ) );
+	m_pEntityGenDataArr[Entity_Tank].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Armory );
+	m_pEntityGenDataArr[Entity_Goliath] = make_pair( m_mapAllEntityActButton.find( L"Train Goliath" )->second, new UNIT_GENERATE_DATA( 15, 100, 50, 1, 1 ) );
+	m_pEntityGenDataArr[Entity_Goliath].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Armory );
 	m_pEntityGenDataArr[Entity_SCV] = make_pair( nullptr, new UNIT_GENERATE_DATA( 15, 50, 0, 1, 1 ) );
 
 	m_pEntityGenDataArr[Entity_Control] = make_pair( nullptr, new UNIT_GENERATE_DATA( 15, 400, 0, 0, 1 ));
@@ -174,16 +186,21 @@ void CEntityMgr::Initialize()
 	m_pEntityGenDataArr[Entity_Refinery] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 100, 0, 0, 1 ));
 	m_pEntityGenDataArr[Entity_Barracks] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 150, 0, 0, 1 ));
 	m_pEntityGenDataArr[Entity_Engineering_Bay] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 125, 0, 0, 1 ));
-	m_pEntityGenDataArr[Entity_Missile_Turret] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 75, 0, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Missile_Turret] = make_pair( m_mapAllEntityActButton.find( L"Build Missile Turret" )->second, new UNIT_GENERATE_DATA( 5, 75, 0, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Missile_Turret].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Engineering_Bay );
 	m_pEntityGenDataArr[Entity_Academy] = make_pair( m_mapAllEntityActButton.find( L"Build Academy" )->second, new UNIT_GENERATE_DATA( 5, 150, 0, 0, 1 ));
 	m_pEntityGenDataArr[Entity_Academy].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Barracks );
-	m_pEntityGenDataArr[Entity_Bunker] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 100, 0, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Bunker] = make_pair( m_mapAllEntityActButton.find( L"Build Bunker" )->second, new UNIT_GENERATE_DATA( 5, 100, 0, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Bunker].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Barracks );
 
 	m_pEntityGenDataArr[Entity_Factory] = make_pair( m_mapAllEntityActButton.find(L"Build Factory")->second, new UNIT_GENERATE_DATA( 5, 200, 100, 0, 1 ));
 	m_pEntityGenDataArr[Entity_Factory].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Barracks );
-	m_pEntityGenDataArr[Entity_Starport] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 150, 100, 0, 1 ));
-	m_pEntityGenDataArr[Entity_Science_Facility] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 100, 150, 0, 1 ));
-	m_pEntityGenDataArr[Entity_Armory] = make_pair( nullptr, new UNIT_GENERATE_DATA( 5, 100, 50, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Starport] = make_pair( m_mapAllEntityActButton.find(L"Build Starport")->second, new UNIT_GENERATE_DATA( 5, 150, 100, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Starport].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Factory );
+	m_pEntityGenDataArr[Entity_Science_Facility] = make_pair( m_mapAllEntityActButton.find(L"Build Science Facility")->second, new UNIT_GENERATE_DATA( 5, 100, 150, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Science_Facility].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Starport );
+	m_pEntityGenDataArr[Entity_Armory] = make_pair( m_mapAllEntityActButton.find(L"Build Armory")->second, new UNIT_GENERATE_DATA( 5, 100, 50, 0, 1 ));
+	m_pEntityGenDataArr[Entity_Armory].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Factory );
 
 	for(int i = 0; i < Entity_End; ++i )
 		m_pVecEntityActButton[i] = new vector<BUTTON_DATA*>;
@@ -197,10 +214,15 @@ void CEntityMgr::Initialize()
 
 	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
 	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
-	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Attack" )->second );
 	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Patrol" )->second );
 	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Hold" )->second );
-	m_pVecEntityActButton[Entity_Medic]->push_back( m_mapAllEntityActButton.find( L"Steampack" )->second );
+
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Attack" )->second );
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Patrol" )->second );
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Hold" )->second );
+	m_pVecEntityActButton[Entity_Firebat]->push_back( m_mapAllEntityActButton.find( L"Steampack" )->second );
 
 	m_pVecEntityActButton[Entity_SCV]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
 	m_pVecEntityActButton[Entity_SCV]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
@@ -210,13 +232,33 @@ void CEntityMgr::Initialize()
 	m_pVecEntityActButton[Entity_SCV]->push_back( m_mapAllEntityActButton.find( L"Build Structure" )->second );
 	m_pVecEntityActButton[Entity_SCV]->push_back( m_mapAllEntityActButton.find( L"Build Advanced Structure" )->second );
 
+	m_pVecEntityActButton[Entity_Vulture]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
+	m_pVecEntityActButton[Entity_Vulture]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
+	m_pVecEntityActButton[Entity_Vulture]->push_back( m_mapAllEntityActButton.find( L"Attack" )->second );
+	m_pVecEntityActButton[Entity_Vulture]->push_back( m_mapAllEntityActButton.find( L"Patrol" )->second );
+	m_pVecEntityActButton[Entity_Vulture]->push_back( m_mapAllEntityActButton.find( L"Hold" )->second );
+
+	m_pVecEntityActButton[Entity_Tank]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
+	m_pVecEntityActButton[Entity_Tank]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
+	m_pVecEntityActButton[Entity_Tank]->push_back( m_mapAllEntityActButton.find( L"Attack" )->second );
+	m_pVecEntityActButton[Entity_Tank]->push_back( m_mapAllEntityActButton.find( L"Patrol" )->second );
+	m_pVecEntityActButton[Entity_Tank]->push_back( m_mapAllEntityActButton.find( L"Hold" )->second );
+
+	m_pVecEntityActButton[Entity_Goliath]->push_back( m_mapAllEntityActButton.find( L"Move" )->second );
+	m_pVecEntityActButton[Entity_Goliath]->push_back( m_mapAllEntityActButton.find( L"Stop" )->second );
+	m_pVecEntityActButton[Entity_Goliath]->push_back( m_mapAllEntityActButton.find( L"Attack" )->second );
+	m_pVecEntityActButton[Entity_Goliath]->push_back( m_mapAllEntityActButton.find( L"Patrol" )->second );
+	m_pVecEntityActButton[Entity_Goliath]->push_back( m_mapAllEntityActButton.find( L"Hold" )->second );
+
 	m_pVecEntityActButton[Entity_Control]->push_back( m_mapAllEntityActButton.find( L"Build SCV" )->second );
 
 	m_pVecEntityActButton[Entity_Barracks]->push_back( m_mapAllEntityActButton.find( L"Train Marine" )->second );
 	m_pVecEntityActButton[Entity_Barracks]->push_back( m_mapAllEntityActButton.find( L"Train Firebat" )->second );
 	m_pVecEntityActButton[Entity_Barracks]->push_back( m_mapAllEntityActButton.find( L"Train Medic" )->second );
 
-	m_pVecEntityActButton[Entity_Factory]->push_back( m_mapAllEntityActButton.find( L"Train Medic" )->second );
+	m_pVecEntityActButton[Entity_Factory]->push_back( m_mapAllEntityActButton.find( L"Train Vulture" )->second );
+	m_pVecEntityActButton[Entity_Factory]->push_back( m_mapAllEntityActButton.find( L"Train Tank" )->second );
+	m_pVecEntityActButton[Entity_Factory]->push_back( m_mapAllEntityActButton.find( L"Train Goliath" )->second );
 
 	/* SCV 에게 줄 건물 초기화.. */
 	vector<BUTTON_DATA*>* pVecStructureBtnData = new vector<BUTTON_DATA*>;
@@ -291,7 +333,7 @@ void CEntityMgr::BuildBuilding( const eEntityType & _eEntityType )
 	}
 }
 
-CGameEntity* CEntityMgr::MakeUnit( const eEntityType & _eEntityType, const D3DXVECTOR3 & _vPos, const eObjectType & _eType )
+CGameEntity* CEntityMgr::MakeUnit( const eEntityType& _eEntityType, const D3DXVECTOR3 & _vPos, const eObjectType & _eType )
 {
 	CGameEntity* pEntity = nullptr;
 
@@ -339,6 +381,10 @@ CGameEntity* CEntityMgr::MakeUnit( const eEntityType & _eEntityType, const D3DXV
 
 		case CEntityMgr::Entity_Factory:
 			pEntity = new CFactory_Building;
+			break;
+
+		case CEntityMgr::Entity_Armory:
+			pEntity = new CArmory;
 			break;
 
 	}

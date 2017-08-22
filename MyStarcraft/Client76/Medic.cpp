@@ -40,6 +40,7 @@ HRESULT CMedic::Initialize( void )
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 9;
+	this->m_tInfoData.nDefenceIconFrame = 292;
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.fAttRange = 1.5f;

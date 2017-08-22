@@ -36,12 +36,18 @@ HRESULT CFirebat::Initialize( void )
 	this->SetObjKey( L"Firebat" );
 	this->m_wstrStateKey = L"Idle";
 
+	this->m_wstrFaceKey = L"FaceFirebat";
+	this->m_wstrWireFrameKey = L"Firebat";
+
+	this->m_byFaceFrameNum = 45;
+
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 50.f;
 	this->m_tInfoData.iDefense = 1;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(2.25f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 7;
+	this->m_tInfoData.nDefenceIconFrame = 292; 
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FlameThrower );

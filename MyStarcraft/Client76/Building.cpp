@@ -32,6 +32,11 @@ void CBuilding::SetApplyCol( const bool & _bApplyCol )
 	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
 }
 
+bool CBuilding::GetIsSuccessBuild() const
+{
+	return this->m_bSuccessBuild;
+}
+
 HRESULT CBuilding::Initialize( void )
 {
 	if ( this->GetObjectType() == OBJ_TYPE_USER )
@@ -73,10 +78,10 @@ int CBuilding::Update( void )
 	this->DecideTexture();
 
 	D3DXVECTOR3 vPos = this->GetPos();
-	this->m_tColRect.left = this->m_tOriginColRect.left + vPos.x;
-	this->m_tColRect.right = this->m_tOriginColRect.right + vPos.x;
-	this->m_tColRect.top = this->m_tOriginColRect.top + vPos.y;
-	this->m_tColRect.bottom = this->m_tOriginColRect.bottom + vPos.y;
+	this->m_tColRect.left = (LONG)(this->m_tOriginColRect.left + vPos.x);
+	this->m_tColRect.right = (LONG)(this->m_tOriginColRect.right + vPos.x);
+	this->m_tColRect.top = (LONG)(this->m_tOriginColRect.top + vPos.y);
+	this->m_tColRect.bottom = (LONG)(this->m_tOriginColRect.bottom + vPos.y);
 
 	return Event_None;
 }
@@ -100,6 +105,31 @@ void CBuilding::UpdateLookAnimIndex()
 
 void CBuilding::SuccessBuild()
 {
+	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
+	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
+
+	vector<CGameEntity*> vecEntity;
+	CObjMgr::GetInstance()->CheckEntitysCol( &vecEntity, this, this->GetObjectType() );
+
+	D3DXVECTOR3 vBuildingPos = this->GetPos();
+	int iColRectCYHalf = ((this->m_tColRect.bottom - this->m_tColRect.top) / 2);
+
+	for ( size_t i = 0; i < vecEntity.size(); ++i )
+	{
+		D3DXVECTOR3 vCheckEntityPos = vecEntity[i]->GetPos();
+		RECT rcCheckEntityColRect = vecEntity[i]->GetColRect();
+
+		if ( vBuildingPos.y >= vCheckEntityPos.y )
+			vCheckEntityPos.y = vBuildingPos.y - iColRectCYHalf - ((rcCheckEntityColRect.bottom - rcCheckEntityColRect.top) / 2);
+		else
+			vCheckEntityPos.y = vBuildingPos.y + iColRectCYHalf + ((rcCheckEntityColRect.bottom - rcCheckEntityColRect.top) / 2);
+
+		vecEntity[i]->SetPos( vCheckEntityPos );
+
+	}
+
+	m_bSuccessBuild = true;
+	this->DecideTexture();
 	CEntityMgr::GetInstance()->BuildBuilding( this->m_eEntityType );
 }
 

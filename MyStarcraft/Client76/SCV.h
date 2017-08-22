@@ -8,12 +8,14 @@ class CSCV :
 	public CUnit
 {
 private:
-	bool	m_bCanBuild;
-	bool	m_bBuildAdvancedStructure;
-	bool	m_bRenderBuildingArea;
+	bool	m_bCanBuild;					// 
+	bool	m_bBuildAdvancedStructure;		// Advanced Structure 의 건물을 볼 것인가 ( UI 때문에 필요 )..
+	bool	m_bRenderBuildingArea;			// 건물 완성본 출력하는가?? ( 플레이어의 SCV 가 사용 )..
+	bool	m_bUnder_Construction;			// 건설중인가??..
 
 	const TEX_INFO*					m_pAreaTexture;
 	CBuilding*						m_pDrawBuilding;
+	CGameEntity*					m_pBuildEntity;
 
 	CPlayer*						m_pPlayer;
 
@@ -24,7 +26,11 @@ public:
 	CSCV();
 	virtual ~CSCV();
 
-	public:
+public:
+	CGameEntity* GetBuildEntity() const;
+	bool GetIsUnderConstruction() const;
+
+public:
 	// CGameObject을(를) 통해 상속됨
 	virtual HRESULT	Initialize( void ) override;
 	virtual int Update( void ) override;
@@ -44,8 +50,10 @@ protected:
 public:
 	void RenderBuildingArea( CGameEntity* pBuilding );
 	void BuildBuilding( CGameEntity* pEntity, const D3DXVECTOR3& _vPos );
+	void BuildStart();
+	void SuccessBuild();
 
-	static void InitButton( vector<BUTTON_DATA*>* _pVecButtonData, vector<BUTTON_DATA*>* _pVecAdvancedStructureButton );
+	static void InitButton( vector<BUTTON_DATA*>*& _pVecButtonData, vector<BUTTON_DATA*>*& _pVecAdvancedStructureButton );
 	static void DeleteButton();
 
 };

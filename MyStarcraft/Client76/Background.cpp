@@ -487,10 +487,10 @@ void CBackground::BuildingDataUpdate( CGameEntity * pEntity )
 	RECT rcCol = pEntity->GetColRect();
 	D3DXVECTOR3 vPos = pEntity->GetPos();
 
-	int iStartX = (vPos.x + rcCol.left)   / TILECX;
-	int iEndX =   (vPos.x + rcCol.right)  / TILECX;
-	int iStartY = (vPos.y + rcCol.top)    / TILECY;
-	int iEndY =   (vPos.y + rcCol.bottom) / TILECY;
+	int iStartX = int(vPos.x + rcCol.left)   / TILECX;
+	int iEndX =   int(vPos.x + rcCol.right)  / TILECX;
+	int iStartY = int(vPos.y + rcCol.top)    / TILECY;
+	int iEndY =   int(vPos.y + rcCol.bottom) / TILECY;
 
 	for ( int i = iStartY; i < iEndY; ++i )
 	{

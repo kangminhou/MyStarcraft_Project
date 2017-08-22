@@ -278,11 +278,18 @@ void CUIMgr::ShowEntityUI( CCorps* _pCorps )
 		this->m_pShowUnitData = pEntity->GetSelectShowData();
 
 		//365, 490
-		float fNameX = 365.f - (this->m_pShowUnitData->wstrName.size() / 2) * 9.f;
-		float fRankX = 365.f - (this->m_pShowUnitData->wstrRank.size() / 2) * 9.f;
+		float fNameX = 365.f - (this->m_pShowUnitData->wstrName.size() / 2) * 5.f;
+		float fRankX = 365.f - (this->m_pShowUnitData->wstrRank.size() / 2) * 5.f;
 
-		D3DXMatrixTranslation( &this->m_matDrawUnitName, fNameX, 490.f, 0.f );
-		D3DXMatrixTranslation( &this->m_matDrawUnitRank, fRankX, 520.f, 0.f );
+		D3DXMATRIX matScale, matTrans;
+
+		D3DXMatrixScaling( &matScale, 0.7f, 0.7f, 1.f );
+
+		D3DXMatrixTranslation( &matTrans, fNameX, 490.f, 0.f );
+		this->m_matDrawUnitName = matScale * matTrans;
+
+		D3DXMatrixTranslation( &matTrans, fRankX, 520.f, 0.f );
+		this->m_matDrawUnitRank = matScale * matTrans;
 
 
 		if ( pEntity->GetCheckUnitInformation( CGameEntity::Entity_Building ) )

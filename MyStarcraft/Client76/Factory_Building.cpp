@@ -44,14 +44,6 @@ HRESULT CFactory_Building::Initialize( void )
 	RECT tRect = { -48, -48, 48, 48 };
 	this->m_tOriginColRect = tRect;
 
-	this->AddComponent( new CMove );
-
-	for ( int i = 0; i < 6; ++i )
-	{
-		this->m_vecTexture.push_back(
-			CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
-	}
-
 	CBuilding::Initialize();
 
 	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
@@ -151,6 +143,8 @@ void CFactory_Building::DecideTexture()
 			--iIndex;
 		this->m_pCurDrawTexture = this->m_vecTexture[iIndex];
 	}
+	else
+		this->m_pCurDrawTexture = this->m_vecTexture[m_vecTexture.size() - 1];
 }
 
 void CFactory_Building::InitAnimation()
