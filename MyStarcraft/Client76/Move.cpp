@@ -108,7 +108,8 @@ void CMove::PathFind()
 	//this->m_bCanMove = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath );
 	this->m_bCanMove = true;
 
-	int iEvent = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath );
+	bool bCheckEntityTile = this->m_pGameEntity->GetIsCheckEntityTile();
+	int iEvent = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
 
 	switch ( iEvent )
 	{

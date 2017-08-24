@@ -2,7 +2,7 @@
 
 extern HWND g_hWnd;
 
-const BOOL BWindowed = FALSE;
+const BOOL BWindowed = TRUE;
 
 const int WINCX = 800;
 const int WINCY = 600;
@@ -36,3 +36,9 @@ const float	Unit_Stop_Time = 1.f;
 const BYTE MAX_KEY_NUM = 255;
 
 const float EPSILON = 0.00001f;
+
+const float HpUI_Level2 = 0.6f;
+const float HpUI_Level3 = 0.3f;
+
+const int Minimap_CX = 160;
+const int Minimap_CY = 160;

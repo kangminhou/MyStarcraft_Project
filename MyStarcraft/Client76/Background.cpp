@@ -482,7 +482,7 @@ int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndI
 	return -1;
 }
 
-void CBackground::BuildingDataUpdate( CGameEntity * pEntity )
+void CBackground::ObjectDataUpdate( CGameEntity * pEntity, int iTileOption /*= 1*/ )
 {
 	RECT rcCol = pEntity->GetColRect();
 	D3DXVECTOR3 vPos = pEntity->GetPos();
@@ -497,11 +497,10 @@ void CBackground::BuildingDataUpdate( CGameEntity * pEntity )
 		for ( int j = iStartX; j <= iEndX; ++j )
 		{
 			int iIndex = j + i * TILEX;
-			this->m_vecTile[iIndex]->byOption = 1;
+			this->m_vecTile[iIndex]->byOption = iTileOption;
 			this->m_vecTile[iIndex]->byDrawID = 1;
 		}
 	}
-
 }
 
 HRESULT CBackground::Initialize(void)

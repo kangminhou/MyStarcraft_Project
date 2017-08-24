@@ -24,8 +24,7 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
-                     int       nCmdShow)
-{
+                     int       nCmdShow){
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -76,7 +75,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		else
 		{
 			dwCurTime = GetTickCount();
-			if ( dwCurTime >= dwOldTime + dwFramePerSec )
+			//if ( dwCurTime >= dwOldTime + dwFramePerSec )
 			{
 				if(MainGame.Update() != 0)
 					break;

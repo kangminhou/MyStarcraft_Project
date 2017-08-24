@@ -33,6 +33,8 @@ public:
 
 public:
 	void ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity );
+	void ShowEffect( const wstring& _wstrObjKey, const wstring& _wstrStateKey, const int& _iStart, const int& _iEnd,
+					 const D3DXVECTOR3& _vPos, const D3DXVECTOR3& _vSize );
 	void PushEffect( CEffect* _pPushEffect, const eEffectKind& _eKind );
 
 private:

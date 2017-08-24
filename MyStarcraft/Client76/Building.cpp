@@ -8,6 +8,7 @@
 #include "EntityPattern.h"
 #include "Background.h"
 #include "Player.h"
+#include "MiniMap.h"
 
 const TEX_INFO* CBuilding::m_pBasicBuildTextureArr[3][3];
 
@@ -15,6 +16,7 @@ CBuilding::CBuilding()
 	: m_vTileOccupy( 0.f, 0.f, 0.f )
 	, m_bSuccessBuild(false)
 	, m_bApplyCol(false)
+	, m_bCanBuild(false)
 {
 	this->SetObjKey( L"Building" );
 }
@@ -27,7 +29,7 @@ CBuilding::~CBuilding()
 void CBuilding::SetApplyCol( const bool & _bApplyCol )
 {
 	this->m_bApplyCol = _bApplyCol;
-	this->m_pBackground->BuildingDataUpdate( this );
+	this->m_pBackground->ObjectDataUpdate( this );
 	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
 }
@@ -37,12 +39,20 @@ bool CBuilding::GetIsSuccessBuild() const
 	return this->m_bSuccessBuild;
 }
 
+bool CBuilding::GetIsCanBuild() const
+{
+	return this->m_bCanBuild;
+}
+
 HRESULT CBuilding::Initialize( void )
 {
 	if ( this->GetObjectType() == OBJ_TYPE_USER )
 		this->m_pPlayer = (CPlayer*)CObjMgr::GetInstance()->GetList( this->GetObjectType() )->front();
 
 	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Building );
+
+	this->m_pBuildRectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"Build_OK" );
+	this->m_pBuildRectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"Build_OFF" );
 
 	InitTexture();
 	CGameEntity::Initialize();
@@ -86,6 +96,30 @@ int CBuilding::Update( void )
 	return Event_None;
 }
 
+void CBuilding::Render( void )
+{
+	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+	if ( m_pCurDrawTexture )
+	{
+		float fX = m_pCurDrawTexture->ImageInfo.Width * 0.5f;
+		float fY = m_pCurDrawTexture->ImageInfo.Height * 0.5f;
+		this->DrawTexture( m_pCurDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+	}
+
+	D3DXMATRIX matTrans;
+	D3DXMatrixTranslation( &matTrans, 500.f, 400.f, 0.f );
+	TCHAR str[128];
+	swprintf_s( str, L"%f, %f", this->m_tInfoData.fMaxHp, this->m_tInfoData.fCurHp );
+	this->DrawFont( matTrans, str );
+
+	//this->DrawRect( this->m_tColRect );
+
+	if ( this->m_bDrawHpBarUI )
+	{
+		this->RenderHpUI();
+	}
+}
+
 void CBuilding::FrameRender( const D3DXMATRIX & _matWorld )
 {
 	const TEX_INFO* pTexture = ((this->m_mapAllTexture.find( L"Build" )->second.empty()) ? NULL : this->m_mapAllTexture.find( L"Build" )->second.back());
@@ -97,6 +131,46 @@ void CBuilding::FrameRender( const D3DXMATRIX & _matWorld )
 		float fY = pTexture->ImageInfo.Height * 0.5f;
 		this->DrawTexture( pTexture, _matWorld, D3DXVECTOR3( fX, fY, 0.f ) );
 	}
+}
+
+void CBuilding::RectRender( const RECT & _rcDraw )
+{
+	int iStartIndex = this->m_pBackground->GetTileIndex( D3DXVECTOR3( (float)_rcDraw.left, (float)_rcDraw.top, 0.f ) );
+	int iEndIndex = this->m_pBackground->GetTileIndex( D3DXVECTOR3( (float)_rcDraw.right, (float)_rcDraw.bottom, 0.f ) );
+
+	int iStartX = iStartIndex % TILEX;
+	int iStartY = iStartIndex / TILEX;
+	int iEndX = iEndIndex % TILEX;
+	int iEndY = iEndIndex / TILEX;
+
+	D3DXMATRIX matWorld;
+	D3DXVECTOR3 vCenter( m_pBuildRectTexture[0]->ImageInfo.Width * 0.5f, m_pBuildRectTexture[0]->ImageInfo.Height * 0.5f, 0.f );
+
+	this->m_bCanBuild = true;
+
+	for ( int i = iStartY; i < iEndY; ++i )
+	{
+		for ( int j = iStartX; j < iEndX; ++j )
+		{
+			D3DXMatrixTranslation( &matWorld, j * TILECX + vCenter.x, i * TILECY + vCenter.y, 0.f );
+			int iIndex = j + i * TILEX;
+			if ( this->CheckCanBuild( iIndex ) )
+			{
+				this->DrawTexture( this->m_pBuildRectTexture[0], matWorld, vCenter );
+			}
+			else
+			{
+				if ( this->m_bCanBuild )
+					this->m_bCanBuild = false;
+				this->DrawTexture( this->m_pBuildRectTexture[1], matWorld, vCenter );
+			}
+		}
+	}
+}
+
+void CBuilding::BuildStart()
+{
+	this->m_iMinimapSpaceDataKey = this->m_pMiniMap->MoveEntity( this );
 }
 
 void CBuilding::UpdateLookAnimIndex()
@@ -131,6 +205,11 @@ void CBuilding::SuccessBuild()
 	m_bSuccessBuild = true;
 	this->DecideTexture();
 	CEntityMgr::GetInstance()->BuildBuilding( this->m_eEntityType );
+}
+
+bool CBuilding::CheckCanBuild( const int & _iIndex )
+{
+	return this->m_pBackground->CheckCanGoTile(_iIndex, 8, this, true);
 }
 
 D3DXVECTOR3 CBuilding::CalcNearEmptySpace()

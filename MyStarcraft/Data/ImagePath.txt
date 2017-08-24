@@ -1,3 +1,4 @@
+Effect|DeathUnit|14|..\Texture\Effect\DeathUnit\tbangx%d.png
 Building|Academy|3|..\Texture\Building\Academy\academy%d.png
 Building|Barrack|9|..\Texture\Building\Barrack\tbarrack%d.png
 Building|Bunker|19|..\Texture\Building\Bunker\pillbox%d.png
@@ -88,7 +89,7 @@ Medic|Die|9|..\Texture\Unit\Medic\Die\medic%d.png
 Medic|Idle|17|..\Texture\Unit\Medic\Idle\medic%d.png
 Medic|Magic|51|..\Texture\Unit\Medic\Magic\medic%d.png
 Medic|Work|119|..\Texture\Unit\Medic\Work\medic%d.png
-Unit|Mineral|17|..\Texture\Unit\Mineral\Mineral%d.png
+Mineral|All|17|..\Texture\Unit\Mineral\All\Mineral%d.png
 Unit|NukeMissile|17|..\Texture\Unit\NukeMissile\nukemiss%d.png
 Phoenix|All|17|..\Texture\Unit\Phoenix\All\phoenix%d.png
 Scv|Attack|34|..\Texture\Unit\Scv\Attack\scv%d.png

@@ -5,8 +5,9 @@
 
 
 CUI::CUI()
-	: m_iDrawIndex(0)
-	, m_pAnim(NULL)
+	: m_iDrawIndex( 0 )
+	, m_pAnim( NULL )
+	, m_bShowCenterPos( false )
 {
 }
 
@@ -28,6 +29,11 @@ CUI::~CUI()
 void CUI::SetDrawIndex( const int & _iIndex )
 {
 	this->m_iDrawIndex = _iIndex;
+}
+
+void CUI::SetShowCenterPos( const bool & _bShowCenterPos )
+{
+	this->m_bShowCenterPos = _bShowCenterPos;
 }
 
 void CUI::AddFrame( const wstring & _wstrName, const FRAME & tFrame, const CAnimation::eAnim_Kind& eKind )
@@ -124,17 +130,25 @@ int CUI::Update( void )
 void CUI::Render( void )
 {
 	const TEX_INFO* pDrawTexture = this->m_vecDrawTexture[m_iDrawIndex];
+	D3DXVECTOR3 vCenter( 0.f, 0.f, 0.f );
+	if ( this->m_bShowCenterPos )
+		vCenter = D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f );
 
 	this->DrawTexture( pDrawTexture,
-					   this->GetWorldMatrix() );
+					   this->GetWorldMatrix(),
+					   vCenter );
 }
 
 void CUI::Render( const int & _iDrawIndex, const D3DXMATRIX& _vDrawWorldMatrix )
 {
 	const TEX_INFO* pDrawTexture = this->m_vecDrawTexture[_iDrawIndex];
+	D3DXVECTOR3 vCenter( 0.f, 0.f, 0.f );
+	if ( this->m_bShowCenterPos )
+		vCenter = D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f );
 
 	this->DrawTexture( pDrawTexture,
-					   _vDrawWorldMatrix );
+					   _vDrawWorldMatrix,
+					   vCenter );
 }
 
 void CUI::Release( void )

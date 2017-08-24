@@ -4,6 +4,7 @@
 #include "WeaponMgr.h"
 #include "Move.h"
 #include "TextureMgr.h"
+#include "TimeMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -55,6 +56,8 @@ HRESULT CMedic::Initialize( void )
 
 	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
 	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );
+
+	this->m_bUseDeathEffect = false;
 
 	return S_OK;
 }
@@ -168,7 +171,7 @@ bool CMedic::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _
 	{
 		case CGameEntity::Skill_Heal:
 		{
-			_pTarget->SetCurHp( _pTarget->GetCurHp() + 0.01f );
+			_pTarget->SetCurHp( _pTarget->GetCurHp() + 10.f * CTimeMgr::GetInstance()->GetTime() );
 		}
 		break;
 

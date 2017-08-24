@@ -21,6 +21,9 @@ protected:
 
 	bool					m_bSuccessBuild;				// 다 지어진 건물인가??..
 	bool					m_bApplyCol;
+	bool					m_bCanBuild;
+
+	const TEX_INFO*			m_pBuildRectTexture[2];
 
 public:
 	CBuilding();
@@ -31,12 +34,16 @@ public:
 
 public:
 	bool GetIsSuccessBuild() const;
+	bool GetIsCanBuild() const;
 
 public:
 	virtual HRESULT Initialize( void );
 	virtual int Update( void );
+	virtual void Render( void );
 
 	void FrameRender( const D3DXMATRIX& _matWorld );
+	void RectRender( const RECT& _rcDraw );
+	void BuildStart();
 
 public:
 	virtual void UpdateLookAnimIndex() override;
@@ -45,6 +52,7 @@ public:
 protected:
 	virtual void DecideTexture() PURE;
 	virtual void InitTexture() PURE;
+	virtual bool CheckCanBuild( const int& _iIndex );
 
 protected:
 	D3DXVECTOR3 CalcNearEmptySpace();

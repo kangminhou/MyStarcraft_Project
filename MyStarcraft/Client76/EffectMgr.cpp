@@ -55,6 +55,7 @@ void CEffectMgr::Release( void )
 void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 {
 	CEffect*	pShowEffect = NULL;
+
 	const WEAPON_DATA*	pWeaponData = _pWeapon->GetWeaponData();
 
 	if ( pWeaponData->eEffectShowKind != Effect_Show_None )
@@ -163,6 +164,25 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 
 		}
 	}
+
+	pShowEffect->Initialize();
+	m_pEffectList->push_back( pShowEffect );
+}
+
+void CEffectMgr::ShowEffect( const wstring & _wstrObjKey, const wstring & _wstrStateKey, const int & _iStart, const int & _iEnd, 
+							 const D3DXVECTOR3& _vPos, const D3DXVECTOR3& _vSize )
+{
+	CEffect*	pShowEffect = NULL;
+
+	pShowEffect = this->PopEffect( CEffectMgr::Effect_Kind_Basic );
+
+	pShowEffect->SetVecTexture(
+		_wstrObjKey, _wstrStateKey, _iStart, _iEnd - _iStart );
+
+	pShowEffect->SetStateKey( _wstrStateKey );
+
+	pShowEffect->SetPos( _vPos );
+	pShowEffect->SetSize( _vSize );
 
 	pShowEffect->Initialize();
 	m_pEffectList->push_back( pShowEffect );

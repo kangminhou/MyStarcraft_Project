@@ -11,6 +11,9 @@ class CPattern_ChaseTarget :
 private:
 	CGameEntity*	m_pTarget;
 	CMove*			m_pMoveComponent;
+
+	D3DXVECTOR3		m_vPrevTargetPos;
+
 	bool			m_bChaseEnemy;
 
 public:

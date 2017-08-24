@@ -210,8 +210,9 @@ void CDevice::Render_End(HWND& _hWnd)
 void CDevice::Release(void)
 {
 	//해제 순서는 반드시 기억하고 있자!!
+	m_pFont->Release();
 	m_pSprite->Release();
-	m_pD3dDevice->Release();
+	unsigned long dwRefCnt = m_pD3dDevice->Release();
 	m_pD3D->Release();
 }
 

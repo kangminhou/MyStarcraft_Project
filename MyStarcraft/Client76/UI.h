@@ -22,12 +22,15 @@ private:
 
 	eUI_Kind				m_eKind;
 
+	bool					m_bShowCenterPos;
+
 public:
 	CUI();
 	virtual ~CUI();
 
 public:
 	void SetDrawIndex( const int& _iIndex );
+	void SetShowCenterPos( const bool& _bShowCenterPos );
 
 public:
 	void AddFrame( const wstring& _wstrName, const FRAME& tFrame, const CAnimation::eAnim_Kind& eKind );

@@ -16,6 +16,7 @@
 #include "Academy.h"
 #include "Factory_Building.h"
 #include "Armory.h"
+#include "Refinery.h"
 
 
 IMPLEMENT_SINGLETON(CEntityMgr)
@@ -40,6 +41,11 @@ CEntityMgr::~CEntityMgr()
 UNIT_GENERATE_DATA CEntityMgr::GetEntityGenData( const eEntityType & _eEntityType )
 {
 	return *(this->m_pEntityGenDataArr[_eEntityType].second);
+}
+
+list<CGameEntity*>* CEntityMgr::GetEntityList( const eObjectType & _eObjType, const eEntityType & _eEntityType )
+{
+	return &(this->m_entityListArr[_eObjType - OBJ_TYPE_USER][_eEntityType]);
 }
 
 void CEntityMgr::Initialize()
@@ -295,6 +301,11 @@ void CEntityMgr::Release()
 
 		if ( this->m_pVecEntityActButton[i] )
 			safe_delete( this->m_pVecEntityActButton[i] );
+		
+		for ( int j = 0; j < 2; ++j )
+		{
+			m_entityListArr[j][i].clear();
+		}
 	}
 
 	for ( auto iter = this->m_mapAllEntityActButton.begin(); iter != this->m_mapAllEntityActButton.end(); ++iter )
@@ -387,14 +398,20 @@ CGameEntity* CEntityMgr::MakeUnit( const eEntityType& _eEntityType, const D3DXVE
 			pEntity = new CArmory;
 			break;
 
+		case CEntityMgr::Entity_Refinery:
+			pEntity = new CRefinery;
+			break;
+
 	}
+
+	m_entityListArr[_eType - OBJ_TYPE_USER][_eEntityType].push_back( pEntity );
 
 	pEntity->SetGenerateData( this->m_pEntityGenDataArr[_eEntityType].second );
 	pEntity->SetSelectShowData( this->m_pEntitySelectShowDataArr[_eEntityType] );
 	pEntity->SetButtonData( this->m_pVecEntityActButton[_eEntityType] );
 	pEntity->Initialize();
-	pEntity->SetPos( _vPos );
 	pEntity->SetObjectType( _eType );
+	pEntity->SetPos( _vPos );
 	pEntity->SetEntityType( _eEntityType );
 	pEntity->CollisionCheck();
 

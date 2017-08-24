@@ -10,6 +10,10 @@
 #include "Weapon.h"
 #include "MyButton.h"
 #include "Player.h"
+#include "MiniMap.h"
+
+#include "Building.h"
+#include "Mouse.h"
 
 
 IMPLEMENT_SINGLETON(CUIMgr)
@@ -25,6 +29,21 @@ CUIMgr::~CUIMgr()
 	Release();
 }
 
+CUI * CUIMgr::GetHpBarBackUI() const
+{
+	return this->m_pHpBarBackUI;
+}
+
+CUI * CUIMgr::GetHpBarUI() const
+{
+	return this->m_pHpBarUI;
+}
+
+CMiniMap * CUIMgr::GetMiniMap() const
+{
+	return this->m_pMinimap;
+}
+
 void CUIMgr::SetPlayer( CPlayer * _pPlayer )
 {
 	this->m_pPlayer = _pPlayer;
@@ -32,6 +51,10 @@ void CUIMgr::SetPlayer( CPlayer * _pPlayer )
 
 void CUIMgr::Initialize()
 {
+	this->m_pMinimap = new CMiniMap;
+	this->m_pMinimap->Initialize();
+	this->m_pMinimap->SetPos( 8.f + 80.f, 435.f + 80.f );
+
 	/* Main UI.. */
 	this->m_pMainUI = new CUI;
 	this->m_pMainUI->SetUIKind( CUI::UI_Normal );
@@ -106,8 +129,23 @@ void CUIMgr::Initialize()
 		this->m_vecButton.push_back( pButton );
 	}
 
+	/* 유닛 Hp Bar UI.. */
+	this->m_pHpBarBackUI = new CUI;
+	this->m_pHpBarBackUI->SetUIKind( CUI::UI_Normal );
+	this->m_pHpBarBackUI->Initialize();
+	this->m_pHpBarBackUI->ChangeDrawTexture( L"HpBar", L"Back", 1 );
+	this->m_pHpBarBackUI->SetShowCenterPos( true );
+	this->AddDeleteUIList( this->m_pHpBarBackUI );
+
+	this->m_pHpBarUI = new CUI;
+	this->m_pHpBarUI->SetUIKind( CUI::UI_Normal );
+	this->m_pHpBarUI->Initialize();
+	this->m_pHpBarUI->ChangeDrawTexture( L"HpBar", L"Front", 4 );
+	this->AddDeleteUIList( this->m_pHpBarUI );
+
 	/* 그 외의 변수들 초기화.. */
 	this->m_bShowEntityUI = false;
+	this->m_bDrawBuildingFrame = false;
 }
 
 void CUIMgr::Update()
@@ -131,12 +169,63 @@ void CUIMgr::Update()
 			}
 		}
 
+		/* Hp Bar UI 데이터 갱신.. */
+		for ( size_t i = 0; i < this->m_vecHpBarMatrixData.size(); ++i )
+		{
+			CGameEntity* pEntity = m_pCurShowUICorps->GetEntity( i );
+
+			if ( !pEntity )
+				continue;
+
+			float fEntityCurHp = pEntity->GetCurHp();
+			float fEntityMaxHp = pEntity->GetMaxHp();
+			float fHpRatio = fEntityCurHp / fEntityMaxHp;
+
+			size_t jLength = this->m_vecHpBarMatrixData[i].vecHpBarData.size();
+			int iEmptyHpBarNum = int(fHpRatio * jLength);
+			float fHpBarBackSize = (float)(jLength * 6 + 2);
+			D3DXVECTOR3 vEntityPos = pEntity->GetPos() - CGameObject::GetScroll();
+			D3DXVECTOR3 vHpBarBackStartPos( vEntityPos.x - fHpBarBackSize * 0.5f, vEntityPos.y + pEntity->GetImageSize().y * 0.3f, 0.f );
+
+			if ( iEmptyHpBarNum == 0 )
+				iEmptyHpBarNum = 1;
+
+			if ( pEntity->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+				vHpBarBackStartPos.y = vEntityPos.y + pEntity->GetImageSize().y * 0.5f;
+
+			m_vecHpBarMatrixData[i].hpBarBackWordMatrix._41 = vHpBarBackStartPos.x + fHpBarBackSize * 0.5f;
+			m_vecHpBarMatrixData[i].hpBarBackWordMatrix._42 = vHpBarBackStartPos.y + 5;
+			m_vecHpBarMatrixData[i].hpBarBackWordMatrix._43 = 0.f;
+			
+			for ( size_t j = 0; j < jLength; ++j )
+			{
+				int iHpBarTextureIndex = 0;
+
+				if ( j >= iEmptyHpBarNum )
+					iHpBarTextureIndex = 3;
+				else if ( fHpRatio <= HpUI_Level3 )
+					iHpBarTextureIndex = 2;
+				else if ( fHpRatio <= HpUI_Level2 )
+					iHpBarTextureIndex = 1;
+
+				D3DXMATRIX matTrans;
+				D3DXMatrixTranslation( &matTrans, vHpBarBackStartPos.x + 2 + j * 6, vHpBarBackStartPos.y + 2.f, 0.f );
+				this->m_vecHpBarMatrixData[i].vecHpBarData[j] = make_pair( iHpBarTextureIndex, matTrans );
+			}
+
+			pEntity->SetHpBarData( this->m_vecHpBarMatrixData[i] );
+
+		}
+
 		if ( !this->m_bShowCorpsWire )
 		{
-			int iEntityCurHp = m_pCurShowHpEntity->GetCurHp();
-			int iEntityMaxHp = m_pCurShowHpEntity->GetMaxHp();
+			int iEntityCurHp = (int)m_pCurShowHpEntity->GetCurHp();
+			int iEntityMaxHp = (int)m_pCurShowHpEntity->GetMaxHp();
 			int iCnt = 0;
 			vector<BYTE> vecEntityHpFrame;
+
+			int iWireIndex = 5 - int(float(iEntityCurHp) / float(iEntityMaxHp) * 5);
+			this->m_pEntityWireFrameUI->SetDrawIndex( iWireIndex );
 
 			while ( true )
 			{
@@ -159,7 +248,7 @@ void CUIMgr::Update()
 				{
 					this->m_vecHpShowData.clear();
 					size_t iLength = vecEntityHpFrame.size();
-					this->m_byDrawHpUINum = iLength;
+					this->m_byDrawHpUINum = (BYTE)iLength;
 					float fStartX = 250.f - float(iLength / 2) * 4.f;
 					for ( size_t i = 0; i < iLength; ++i )
 					{
@@ -171,12 +260,44 @@ void CUIMgr::Update()
 				}
 			}
 		}
+		else
+		{
+			for ( int i = 0; i < this->m_byDrawUINum; ++i )
+			{
+				CGameEntity* pEntity = this->m_pCurShowUICorps->GetEntity( i );
+				if ( !pEntity )
+					continue;
+
+				float fEntityCurHp = pEntity->GetCurHp();
+				float fEntityMaxHp = pEntity->GetMaxHp();
+				int iWireIndex = 5 - int(fEntityCurHp / fEntityMaxHp * 5);
+				this->m_pCorpsWireFrameUIArr[i]->SetDrawIndex( iWireIndex );
+			}
+		}
+	}
+
+	if ( this->m_bDrawBuildingFrame )
+	{
+		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos();
+		RECT rcCol = m_pDrawBuilding->GetColRect();
+		vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
+			D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
+		D3DXMatrixTranslation( &this->m_buildingWorldMatrix, vMousePos.x, vMousePos.y, 0.f );
+
+		rcCol.left += (LONG)vMousePos.x;
+		rcCol.right += (LONG)vMousePos.x;
+		rcCol.top += (LONG)vMousePos.y;
+		rcCol.bottom += (LONG)vMousePos.y;
+
+		this->m_rcBuilding = rcCol;
 	}
 }
 
 void CUIMgr::Render()
 {
 	this->m_pMainUI->Render();
+
+	this->m_pMinimap->Render();
 
 	if ( this->m_bShowEntityUI )
 	{
@@ -187,14 +308,24 @@ void CUIMgr::Render()
 			m_vecDrawButton[i]->Render();
 		}
 
-		if ( this->m_bShowCorpsWire )
+		//for ( size_t i = 0; i < this->m_vecHpBarMatrixData.size(); ++i )
+		//{
+		//	this->m_pHpBarBackUI->Render( 0, this->m_vecHpBarMatrixData[i].hpBarBackWorldMatrix );
+		//	for ( size_t j = 0; j < this->m_vecHpBarMatrixData[i].vecHpBarData.size(); ++j )
+		//	{
+		//		this->m_pHpBarUI->Render( 
+		//			this->m_vecHpBarMatrixData[i].vecHpBarData[j].first, this->m_vecHpBarMatrixData[i].vecHpBarData[j].second );
+		//	}
+		//}
+
+		if ( this->m_bShowCorpsWire ) // 부대 ( 2명 이상의 유닛 ) UI 출력..
 		{
 			for ( int i = 0; i < this->m_byDrawUINum; ++i )
 			{
 				this->m_pCorpsWireFrameUIArr[i]->Render();
 			}
 		}
-		else
+		else // 1명의 유닛 UI 출력..
 		{
 			this->m_pEntityWireFrameUI->Render();
 
@@ -235,10 +366,18 @@ void CUIMgr::Render()
 			}
 		}
 	}
+
+	if ( this->m_bDrawBuildingFrame )
+	{
+		this->m_pDrawBuilding->RectRender( this->m_rcBuilding );
+		this->m_pDrawBuilding->FrameRender( this->m_buildingWorldMatrix );
+	}
 }
 
 void CUIMgr::Release()
 {
+	safe_delete( this->m_pMinimap );
+
 	for ( size_t i = 0; i < m_vecDeleteUI.size(); ++i )
 	{
 		safe_delete( m_vecDeleteUI[i] );
@@ -255,6 +394,18 @@ void CUIMgr::Release()
 
 void CUIMgr::ShowEntityUI( CCorps* _pCorps )
 {
+	if ( !m_vecHpBarShowEntity.empty() )
+	{
+		for ( size_t i = 0; i < m_vecHpBarShowEntity.size(); ++i )
+		{
+			m_vecHpBarShowEntity[i]->OffRenderHpBar();
+		}
+
+		m_vecHpBarShowEntity.clear();
+	}
+
+	m_pCurShowUICorps = _pCorps;
+
 	if ( _pCorps->GetCurUnitNum() <= 0 )
 	{
 		this->HideEntityUI();
@@ -267,8 +418,55 @@ void CUIMgr::ShowEntityUI( CCorps* _pCorps )
 	this->m_pFaceUI->DecideFrame( L"Idle", FRAME( 0.f, (float)(iFaceAniNum), (float)(iFaceAniNum), 0.f ), CAnimation::Anim_Loop );
 	this->m_pFaceUI->ChangeDrawTexture( pEntity->GetFaceKey().c_str(), L"Idle", iFaceAniNum );
 
-	/* 와이어 프레임 설정.. */
 	BYTE byCorpsEntityLength = _pCorps->GetCurUnitNum();
+
+	/* HP Bar 설정.. */
+	this->m_vecHpBarMatrixData.clear();
+	this->m_vecHpBarMatrixData.resize( byCorpsEntityLength );
+
+	for ( size_t i = 0; i < this->m_vecHpBarMatrixData.size(); ++i )
+	{
+		CGameEntity* pEntity = _pCorps->GetEntity( i );
+
+		if ( !pEntity )
+			continue;
+
+		float fHpBarSize = pEntity->GetImageSize().x / 10.f;
+		float fHpBarBackSize = (float)(((int)fHpBarSize) * 6 + 2);
+
+		D3DXMatrixScaling( &m_vecHpBarMatrixData[i].hpBarBackWordMatrix, fHpBarBackSize * 0.5f, 1.f, 1.f );
+
+		this->m_vecHpBarMatrixData[i].vecHpBarData.resize( (size_t)fHpBarSize );
+
+		//float fHpBarSize = pEntity->GetImageSize().x / 10.f;
+		//float fHpBarBackSize = (float)(((int)fHpBarSize) * 6 + 2);
+		//D3DXMATRIX matScale;
+		//D3DXVECTOR3 vEntityPos = pEntity->GetPos() - CGameObject::GetScroll();
+		//D3DXVECTOR3 vHpBarBackStartPos( vEntityPos.x - fHpBarBackSize * 0.5f, vEntityPos.y + pEntity->GetImageSize().y * 0.3f, 0.f );
+		//
+		//D3DXMatrixScaling( &matScale, fHpBarBackSize * 0.5f, 1.f, 1.f );
+		//
+		//if ( pEntity->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+		//	vHpBarBackStartPos.y = vEntityPos.y + pEntity->GetImageSize().y * 0.5f;
+		//
+		//m_vecHpBarMatrixData[i].hpBarBackData.second = matScale;
+		//m_vecHpBarMatrixData[i].hpBarBackData.second._41 = vHpBarBackStartPos.x + fHpBarBackSize * 0.5f;
+		//m_vecHpBarMatrixData[i].hpBarBackData.second._42 = vHpBarBackStartPos.y + 5;
+		//m_vecHpBarMatrixData[i].hpBarBackData.second._43 = 0.f;
+		//
+		//for ( size_t j = 0; j < (size_t)fHpBarSize; ++j )
+		//{
+		//	D3DXMATRIX matTrans;
+		//	D3DXMatrixTranslation( &matTrans, vHpBarBackStartPos.x + 2 + j * 6, vHpBarBackStartPos.y + 2.f, 0.f );
+		//	this->m_vecHpBarMatrixData[i].vecHpBarData.push_back( make_pair(0, matTrans) );
+		//}
+
+		pEntity->OnRenderHpBar();
+		m_vecHpBarShowEntity.push_back( pEntity );
+
+	}
+
+	/* 와이어 프레임 설정.. */
 	if ( byCorpsEntityLength == 1 )
 	{
 		this->m_pEntityWireFrameUI->ChangeDrawTexture( _pCorps->GetEntity( 0 )->GetWireFrameKey().c_str(), L"Big", 6 );
@@ -392,6 +590,17 @@ void CUIMgr::ShowButton( vector<BUTTON_DATA*>* pVecButton )
 void CUIMgr::HideEntityUI()
 {
 	this->m_bShowEntityUI = false;
+}
+
+void CUIMgr::ShowFrameBuilding( CBuilding* _pBuilding )
+{
+	this->m_bDrawBuildingFrame = true;
+	this->m_pDrawBuilding = _pBuilding;
+}
+
+void CUIMgr::HideFrameBuilding()
+{
+	this->m_bDrawBuildingFrame = false;
 }
 
 void CUIMgr::AddDeleteUIList( CUI *& _pDeleteUI )

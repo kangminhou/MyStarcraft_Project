@@ -4,6 +4,9 @@
 #include "Corps.h"
 
 class CMouse;
+class CMineral;
+class CGas;
+
 /* 실제 게임을 조종하는 클래스 ( 실제 게임을 플레이하는 플레이어 ).. */
 class CPlayer :
 	public CGameObject
@@ -33,6 +36,8 @@ private:
 	bool					m_bOrderAct;
 
 	vector<CGameEntity*>	m_vecClickEventEntity;
+	vector<CMineral*>		m_vecMineral;
+	vector<CGas*>			m_vecGas;
 
 public:
 	CPlayer();
@@ -59,6 +64,7 @@ private:
 	void KeyCheck( void );
 	void MakeDragUnitCorps();
 
+	void RButtonClick();
 	void UnitMove();
 
 };

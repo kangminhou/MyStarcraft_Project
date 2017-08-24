@@ -226,6 +226,18 @@
     <Filter Include="01. GameObject\00. GameEntity\01. Building\04. Armory">
       <UniqueIdentifier>{bb1b11cd-26e8-494c-92a7-817d6d8642fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\05. Minimap">
+      <UniqueIdentifier>{1be6f776-de15-4c66-b9ba-be3869513cd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\06. Resource">
+      <UniqueIdentifier>{a02dd049-e341-4c58-bb46-850a089e7713}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\08. Gather">
+      <UniqueIdentifier>{4e4ce774-2a15-4008-bb6c-c7a43343110c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\05. Refinery">
+      <UniqueIdentifier>{722ae6ba-d8e7-40fb-a8a5-f54c9728c2ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -449,6 +461,30 @@
     </ClCompile>
     <ClCompile Include="Armory.cpp">
       <Filter>01. GameObject\00. GameEntity\01. Building\04. Armory</Filter>
+    </ClCompile>
+    <ClCompile Include="MiniMap.cpp">
+      <Filter>01. GameObject\05. Minimap</Filter>
+    </ClCompile>
+    <ClCompile Include="Gas.cpp">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Mineral.cpp">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMgr.cpp">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="GatherGas.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\08. Gather</Filter>
+    </ClCompile>
+    <ClCompile Include="GatherMineral.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\08. Gather</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceObj.cpp">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Refinery.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\05. Refinery</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -679,6 +715,30 @@
     </ClInclude>
     <ClInclude Include="Armory.h">
       <Filter>01. GameObject\00. GameEntity\01. Building\04. Armory</Filter>
+    </ClInclude>
+    <ClInclude Include="MiniMap.h">
+      <Filter>01. GameObject\05. Minimap</Filter>
+    </ClInclude>
+    <ClInclude Include="Gas.h">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Mineral.h">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceMgr.h">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GatherGas.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\08. Gather</Filter>
+    </ClInclude>
+    <ClInclude Include="GatherMineral.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\08. Gather</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceObj.h">
+      <Filter>01. GameObject\06. Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Refinery.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\05. Refinery</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

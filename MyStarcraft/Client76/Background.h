@@ -59,7 +59,7 @@ public:
 
 	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex, const bool& _bCheckEntityData );
 
-	void	BuildingDataUpdate( CGameEntity* pEntity );
+	void	ObjectDataUpdate( CGameEntity* pEntity, int iTileOption = 1 );
 
 public:
 	HRESULT Initialize(void);

@@ -6,6 +6,8 @@ class CGameEntity;
 class CCorps;
 class CMyButton;
 class CPlayer;
+class CMiniMap;
+class CBuilding;
 
 class CUIMgr
 {
@@ -22,6 +24,10 @@ private:
 	CUI*	m_pUnitUpgradeFontUI[3];
 	CUI*	m_pUnitUpgradeBackUI[3];
 
+	CUI*	m_pHpBarBackUI;
+	CUI*	m_pHpBarUI;
+	vector<HP_BAR_MATRIX_DATA> m_vecHpBarMatrixData;
+
 	CUI*	m_pEntityHpUI;
 	vector<pair<BYTE, D3DXMATRIX>>	m_vecHpShowData;
 
@@ -37,16 +43,32 @@ private:
 	vector<CUI*>	m_vecDeleteUI;
 
 	CPlayer*		m_pPlayer;
+	CCorps*			m_pCurShowUICorps;
+
+	CMiniMap*		m_pMinimap;
+
+	vector<CGameEntity*>	m_vecHpBarShowEntity;
+
+	CBuilding*		m_pDrawBuilding;
+
+	D3DXMATRIX		m_buildingWorldMatrix;
+	RECT			m_rcBuilding;
 
 	BYTE	m_byDrawUINum;
 	BYTE	m_byDrawHpUINum;
 
 	bool	m_bShowEntityUI;
 	bool	m_bShowCorpsWire;
+	bool	m_bDrawBuildingFrame;
 
 public:
 	CUIMgr();
 	~CUIMgr();
+
+public:
+	CUI* GetHpBarBackUI() const;
+	CUI* GetHpBarUI() const;
+	CMiniMap* GetMiniMap() const;
 
 public:
 	void SetPlayer( CPlayer* _pPlayer );
@@ -61,6 +83,8 @@ public:
 	void ShowEntityUI( CCorps* _pCorps );
 	void ShowButton( vector<BUTTON_DATA*>* pVecButton );
 	void HideEntityUI();
+	void ShowFrameBuilding( CBuilding* _pEntity );
+	void HideFrameBuilding();
 
 private:
 	void AddDeleteUIList( CUI*& _pDeleteUI );

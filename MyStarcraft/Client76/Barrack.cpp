@@ -63,19 +63,7 @@ int CBarrack::Update( void )
 
 void CBarrack::Render( void )
 {
-	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
-	if ( m_pCurDrawTexture )
-	{
-		float fX = m_pCurDrawTexture->ImageInfo.Width * 0.5f;
-		float fY = m_pCurDrawTexture->ImageInfo.Height * 0.5f;
-		this->DrawTexture( m_pCurDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
-	}
-
-	D3DXMATRIX matTrans;
-	D3DXMatrixTranslation( &matTrans, 500.f, 400.f, 0.f );
-	TCHAR str[128];
-	swprintf_s( str, L"%f, %f", this->m_tInfoData.fMaxHp, this->m_tInfoData.fCurHp );
-	this->DrawFont( matTrans, str );
+	CBuilding::Render();
 }
 
 void CBarrack::Release( void )

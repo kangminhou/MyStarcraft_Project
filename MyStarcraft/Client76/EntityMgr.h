@@ -30,7 +30,7 @@ public:
 		Entity_Starport,
 		Entity_Science_Facility,
 		Entity_Armory,
-
+		
 		Entity_End
 	};
 
@@ -40,12 +40,15 @@ private:
 	vector<BUTTON_DATA*>*						m_pVecEntityActButton[Entity_End];
 	map<wstring, BUTTON_DATA*>					m_mapAllEntityActButton;
 
+	list<CGameEntity*>							m_entityListArr[2][Entity_End];
+
 public:
 	CEntityMgr();
 	~CEntityMgr();
 
 public:
 	UNIT_GENERATE_DATA GetEntityGenData( const eEntityType& _eEntityType );
+	list<CGameEntity*>* GetEntityList( const eObjectType& _eObjType, const eEntityType& _eEntityType );
 
 public:
 	void Initialize();

@@ -9,6 +9,8 @@ class CWeapon;
 class CCorps;
 class CBackground;
 class CPlayer;
+class CUI;
+class CMiniMap;
 
 class CGameEntity :
 	public CGameObject
@@ -28,6 +30,7 @@ public:
 		Pattern_Build,
 		Pattern_Cancel,
 		Pattern_Make_Unit,
+		Pattern_Gather,
 		Pattern_Die,
 	};
 
@@ -102,6 +105,8 @@ protected:
 	CEntityPattern*					m_pCurActPattern;
 
 	CGameEntity*			m_pTarget;
+	CMiniMap*				m_pMiniMap;
+	int						m_iMinimapSpaceDataKey;
 
 	RECT					m_tColRect;
 	RECT					m_tOriginColRect;
@@ -124,6 +129,18 @@ protected:
 	vector<BUTTON_DATA*>*	m_pVecActButton;
 	const BUTTON_DATA*		m_pPushData;
 
+	HP_BAR_MATRIX_DATA*		m_pHpBarMatrixData;
+
+	CUI*					m_pHpBarUI;
+	CUI*					m_pHpBarBackUI;
+
+	int						m_iEntityMgrListIndex;
+
+	bool					m_bDrawHpBarUI;
+	bool					m_bIgnoreAttack;
+	bool					m_bUseDeathEffect;
+	bool					m_bCheckEntityTile;
+
 public:
 	CGameEntity();
 	virtual ~CGameEntity();
@@ -145,6 +162,10 @@ public:
 	void SetSelectShowData( const SELECT_UNIT_SHOW_DATA* _pSelectShowData );
 	void SetButtonData( vector<BUTTON_DATA*>* _pVecButtonData );
 	void ChangeAnimation( const wstring& _wstrName );
+	void SetHpBarData( HP_BAR_MATRIX_DATA& _tHpBarMatrixData );
+	void SetMinimapSpaceDataKey( const int& _iMinimapSpaceKey );
+	void SetEntityMgrListIndex( const int& _iEntityMgrListIndex );
+	void SetIsCheckEntityTile( const bool& _bCheckEntityTile );
 
 public:
 	float GetCurHp() const;
@@ -152,12 +173,15 @@ public:
 	float GetSpeed() const;
 	int GetScope() const;
 	int GetEntitySpaceDataKey() const;
+	int GetMinimapSpaceDataKey() const;
+	int GetEntityMgrListIndex() const;
 	const CCorps* GetEntityBelongToCorps() const;
 	CAStar*	GetAStar() const { return m_pAStar; }
 	RECT GetColRect() const;
 	RECT GetOriginColRect() const;
 	bool GetIsCollision() const;
 	bool GetIsDie() const;
+	bool GetIsCheckEntityTile() const;
 	const list<pair<int, BYTE>>* GetStandTileIndexList();
 	ATTACK_DATA GetGroundAttackData() const;
 	ATTACK_DATA GetAirAttackData() const;
@@ -176,6 +200,7 @@ public:
 	const SELECT_UNIT_SHOW_DATA* GetSelectShowData() const;
 	BYTE GetKillCount() const;
 	vector<BUTTON_DATA*>* GetButtonData() const;
+	D3DXVECTOR3 GetImageSize();
 
 public:
 	bool GetCheckUnitInformation( const eEntityInformation& _eEntityInfo );
@@ -209,6 +234,11 @@ public:
 	void HitEntity( CGameEntity* _pAttackedObject, float _fDamage );
 
 	void DieEntity();
+	
+	void OnRenderHpBar();
+	void OffRenderHpBar();
+
+	void RenderHpUI();
 
 protected:
 	virtual void InitAnimation() PURE;

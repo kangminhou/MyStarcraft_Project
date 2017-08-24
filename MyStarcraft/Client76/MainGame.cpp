@@ -120,7 +120,6 @@ void CMainGame::Render(void)
 
 void CMainGame::Release(void)
 {
-	m_pDevice->DestroyInstance();
 	CMouse::GetInstance()->DestroyInstance();
 	CKeyMgr::GetInstance()->DestroyInstance();
 	CSceneMgr::GetInstance()->DestroyInstance();
@@ -128,6 +127,8 @@ void CMainGame::Release(void)
 	CObjMgr::GetInstance()->DestroyInstance();
 	CTimeMgr::GetInstance()->DestroyInstance();
 	CRandom::GetInstance()->DestroyInstance();
+
+	m_pDevice->DestroyInstance();
 }
 
 bool CMainGame::InitResource( void )
@@ -148,6 +149,15 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/UnitUpgrade_Back.png", L"UnitUpgradeBack", TEX_SINGLE ) ) )
 		return false;
 
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/HpBar_Back%d.png", L"HpBar", TEX_MULTI, L"Back", 1 ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/UI/HpGauge/HpBar_Front%d.png", L"HpBar", TEX_MULTI, L"Front", 4 ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Minimap/Entity%d.png", L"Minimap", TEX_MULTI, L"Entity", 2 ) ) )
+		return false;
+
 	/* Map Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"
@@ -165,6 +175,25 @@ bool CMainGame::InitResource( void )
 		return false;
 
 	if ( FAILED( CTextureMgr::GetInstance()->LoadImagePath( L"../Data/ImagePath.txt" ) ) )
+		return false;
+
+	/* Resuorces Image.. */
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Resources/Mineral/Mineral%d.png", L"Mineral", TEX_MULTI, L"Trunk", 12, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Resources/Mineral/Shad/Mineral_Shad%d.png", L"Mineral", TEX_MULTI, L"Shad", 12, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Resources/Gas/Gas%d.png", L"Gas", TEX_MULTI, L"Trunk", 1, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Resources/Gas/Gas_Shad%d.png", L"Gas", TEX_MULTI, L"Shad", 4, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Build_OK.png", L"Build_OK", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Build_NO.png", L"Build_OFF", TEX_SINGLE ) ) )
 		return false;
 
 	///* Marine Image.. */

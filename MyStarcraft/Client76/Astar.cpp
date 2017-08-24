@@ -243,6 +243,9 @@ int CAStar::MakeRoute(vector<D3DXVECTOR3>& vecGetData, const bool& _bCheckEntity
 						BYTE byDecideDetailIndex = 0;
 						BYTE byTempEntityTileData = iter->byEntityTileData;
 
+						if ( !_bCheckEntityTile )
+							byTempEntityTileData = 0;
+
 						if ( byTempEntityTileData == 0 )
 							byDecideDetailIndex = 0;
 						else

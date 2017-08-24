@@ -58,6 +58,8 @@ void CPattern_ChaseTarget::OnEnable()
 	m_pTarget = this->m_pGameEntity->GetTarget();
 
 	this->m_pMoveComponent->SetDestination( m_pTarget->GetPos(), true );
+
+	this->m_vPrevTargetPos = this->m_pTarget->GetPos();
 }
 
 int CPattern_ChaseTarget::Update()
@@ -71,9 +73,17 @@ int CPattern_ChaseTarget::Update()
 	float fEntityAttRange = ((m_pTarget->GetCheckUnitInformation( CGameEntity::Entity_AirUnit )) ? 
 							  this->m_pGameEntity->GetAirWeaponAttRange() : this->m_pGameEntity->GetGroundWeaponAttRange());
 
+	D3DXVECTOR3 vTargetPos = this->m_pTarget->GetPos();
+
+	if ( D3DXVec3Length( &(vTargetPos - this->m_vPrevTargetPos) ) >= EPSILON )
+	{
+		this->m_pMoveComponent->SetDestination( vTargetPos, true );
+		this->m_vPrevTargetPos = vTargetPos;
+	}
+
 	this->m_pMoveComponent->Update();
 
-	if ( D3DXVec3Length( &(this->m_pTarget->GetPos() - this->m_pGameEntity->GetPos()) ) <= fEntityAttRange * Object_Scope_Mul )
+	if ( D3DXVec3Length( &(vTargetPos - this->m_pGameEntity->GetPos()) ) <= fEntityAttRange * Object_Scope_Mul )
 	{
 		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Attack );
 		return Event_Pattern_Change;

@@ -69,6 +69,8 @@ HRESULT CMarine::Initialize( void )
 	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
 	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );
 
+	this->m_bUseDeathEffect = false;
+
 	return S_OK;
 }
 

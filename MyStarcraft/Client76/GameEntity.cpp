@@ -5,6 +5,8 @@
 #include "Device.h"
 #include "ObjMgr.h"
 #include "TimeMgr.h"
+#include "UIMgr.h"
+#include "EffectMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -13,6 +15,8 @@
 #include "Weapon.h"
 #include "Corps.h"
 #include "Player.h"
+#include "UI.h"
+#include "MiniMap.h"
 
 CBackground* CGameEntity::m_pBackground = NULL;
 CPlayer* CGameEntity::m_pPlayer = NULL;
@@ -31,6 +35,11 @@ CGameEntity::CGameEntity()
 	, m_bUseDirAnimIndex( false )
 	, m_vHitShowPos( 0.f, 0.f, 0.f ), m_vEffectShowPos( 0.f, 0.f, 0.f )
 	, m_byKillEnemy(0)
+	, m_bDrawHpBarUI(false)
+	, m_pMiniMap(NULL)
+	, m_iMinimapSpaceDataKey(-1)
+	, m_bUseDeathEffect(true)
+	, m_bCheckEntityTile(true)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
@@ -132,6 +141,26 @@ void CGameEntity::ChangeAnimation( const wstring & _wstrName )
 	}
 }
 
+void CGameEntity::SetHpBarData( HP_BAR_MATRIX_DATA& _tHpBarMatrixData )
+{
+	this->m_pHpBarMatrixData = &_tHpBarMatrixData;
+}
+
+void CGameEntity::SetMinimapSpaceDataKey( const int & _iMinimapSpaceKey )
+{
+	this->m_iMinimapSpaceDataKey = _iMinimapSpaceKey;
+}
+
+void CGameEntity::SetEntityMgrListIndex( const int & _iEntityMgrListIndex )
+{
+	this->m_iEntityMgrListIndex = _iEntityMgrListIndex;
+}
+
+void CGameEntity::SetIsCheckEntityTile( const bool & _bCheckEntityTile )
+{
+	m_bCheckEntityTile = _bCheckEntityTile;
+}
+
 float CGameEntity::GetCurHp() const
 {
 	return this->m_tInfoData.fCurHp;
@@ -157,6 +186,16 @@ int CGameEntity::GetEntitySpaceDataKey() const
 	return this->m_iEntitySpaceDataKey;
 }
 
+int CGameEntity::GetMinimapSpaceDataKey() const
+{
+	return this->m_iMinimapSpaceDataKey;
+}
+
+int CGameEntity::GetEntityMgrListIndex() const
+{
+	return this->m_iEntityMgrListIndex;
+}
+
 const CCorps * CGameEntity::GetEntityBelongToCorps() const
 {
 	return this->m_pEntityBelongToCorps;
@@ -180,6 +219,11 @@ bool CGameEntity::GetIsCollision() const
 bool CGameEntity::GetIsDie() const
 {
 	return this->m_bDie;
+}
+
+bool CGameEntity::GetIsCheckEntityTile() const
+{
+	return this->m_bCheckEntityTile;
 }
 
 const list<pair<int, BYTE>>* CGameEntity::GetStandTileIndexList()
@@ -272,6 +316,14 @@ vector<BUTTON_DATA*>* CGameEntity::GetButtonData() const
 	return this->m_pVecActButton;
 }
 
+D3DXVECTOR3 CGameEntity::GetImageSize()
+{
+	if ( this->m_vecTexture.empty() )
+		return D3DXVECTOR3( 0.f, 0.f, 0.f );
+
+	return D3DXVECTOR3((float)this->m_vecTexture.front()->ImageInfo.Width, (float)this->m_vecTexture.front()->ImageInfo.Height, 0.f);
+}
+
 bool CGameEntity::GetCheckUnitInformation( const eEntityInformation & _eEntityInfo )
 {
 	for ( size_t i = 0; i < this->m_vecEntityInformation.size(); ++i )
@@ -316,6 +368,9 @@ HRESULT CGameEntity::Initialize( void )
 
 	this->m_vecActPatterns.reserve( 10 );
 
+	this->m_pHpBarUI = CUIMgr::GetInstance()->GetHpBarUI();
+	this->m_pHpBarBackUI = CUIMgr::GetInstance()->GetHpBarBackUI();
+
 	this->m_pAnimCom = new CAnimation;
 	this->m_pAnimCom->Initialize();
 	this->AddComponent( this->m_pAnimCom );
@@ -340,6 +395,8 @@ HRESULT CGameEntity::Initialize( void )
 	this->SetPattern( CGameEntity::Pattern_Idle );
 
 	this->m_tColRect = this->m_tOriginColRect;
+
+	this->m_pMiniMap = CUIMgr::GetInstance()->GetMiniMap();
 
 	CGameObject::Initialize();
 
@@ -395,6 +452,11 @@ void CGameEntity::Render( void )
 		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
+	if ( this->m_bDrawHpBarUI )
+	{
+		this->RenderHpUI();
+	}
+
 	//D3DXMATRIX matFont;
 	//D3DXMatrixTranslation( &matFont, this->GetPos().x, this->GetPos().y + 100.f, this->GetPos().z );
 	//
@@ -402,8 +464,8 @@ void CGameEntity::Render( void )
 	//swprintf_s( str, L"HP : %f", this->GetCurHp() );
 	//this->DrawFont( matFont, str );
 
-	RECT rcDraw = { this->m_tColRect.left - m_vScroll.x, this->m_tColRect.top - m_vScroll.y, 
-					this->m_tColRect.right - m_vScroll.x, this->m_tColRect.bottom - m_vScroll.y };
+	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+					(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
 
 	this->DrawRect( rcDraw );
 
@@ -427,6 +489,7 @@ void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
 
 	CGameObject::UpdatePosition( vPrevPos );
+	m_iMinimapSpaceDataKey = this->m_pMiniMap->MoveEntity( this );
 }
 
 void CGameEntity::MouseEvent()
@@ -629,11 +692,11 @@ void CGameEntity::HitEntity( CGameEntity* _pAttackedObject, float _fDamage )
 void CGameEntity::DieEntity()
 {
 	/* 기계 유닛일 경우 터지는 이펙트.. */
-	if ( false )
+	if ( this->m_bUseDeathEffect )
 	{
 		/*## 이펙트 터지는 부분.. */
 		/*## 이펙트 터지는 부분.. */
-
+		CEffectMgr::GetInstance()->ShowEffect( L"Effect", L"DeathUnit", 0, 14, this->GetPos(), D3DXVECTOR3( 0.4f, 0.4f, 1.f ) );
 		this->m_bDestoryEntity = true;
 	}
 
@@ -654,6 +717,28 @@ void CGameEntity::DieEntity()
 
 	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );
+	this->m_pMiniMap->EraseEntity( this );
+
+}
+
+void CGameEntity::OnRenderHpBar()
+{
+	this->m_bDrawHpBarUI = true;
+}
+
+void CGameEntity::OffRenderHpBar()
+{
+	this->m_bDrawHpBarUI = false;
+}
+
+void CGameEntity::RenderHpUI()
+{
+	this->m_pHpBarBackUI->Render( 0, this->m_pHpBarMatrixData->hpBarBackWordMatrix );
+	for ( size_t j = 0; j < this->m_pHpBarMatrixData->vecHpBarData.size(); ++j )
+	{
+		this->m_pHpBarUI->Render( 
+			this->m_pHpBarMatrixData->vecHpBarData[j].first, this->m_pHpBarMatrixData->vecHpBarData[j].second );
+	}
 }
 
 void CGameEntity::ChangeLookAnimTexture()
@@ -685,6 +770,8 @@ void CGameEntity::CollisionUpdate()
 
 void CGameEntity::CollisionCheck()
 {
+	if ( !this->m_bCheckEntityTile )
+		return;
 	//return;
 	vector<CGameEntity*> vColEntity;
 	

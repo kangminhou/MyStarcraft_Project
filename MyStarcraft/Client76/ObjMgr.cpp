@@ -10,7 +10,7 @@ IMPLEMENT_SINGLETON(CObjMgr);
 void CObjMgr::AddGameObject(CGameObject* pObject, eObjectType eType)
 {
 	pObject->SetObjectType( eType );
-	InsertEntitySpaceData( dynamic_cast<CGameEntity*>(pObject) );
+	//InsertEntitySpaceData( dynamic_cast<CGameEntity*>(pObject) );
 	m_ObjList[eType].push_back(pObject);
 }
 
@@ -215,6 +215,9 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity * 
 					break;
 
 				if ( pCheckEntity== _pGameEntity )
+					continue;
+
+				if ( !pCheckEntity->GetIsCheckEntityTile() )
 					continue;
 
 				RECT rcCheckEntity = pCheckEntity->GetColRect();

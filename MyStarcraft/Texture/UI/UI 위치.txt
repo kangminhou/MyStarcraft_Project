@@ -20,3 +20,9 @@ y 거리 : UI의 Height + 10
 
 x 거리 : UI의 Width + 6
 y 거리 : UI의 Height + 0
+
+Progress Bar 진행도 UI 간격
+시작 : 3, 3
+
+x 거리 : 1
+y 거리 : 0

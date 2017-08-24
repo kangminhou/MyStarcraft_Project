@@ -10,6 +10,7 @@
 #include "ObjMgr.h"
 #include "EntityMgr.h"
 #include "Mouse.h"
+#include "UIMgr.h"
 
 #include "Pattern_IdleAlert.h"
 #include "Pattern_Move.h"
@@ -19,6 +20,8 @@
 #include "Pattern_Die.h"
 #include "Pattern_Patrol.h"
 #include "Pattern_Unit_Build_Building.h"
+#include "GatherMineral.h"
+#include "GatherGas.h"
 #include "Move.h"
 #include "Background.h"
 #include "Weapon.h"
@@ -44,6 +47,11 @@ CSCV::~CSCV()
 	Release();
 }
 
+CGameObject* CSCV::GetGatherObject() const
+{
+	return this->m_pGatherObject;
+}
+
 CGameEntity * CSCV::GetBuildEntity() const
 {
 	return this->m_pBuildEntity;
@@ -66,6 +74,7 @@ HRESULT CSCV::Initialize( void )
 
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 60.f;
+	//this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 300.f;
 	this->m_tInfoData.iDefense = 0;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(2.8125f);
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
@@ -100,25 +109,6 @@ int CSCV::Update( void )
 void CSCV::Render( void )
 {
 	CUnit::Render();
-
-	if ( this->m_bRenderBuildingArea )
-	{
-		D3DXMATRIX matTrans;
-		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos();
-		RECT rcCol = m_pDrawBuilding->GetColRect();
-		vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
-			D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
-		D3DXMatrixTranslation( &matTrans, vMousePos.x, vMousePos.y, 0.f );
-
-		this->m_pDrawBuilding->FrameRender( matTrans );
-
-		rcCol.left += (LONG)vMousePos.x;
-		rcCol.right += (LONG)vMousePos.x;
-		rcCol.top += (LONG)vMousePos.y;
-		rcCol.bottom += (LONG)vMousePos.y;
-
-		this->DrawRect( rcCol );
-	}
 }
 
 void CSCV::Release( void )
@@ -170,10 +160,17 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 		break;
 
 		case CGameEntity::Pattern_Move:
-			this->m_pCurActPattern = this->m_mapPatterns.find( L"Move" )->second;
+			if ( !this->m_bCheckEntityTile )
+				this->m_bCheckEntityTile = true;
+
+			if ( !this->m_bCanBuild )
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"Move" )->second;
 			break;
 
 		case CGameEntity::Pattern_MoveAlert:
+			if ( !this->m_bCheckEntityTile )
+				this->m_bCheckEntityTile = true;
+
 			if(!this->m_bCanBuild )
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"MoveAlert" )->second;
 			break;
@@ -224,7 +221,21 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 			}
 			else
 			{
+
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
+			}
+		}
+			break;
+
+		case CGameEntity::Pattern_Gather:
+		{
+			if ( this->m_bMineralGather )
+			{
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"GatherMineral" )->second;
+			}
+			else
+			{
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"GatherGas" )->second;
 			}
 		}
 			break;
@@ -293,6 +304,8 @@ void CSCV::InitPattern()
 	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
 	this->m_mapPatterns.insert( make_pair( L"Patrol", new CPattern_Patrol ) );
 	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Unit_Build_Building ) );
+	this->m_mapPatterns.insert( make_pair( L"GatherMineral", new CGatherMineral ) );
+	this->m_mapPatterns.insert( make_pair( L"GatherGas", new CGatherGas ) );
 }
 
 bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )
@@ -333,7 +346,7 @@ bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTar
 
 void CSCV::MouseEvent()
 {
-	if ( this->m_bRenderBuildingArea )
+	if ( this->m_bRenderBuildingArea && this->m_pDrawBuilding->GetIsCanBuild() )
 	{
 		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
 		vMousePos -= D3DXVECTOR3( float(int(vMousePos.x) % TILECX), float(int(vMousePos.y) % TILECY), 0.f ) - D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
@@ -367,6 +380,7 @@ void CSCV::RenderBuildingArea( CGameEntity * pBuilding )
 {
 	this->m_bRenderBuildingArea = true;
 	this->m_pDrawBuilding = dynamic_cast<CBuilding*>(pBuilding);
+	CUIMgr::GetInstance()->ShowFrameBuilding( m_pDrawBuilding );
 	m_pPlayer->AddMouseClickEventEntity( this );
 }
 
@@ -376,6 +390,9 @@ void CSCV::BuildBuilding( CGameEntity * pEntity, const D3DXVECTOR3 & _vPos )
 	//dynamic_cast<CBuilding*>(pEntity)->SetApplyCol( true );
 
 	m_pBuildEntity = pEntity;
+	dynamic_cast<CBuilding*>(m_pBuildEntity)->BuildStart();
+
+	CUIMgr::GetInstance()->HideFrameBuilding();
 
 	//CObjMgr::GetInstance()->GetList( this->GetObjectType() )->push_back( pEntity );
 }
@@ -395,6 +412,12 @@ void CSCV::BuildStart()
 void CSCV::SuccessBuild()
 {
 	this->m_bUnder_Construction = false;
+}
+
+void CSCV::GatherResource( const bool & _bMineral, CGameObject * _pObject )
+{
+	this->m_bMineralGather = _bMineral;
+	this->m_pGatherObject = _pObject;
 }
 
 void CSCV::InitButton(vector<BUTTON_DATA*>*& _pVecButtonData, vector<BUTTON_DATA*>*& _pVecAdvancedStructureButton)

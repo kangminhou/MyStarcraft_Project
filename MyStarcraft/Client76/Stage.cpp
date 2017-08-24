@@ -10,6 +10,9 @@
 #include "Building.h"
 #include "Unit.h"
 #include "EntityMgr.h"
+#include "Mineral.h"
+#include "Gas.h"
+#include "ResourceMgr.h"
 
 #include "Include.h"
 #include "Random.h"
@@ -27,8 +30,15 @@ HRESULT CStage::Initialize( void )
 
 	CUIMgr::GetInstance()->Initialize();
 	CEntityMgr::GetInstance()->Initialize();
+	CResourceMgr::GetInstance()->Initialize();
 
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CBackground>::CreateGameObject(), OBJ_TYPE_BACKGROUND );
+
+	//CObjMgr::GetInstance()->AddGameObject( CFactory<CMineral>::CreateGameObject( 300.f, 300.f ), OBJ_TYPE_RESOURCE );
+	//CObjMgr::GetInstance()->AddGameObject( CFactory<CGas>::CreateGameObject( 200.f, 300.f ), OBJ_TYPE_RESOURCE );
+	CResourceMgr::GetInstance()->MakeResource( D3DXVECTOR3( 300.f, 300.f, 0.f ), CResourceMgr::Resource_Mineral, OBJ_TYPE_RESOURCE );
+	CResourceMgr::GetInstance()->MakeResource( D3DXVECTOR3( 200, 300.f, 0.f ), CResourceMgr::Resource_Gas, OBJ_TYPE_RESOURCE );
+
 	CObjMgr::GetInstance()->AddGameObject( CFactory<CPlayer>::CreateGameObject(), OBJ_TYPE_USER );
 
 	CGameEntity::SetBackground( CObjMgr::GetInstance()->FindGameObject<CBackground>() );
@@ -42,6 +52,14 @@ HRESULT CStage::Initialize( void )
 	//	CEntityMgr::Entity_Control, D3DXVECTOR3(300.f, 100.f, 0.f), OBJ_TYPE_USER );
 	//
 	//CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
+
+	for ( int i = 0; i < 2; ++i )
+	{
+		CGameObject* pObj = CEntityMgr::GetInstance()->MakeUnit(
+			CEntityMgr::Entity_Marine, D3DXVECTOR3(700 + (i % 10) * 20, 100 + (i / 10) * 30, 0.f), OBJ_TYPE_USER2 );
+	
+		CObjMgr::GetInstance()->AddGameObject( pObj, pObj->GetObjectType() );
+	}
 
 	//for ( int i = 0; i < 12; ++i )
 	//{
@@ -147,6 +165,7 @@ void CStage::Render(void)
 
 void CStage::Release(void)
 {
+	CResourceMgr::GetInstance()->DestroyInstance();
 	CObjMgr::GetInstance()->Release();
 	CEffectMgr::GetInstance()->DestroyInstance();
 	CUIMgr::GetInstance()->DestroyInstance();

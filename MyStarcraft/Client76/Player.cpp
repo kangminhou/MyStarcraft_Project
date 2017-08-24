@@ -10,6 +10,9 @@
 #include "UIMgr.h"
 
 #include "Mouse.h"
+#include "Mineral.h"
+#include "Gas.h"
+#include "SCV.h"
 
 
 CPlayer::CPlayer()
@@ -38,6 +41,22 @@ HRESULT CPlayer::Initialize( void )
 		this->m_hotKeyCorps[i].Initialize();
 
 	this->m_pMouse = CMouse::GetInstance();
+
+	list<CGameObject*>* pResourceList = CObjMgr::GetInstance()->GetList( OBJ_TYPE_RESOURCE );
+	for ( auto& iter : (*pResourceList) )
+	{
+		CMineral* pMineral = dynamic_cast<CMineral*>(iter);
+		if ( pMineral )
+		{
+			this->m_vecMineral.push_back( pMineral );
+			continue;
+		}
+
+		CGas* pGas = dynamic_cast<CGas*>(iter);
+
+		if ( pGas )
+			this->m_vecGas.push_back( pGas );
+	}
 
 	CUIMgr::GetInstance()->SetPlayer( this );
 
@@ -229,7 +248,7 @@ void CPlayer::KeyCheck( void )
 	if ( GetAsyncKeyState( VK_RBUTTON ) )
 	{
 		if ( this->m_pCurCorps )
-			this->UnitMove();
+			this->RButtonClick();
 	}
 
 	if ( this->m_bScrollMove )
@@ -294,7 +313,7 @@ void CPlayer::MakeDragUnitCorps()
 			{
 				bFindBuildingEntity = vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building );
 			}
-			else 
+			else
 			{
 				if ( !vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
 				{
@@ -325,6 +344,84 @@ void CPlayer::MakeDragUnitCorps()
 		this->DecideShowButton();
 		this->ShowEntityUI();
 	}
+}
+
+void CPlayer::RButtonClick()
+{
+	vector<CGameEntity*> vecEntity;
+
+	MOUSE_DRAG_DATA tDragData;
+	tDragData.vStartPos = tDragData.vEndPos = m_pMouse->GetPos();
+
+	/* 유닛을 클릭했는지 검사.. */
+	for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
+	{
+		if ( CObjMgr::GetInstance()->CheckDragEntitys( vecEntity, tDragData, eObjectType( i ) ) )
+		{
+			auto SortEntityToPos = [&]( CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity ) {
+				return D3DXVec3Length( &(_pDstEntity->GetPos() - this->GetPos()) ) > D3DXVec3Length( &(_pSrcEntity->GetPos() - this->GetPos()) );
+			};
+
+			sort( vecEntity.begin(), vecEntity.end(), SortEntityToPos );
+
+			CGameEntity* pCheckEntity = vecEntity.front();
+			if ( pCheckEntity->GetObjectType() == OBJ_TYPE_USER )
+			{
+				this->UnitMove();
+				return;
+			}
+			else
+			{
+				for ( size_t i = 0; i < m_pCurCorps->GetSameUnit(); ++i )
+				{
+					this->m_pCurCorps->GetEntity( i )->SetTarget( pCheckEntity );
+					this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_ChaseTarget );
+					return;
+				}
+			}
+		}
+
+	}
+
+	RECT rcMouse = { (LONG)tDragData.vStartPos.x, (LONG)tDragData.vStartPos.y, (LONG)tDragData.vEndPos.x, (LONG)tDragData.vEndPos.y };
+
+	if ( rcMouse.left == rcMouse.right )
+		++rcMouse.right;
+	if ( rcMouse.top == rcMouse.bottom )
+		++rcMouse.bottom;
+
+	/* 리소스 클릭인지 검사.. */
+	for ( auto& iter : this->m_vecMineral )
+	{
+		RECT rc = { 0, 0, 0, 0 };
+		RECT rcCol = iter->GetColRect();
+		D3DXVECTOR3 vPos = iter->GetPos();
+		//rcCol.left += vPos.x;
+		//rcCol.right += vPos.x;
+		//rcCol.top += vPos.y;
+		//rcCol.bottom += vPos.y;
+
+		if ( IntersectRect( &rc, &rcCol, &rcMouse ) )
+		{
+			size_t iLength = this->m_pCurCorps->GetCurUnitNum();
+			for ( size_t i = 0; i < iLength; ++i )
+			{
+				CSCV* pSCV = dynamic_cast<CSCV*>(this->m_pCurCorps->GetEntity( i ));
+
+				if ( pSCV )
+				{
+					pSCV->GatherResource( true, iter );
+				}
+
+			}
+
+			this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_Gather );
+			return;
+		}
+	}
+
+	this->UnitMove();
+
 }
 
 void CPlayer::UnitMove()

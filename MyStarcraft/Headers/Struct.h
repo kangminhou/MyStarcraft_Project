@@ -194,6 +194,12 @@ typedef struct tagUnitSelectShowData
 
 }SELECT_UNIT_SHOW_DATA;
 
+typedef struct tagHpBarUIMatrixData
+{
+	D3DXMATRIX						hpBarBackWordMatrix;
+	vector<pair<BYTE, D3DXMATRIX>>	vecHpBarData;
+}HP_BAR_MATRIX_DATA;
+
 
 //[17.07.21_06] : 파일이름을 찾기 위한 구조체
 typedef struct tagImagePath
