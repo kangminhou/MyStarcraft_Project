@@ -50,7 +50,7 @@ HRESULT CFirebat::Initialize( void )
 	this->m_tInfoData.nDefenceIconFrame = 292; 
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FlameThrower );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FlameThrower );
 	this->m_tGroundAttWeapon.byAttackNum = 2;
 	this->m_tGroundAttWeapon.fAttRange = 1.f;
 
@@ -69,6 +69,23 @@ HRESULT CFirebat::Initialize( void )
 
 int CFirebat::Update( void )
 {
+	if ( this->m_bUseSteampack )
+	{
+		this->m_fSteampackDuration -= GET_TIME;
+
+		if ( this->m_fSteampackDuration <= 0.f )
+		{
+			this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 1.f );
+			this->m_tAirAttWeapon.pWeapon->SetAttInterval( 1.f );
+
+			this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
+
+			this->m_pAnimCom->SetAnimationData( L"Attack", FRAME( 0.f, 10.f, 3.f, 0.f ) );
+
+			this->m_bUseSteampack = false;
+		}
+	}
+
 	return CUnit::Update();
 }
 
@@ -197,6 +214,40 @@ void CFirebat::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 
 	if ( bChangeAnimation )
 		this->ChangeLookAnimTexture();
+}
+
+bool CFirebat::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )
+{
+	switch ( _eSkillKind )
+	{
+		case CGameEntity::Skill_SteamPack:
+		{
+			if ( this->m_tInfoData.fCurHp <= 10.f )
+				return false;
+
+			if ( !m_bUseSteampack )
+			{
+				this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 0.7f );
+				this->m_tAirAttWeapon.pWeapon->SetAttInterval( 0.7f );
+
+				this->m_tInfoData.fSpeed *= 1.4f;
+
+				this->m_pAnimCom->SetAnimationData( L"Attack", FRAME( 0.f, 14.f, 3.f, 0.f ) );
+
+				this->m_bUseSteampack = true;
+			}
+
+			this->m_tInfoData.fCurHp -= 10.f;
+			this->m_fSteampackDuration = 15.f;
+		}
+		break;
+
+		default:
+			return false;
+
+	}
+
+	return true;
 }
 
 void CFirebat::InitAnimation()

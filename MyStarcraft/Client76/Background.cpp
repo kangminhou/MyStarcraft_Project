@@ -176,7 +176,7 @@ bool CBackground::Picking(const D3DXVECTOR3& vMousePos,
 //	}
 //}
 
-void CBackground::EraseUnitData( const vector<int>& _vecKey )
+void CBackground::EraseUnitData( const vector<_Dlong>& _vecKey )
 {
 	if ( _vecKey.empty() )
 		return;
@@ -184,8 +184,12 @@ void CBackground::EraseUnitData( const vector<int>& _vecKey )
 	size_t iLength = _vecKey.size();
 	for ( size_t i = 0; i < iLength; ++i )
 	{
-		int iIndex = _vecKey[i] >> 16;
-		int iEntityArrIndex = ((_vecKey[i] << 16) >> 16);
+		_Dlong iIndex = _vecKey[i] >> 32;
+		
+		if ( iIndex < 0 )
+			continue;
+			
+		_Dlong iEntityArrIndex = ((_vecKey[i] << 32) >> 32);
 		m_entityTileData[iIndex].pEntityArr[iEntityArrIndex] = NULL;
 
 		bool bEmptySpace = true;
@@ -206,7 +210,7 @@ void CBackground::EraseUnitData( const vector<int>& _vecKey )
 
 }
 
-void CBackground::UpdateUnitData( const CGameEntity * _pEntity, vector<int>& _vecKey )
+void CBackground::UpdateUnitData( const CGameEntity * _pEntity, vector<_Dlong>& _vecKey )
 {
 	_vecKey.clear();
 
@@ -231,8 +235,8 @@ void CBackground::UpdateUnitData( const CGameEntity * _pEntity, vector<int>& _ve
 				 j < 0 || j >= TILEX * ENTITY_TILE_DIV_X )
 				continue;
 
-			int iSpaceKey = -1;
-			int iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
+			_Dlong iSpaceKey = -1;
+			_Dlong iIndex = j + i * (TILEX * ENTITY_TILE_DIV_X);
 			bool bFindSameEntity = false;
 			BYTE byDetailSpaceData = 0;
 
@@ -273,7 +277,7 @@ void CBackground::UpdateUnitData( const CGameEntity * _pEntity, vector<int>& _ve
 
 					m_entityTileData[iIndex].pEntityArr[i] = _pEntity;
 
-					iSpaceKey = iIndex << 16;
+					iSpaceKey = iIndex << 32;
 					iSpaceKey += i;
 					_vecKey.push_back( iSpaceKey );
 				}
@@ -291,7 +295,12 @@ bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGam
 		return false;
 
 	if ( this->m_vecTile[_iIndex]->byOption != 0 )
+	{
+		if ( !_bCheckEntityData && this->m_vecTile[_iIndex]->byOption == 4 )
+			return true;
+
 		return false;
+	}
 
 	if ( !_bCheckEntityData )
 		return true;
@@ -304,11 +313,7 @@ bool CBackground::CheckCanGoTile( const int & _iIndex, const BYTE & _byDir, CGam
 	switch ( _byDir )
 	{
 		case 0:
-		{
-			if ( byEntityTileData == 15 )
-				return false;
-		}
-		break;
+		return true;
 
 		case 1:	// À§ÂÊ..
 		{
@@ -474,12 +479,58 @@ int CBackground::CalcNearCanGoTile( const int & _iStartIndex, const int & _iEndI
 		if ( this->CheckCanGoTile( iIndex, 0, NULL, _bCheckEntityData ) )
 			return iIndex;
 
-		if ( iIndex == _iStartIndex )
+		if ( abs( fStartXIndex - fXIndex ) <= 1.f && abs( fStartYIndex - fYIndex ) <= 1.f )
 			return -1;
 
 	}
 
 	return -1;
+}
+
+bool CBackground::CheckConnectPath( CGameEntity* _pEntity, const int & _iStartIndex, const int & _iEndIndex, const bool & _bCheckEntityData )
+{
+	TILE* pStartTile = this->m_vecTile[_iStartIndex];
+	TILE* pEndTile = this->m_vecTile[_iEndIndex];
+
+	if ( !this->CheckCanGoTile( _iEndIndex, 8, NULL, _bCheckEntityData ) )
+		return false;
+
+	D3DXVECTOR3 vDir;
+	D3DXVec3Normalize( &vDir, &(pEndTile->vPos - pStartTile->vPos) );
+
+	float fStartYIndex = (float)(_iStartIndex / TILEX);
+	float fStartXIndex = (float)(_iStartIndex - fStartYIndex * TILEX);
+
+	float fEndYIndex = (float)(_iEndIndex / TILEX);
+	float fEndXIndex = (float)(_iEndIndex - fEndYIndex * TILEX);
+
+	D3DXVec3Normalize( &vDir, &(D3DXVECTOR3( fStartXIndex, fStartYIndex, 0.f ) - D3DXVECTOR3( fEndXIndex, fEndYIndex, 0.f )) );
+
+	float fXIndex = fEndXIndex;
+	float fYIndex = fEndYIndex;
+
+	int iIndex = 0;
+
+	TILE* pCurTile = nullptr;
+
+	while ( true )
+	{
+		fXIndex += vDir.x;
+		fYIndex += vDir.y;
+
+		iIndex = (int)((int)fXIndex + ((int)(fYIndex)) * TILEX);
+
+		pCurTile = this->m_vecTile[iIndex];
+
+		if ( !this->CheckCanGoTile( iIndex, 8, _pEntity, _bCheckEntityData ) )
+			return false;
+
+		if ( abs( fStartXIndex - fXIndex ) <= 1.f && abs( fStartYIndex - fYIndex ) <= 1.f )
+			break;
+
+	}
+
+	return true;
 }
 
 void CBackground::ObjectDataUpdate( CGameEntity * pEntity, int iTileOption /*= 1*/ )
@@ -488,7 +539,7 @@ void CBackground::ObjectDataUpdate( CGameEntity * pEntity, int iTileOption /*= 1
 	D3DXVECTOR3 vPos = pEntity->GetPos();
 
 	int iStartX = int(vPos.x + rcCol.left)   / TILECX;
-	int iEndX =   int(vPos.x + rcCol.right)  / TILECX;
+	int iEndX =   int(vPos.x + rcCol.right - 1)  / TILECX;
 	int iStartY = int(vPos.y + rcCol.top)    / TILECY;
 	int iEndY =   int(vPos.y + rcCol.bottom) / TILECY;
 
@@ -510,34 +561,34 @@ HRESULT CBackground::Initialize(void)
 	//{
 	//}
 
-	//this->LoadTileData();
+	this->LoadTileData();
 
-	m_pBackgroundTexture = CTextureMgr::GetInstance()->GetTexture( L"Map" );
+	m_pBackgroundTexture = CTextureMgr::GetInstance()->GetTexture( L"BackGround" );
 
 	for ( int i = 0; i < 16; ++i )
 		m_vecTileTexture.push_back( CTextureMgr::GetInstance()->GetTexture( L"Back", L"Tile", i ) );
 
-	for(int i = 0; i < TILEY; ++i)	
-	{
-		for(int j = 0; j < TILEX; ++j)
-		{
-			TILE* pTile = new TILE;
-	
-			//float fX = j * TILECX + ((i % 2) * (TILECX / 2.f));
-			//float fY = i * (TILECY * 0.5f);
-	
-			float fX = float(j * TILECX);
-			float fY = float(i * TILECY);
-	
-			pTile->vPos = D3DXVECTOR3(fX, fY, 0.f);
-			pTile->vSize = D3DXVECTOR3( (float)TILECX, (float)TILECY, 0.f );
-	
-			pTile->byOption = 0;
-			pTile->byDrawID = 0;
-	
-			m_vecTile.push_back(pTile);
-		}
-	}
+	//for(int i = 0; i < TILEY; ++i)	
+	//{
+	//	for(int j = 0; j < TILEX; ++j)
+	//	{
+	//		TILE* pTile = new TILE;
+	//
+	//		//float fX = j * TILECX + ((i % 2) * (TILECX / 2.f));
+	//		//float fY = i * (TILECY * 0.5f);
+	//
+	//		float fX = float(j * TILECX);
+	//		float fY = float(i * TILECY);
+	//
+	//		pTile->vPos = D3DXVECTOR3(fX, fY, 0.f);
+	//		pTile->vSize = D3DXVECTOR3( (float)TILECX, (float)TILECY, 0.f );
+	//
+	//		pTile->byOption = 0;
+	//		pTile->byDrawID = 0;
+	//
+	//		m_vecTile.push_back(pTile);
+	//	}
+	//}
 
 	return S_OK;
 }
@@ -567,7 +618,7 @@ void CBackground::Render(void)
 
 	int iStartX = (LONG)((m_vScroll.x) / (TILECX));
 	int iEndX = (LONG)((m_vScroll.x + WINCX) / (TILECX));
-	//return;
+	return;
 
 	for(int i = iStartY; i < iEndY + 1; ++i)
 	{
@@ -717,7 +768,7 @@ void CBackground::LoadTileData()
 	DWORD dwByte = 0;
 
 	HANDLE hFile = CreateFile(
-		L"../Data/Tile2.dat",		
+		L"../Data/Tile.dat",		
 		GENERIC_READ,	
 		NULL,		
 		NULL,

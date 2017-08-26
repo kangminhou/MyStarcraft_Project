@@ -30,9 +30,15 @@ void CPattern_MoveAlert::OnEnable()
 	else
 	{
 		D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
+		D3DXVECTOR3 vDestination;
 		vMouse += this->m_pGameEntity->GetScroll();
 
-		this->m_pMoveComponent->SetDestination( vMouse );
+		if ( this->m_pGameEntity->GetIsUseDestination() )
+			vDestination = this->m_pGameEntity->GetDestination();
+		else
+			vDestination = vMouse;
+
+		this->m_pMoveComponent->SetDestination( vDestination );
 	}
 }
 

@@ -51,13 +51,14 @@ public:
 
 	bool Picking(const D3DXVECTOR3& vPos, const int& iIndex);
 
-	void	EraseUnitData( const vector<int>& _vecKey );
-	void	UpdateUnitData( const CGameEntity* _pEntity, vector<int>& _vecKey );
+	void	EraseUnitData( const vector<_Dlong>& _vecKey );
+	void	UpdateUnitData( const CGameEntity* _pEntity, vector<_Dlong>& _vecKey );
 
 	bool	CheckCanGoTile( const int& _iIndex, const BYTE& _byDir, CGameEntity* _pEntity, const bool& _bCheckEntityData );
 	BYTE	CalcEntityTileData( const int& iIndex, CGameEntity* _pEntity );
 
 	int		CalcNearCanGoTile( const int& _iStartIndex, const int& _iEndIndex, const bool& _bCheckEntityData );
+	bool	CheckConnectPath( CGameEntity* _pEntity, const int& _iStartIndex, const int& _iEndIndex, const bool& _bCheckEntityData );
 
 	void	ObjectDataUpdate( CGameEntity* pEntity, int iTileOption = 1 );
 

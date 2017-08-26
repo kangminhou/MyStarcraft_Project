@@ -38,6 +38,8 @@ void CEffect_HitTarget::Initialize()
 	this->m_pAnimation->AddAnimation( this->m_pEffect->GetStateKey(), tFrame, CAnimation::Anim_Loop );
 
 	this->m_pAnimation->ChangeAnimation( this->m_pEffect->GetStateKey() );
+
+	this->m_fSpeed = 400.f;
 }
 
 int CEffect_HitTarget::Update()
@@ -56,14 +58,15 @@ int CEffect_HitTarget::Update()
 		this->m_bLookDestination = true;
 	}
 
-	this->m_pEffect->Translate( 100.f * CTimeMgr::GetInstance()->GetTime() );
+	float fSpeed = m_fSpeed * GET_TIME;
+	this->m_pEffect->Translate( fSpeed );
 
 	if ( this->m_pAnimation )
 	{
 		this->m_pAnimation->UpdateAnim();
 	}
 
-	if ( D3DXVec3Length( &(this->m_pEffect->GetPos() - this->m_vDestination) ) <= 5.f )
+	if ( D3DXVec3Length( &(this->m_pEffect->GetPos() - this->m_vDestination) ) <= fSpeed )
 	{
 		this->m_pWeapon->HitTarget();
 		return CEffectBridge::Event_DestroyObject;

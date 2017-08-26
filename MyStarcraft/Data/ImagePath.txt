@@ -1,4 +1,5 @@
 Effect|DeathUnit|14|..\Texture\Effect\DeathUnit\tbangx%d.png
+Effect|GasSmoke|8|..\Texture\Effect\GasSmoke\GasSmoke%d.png
 Building|Academy|3|..\Texture\Building\Academy\academy%d.png
 Building|Barrack|9|..\Texture\Building\Barrack\tbarrack%d.png
 Building|Bunker|19|..\Texture\Building\Bunker\pillbox%d.png
@@ -32,6 +33,8 @@ Cursor|magg|14|..\Texture\Cursor\magg\magg%d.png
 Cursor|magr|14|..\Texture\Cursor\magr\magr%d.png
 Cursor|magy|14|..\Texture\Cursor\magy\magy%d.png
 Cursor|Targg|6|..\Texture\Cursor\Targg\targg%d.png
+Cursor|Targr|2|..\Texture\Cursor\Targr\targr%d.png
+Cursor|Targy|2|..\Texture\Cursor\Targy\targy%d.png
 FaceBattlecr|Idle|45|..\Texture\Face\FaceBattlecr\Idle\FaceBattlecr%d.png
 FaceBattlecr|Talk|30|..\Texture\Face\FaceBattlecr\Talk\FaceBattlecr%d.png
 FaceBomber|Idle|45|..\Texture\Face\FaceBomber\Idle\FaceBomber%d.png

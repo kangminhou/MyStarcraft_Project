@@ -2,6 +2,7 @@
 #include "Mineral.h"
 
 #include "TextureMgr.h"
+#include "ObjMgr.h"
 
 #include "Background.h"
 
@@ -36,10 +37,12 @@ HRESULT CMineral::Initialize( void )
 
 	D3DXMatrixTranslation( &m_shadWorldMatrix, fShadStartX, fShadStartY, 0.f );
 
-	RECT rcTemp = { -32, -32, 32, 16 };
+	RECT rcTemp = { -40, -32, 40, 24 };
 	this->m_tColRect = this->m_tOriginColRect = rcTemp;
 
 	CGameEntity::Initialize();
+
+	this->m_pBackground = CObjMgr::GetInstance()->FindGameObject<CBackground>();
 
 	return S_OK;
 }
@@ -48,6 +51,8 @@ int CMineral::Update( void )
 {
 	//this->SetPos( CMouse::GetInstance()->GetPos() );
 	D3DXVECTOR3 vPos = this->GetPos();
+
+	this->UpdateMatrix();
 
 	this->m_tColRect.left = (LONG)(this->m_tOriginColRect.left + vPos.x);
 	this->m_tColRect.right = (LONG)(this->m_tOriginColRect.right + vPos.x);
@@ -87,7 +92,7 @@ void CMineral::Render( void )
 	//D3DXMatrixTranslation( &matTrans, 400.f, 150.f, 0.f );
 	//this->DrawFont( matTrans, str );
 
-	this->DrawRect( this->m_tColRect );
+	//this->DrawRect( this->m_tColRect );
 }
 
 void CMineral::Release( void )
@@ -105,7 +110,15 @@ void CMineral::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 
 void CMineral::UpdateTileData()
 {
-	this->m_pBackground->ObjectDataUpdate( this );
+	this->m_tColRect.left += 8;
+	this->m_tColRect.top += 16;
+	this->m_tColRect.right -= 8;
+	this->m_tColRect.bottom -= 8;
+	this->m_pBackground->ObjectDataUpdate( this, 4 );
+	this->m_tColRect.left -= 8;
+	this->m_tColRect.top -= 16;
+	this->m_tColRect.right += 8;
+	this->m_tColRect.bottom += 8;
 }
 
 void CMineral::InitAnimation()

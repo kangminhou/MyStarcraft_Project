@@ -4,19 +4,43 @@
 #include "KeyMgr.h"
 #include "TextureMgr.h"
 #include "Device.h"
+#include "ObjMgr.h"
+#include "TimeMgr.h"
 
 #include "GameObject.h"
+#include "Animation.h"
+#include "Player.h"
+
 
 IMPLEMENT_SINGLETON(CMouse)
 
 CMouse::CMouse()
 	: m_bMouseClick(false)
+	, m_wstrDetailStateKey(L"")
+	, m_bMinimapClick(false)
+	, m_pPlayer(NULL)
 {
+	ShowCursor( FALSE );
 }
 
 CMouse::~CMouse()
 {
 	Release();
+}
+
+void CMouse::SetMinimapClick( const bool & _bMinimapClick )
+{
+	this->m_bMinimapClick = _bMinimapClick;
+}
+
+void CMouse::SetPlayer( CPlayer * _pPlayer )
+{
+	this->m_pPlayer = _pPlayer;
+}
+
+bool CMouse::GetMinimapClick() const
+{
+	return this->m_bMinimapClick;
 }
 
 MOUSE_DRAG_DATA CMouse::GetDragData() const
@@ -31,9 +55,24 @@ D3DXVECTOR3 CMouse::GetPos() const
 
 HRESULT CMouse::Initialize( void )
 {
-	m_pDragTexture = CTextureMgr::GetInstance()->GetTexture( L"Drag" );
+	this->m_fWaitCheckStateTime = 0.5f;
+	this->m_eState = State_Idle;
 
-	m_eState = State_Idle;
+	this->m_wstrDetailStateKey = L"Green";
+
+	this->m_pSprite = CDevice::GetInstance()->GetSprite();
+
+	this->m_pObjMgr = CObjMgr::GetInstance();
+
+	this->m_pAnimCom = new CAnimation;
+	this->m_pAnimCom->Initialize();
+
+	this->InitTexture();
+	this->InitAnimation();
+
+	this->DecideMouseTexture();
+
+	this->m_vScrollMoveSpeed = D3DXVECTOR3( 700.f, 600.f, 0.f );
 
 	return S_OK;
 }
@@ -43,6 +82,13 @@ int CMouse::Update( void )
 	this->UpdatePosition();
 	this->UpdateMouseEvent();
 
+	this->ScrollMoveCheck();
+
+	this->DecideMouseState();
+
+	if ( this->m_pAnimCom )
+		this->m_pAnimCom->UpdateAnim();
+
 	return 0;
 }
 
@@ -50,20 +96,59 @@ void CMouse::Render( void )
 {
 	switch ( m_eState )
 	{
-		case State_Idle:
-			break;
 		case State_Drag:
 			this->DragAreaRender();
 			break;
 	}
+
+	if ( this->m_pAnimCom )
+	{
+		const FRAME* pFrame = this->m_pAnimCom->GetCurAnimation();
+		if ( pFrame->fIndex < this->m_vecCurTexture.size() )
+		{
+			const TEX_INFO* pTexture = this->m_vecCurTexture[(unsigned int)pFrame->fIndex];
+			D3DXVECTOR3 vCenter( pTexture->ImageInfo.Width * 0.5f, pTexture->ImageInfo.Height * 0.5f, 0.f );
+			
+			this->m_pSprite->SetTransform( &this->m_matWorld );
+
+			this->m_pSprite->Draw( pTexture->pTexture, NULL, &vCenter, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+		}
+	}
+
 	if ( m_bMouseClick )
 	{
 
 	}
+
 }
 
 void CMouse::Release( void )
 {
+	for ( int i = 0; i < State_End; ++i )
+	{
+		for ( auto& iter : m_mapAllTextureArr[i] )
+		{
+			iter.second.clear();
+		}
+
+		m_mapAllTextureArr[i].clear();
+	}
+
+	safe_delete( this->m_pAnimCom );
+}
+
+void CMouse::ActSelectTargetState()
+{
+	this->m_eState = State_SelectTarget;
+
+	this->DecideMouseTexture();
+}
+
+void CMouse::ActIdleState()
+{
+	this->m_eState = State_Idle;
+
+	this->DecideMouseTexture(); 
 }
 
 void CMouse::CheckDragData()
@@ -91,10 +176,15 @@ void CMouse::UpdatePosition()
 	ScreenToClient(g_hWnd, &ptMouse);
 
 	m_vPos = D3DXVECTOR3( (FLOAT)ptMouse.x, (FLOAT)ptMouse.y, 0.f );
+
+	D3DXMatrixTranslation( &this->m_matWorld, m_vPos.x, m_vPos.y, 0.f );
 }
 
 void CMouse::UpdateMouseEvent()
 {
+	if ( this->m_bMinimapClick )
+		return;
+
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )
 	{
 		this->m_bMouseClick = true;
@@ -104,7 +194,10 @@ void CMouse::UpdateMouseEvent()
 	{
 		this->m_tDragData.vEndPos = this->m_vPos;
 		if ( this->m_tDragData.vEndPos != this->m_tDragData.vStartPos && m_eState != State_Drag )
+		{
 			this->m_eState = State_Drag;
+			this->DecideMouseTexture();
+		}
 	}
 	if ( CKeyMgr::GetInstance()->GetKeyUp( VK_LBUTTON ) )
 	{
@@ -112,7 +205,24 @@ void CMouse::UpdateMouseEvent()
 		this->CheckDragData();
 
 		this->m_eState = State_Idle;
+		this->DecideMouseTexture();
 	}
+}
+
+void CMouse::ScrollMoveCheck()
+{
+	if ( !this->m_pPlayer )
+		return;
+
+	if ( this->m_vPos.x <= 10.f )
+		this->m_pPlayer->SetScroll( CGameObject::GetScroll() - D3DXVECTOR3( m_vScrollMoveSpeed.x * GET_TIME, 0.f, 0.f ) );
+	else if ( this->m_vPos.x >= WINCX - 10.f )
+		this->m_pPlayer->SetScroll( CGameObject::GetScroll() + D3DXVECTOR3( m_vScrollMoveSpeed.x * GET_TIME, 0.f, 0.f ) );
+
+	if(this->m_vPos.y <= 10.f )
+		this->m_pPlayer->SetScroll( CGameObject::GetScroll() - D3DXVECTOR3( 0.f, m_vScrollMoveSpeed.y * GET_TIME, 0.f ) );
+	else if(this->m_vPos.y >= WINCY - 10.f )
+		this->m_pPlayer->SetScroll( CGameObject::GetScroll() + D3DXVECTOR3( 0.f, m_vScrollMoveSpeed.y * GET_TIME, 0.f ) );
 }
 
 void CMouse::DragAreaRender()
@@ -144,4 +254,185 @@ void CMouse::DragAreaRender()
 			D3DCOLOR_ARGB( 255, 255, 255, 255 )
 		);
 	}
+}
+
+void CMouse::DecideMouseState()
+{
+	if ( this->m_eState == State_Scroll || this->m_eState == State_SelectTarget || this->m_eState == State_Drag )
+		return;
+
+	if ( m_fWaitCheckStateTime > 0.f )
+	{
+		m_fWaitCheckStateTime -= GET_TIME;
+		return;
+	}
+
+	eMouseState eTempState = this->m_eState;
+
+	this->m_eState = State_Idle;
+
+	if ( this->m_vPos.x >= 0.f && this->m_vPos.x <= WINCX &&
+		 this->m_vPos.y >= 0.f && this->m_vPos.y <= WINCY )
+	{
+		vector<CGameEntity*> vecEntity;
+
+		this->m_tCheckStateDragData.vStartPos = this->m_tCheckStateDragData.vEndPos = this->m_vPos + CGameObject::GetScroll();
+
+		for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
+		{
+			if ( m_pObjMgr->CheckDragEntitys( vecEntity, this->m_tCheckStateDragData, eObjectType( i ) ) )
+			{
+				this->m_wstrDetailStateKey = ((i == OBJ_TYPE_USER) ? L"Green" : L"Red");
+				this->m_eState = State_HoverUnit;
+				break;
+			}
+		}
+	}
+
+	if ( eTempState == this->m_eState )
+		return;
+
+	this->DecideMouseTexture();
+}
+
+void CMouse::DecideMouseTexture()
+{
+	if ( this->m_eState < State_Idle || this->m_eState >= State_End )
+	{
+		ERROR_MSG( L"CMouse DecideMouseTexture Failed ( Mouse State is Weird )" );
+		return;
+	}
+
+	auto& iter = this->m_mapAllTextureArr[m_eState];
+
+	auto& iterFind = iter.find( m_wstrDetailStateKey );
+
+	if ( iterFind == iter.end() )
+	{
+		iterFind = iter.find( L"Green" );
+
+		if ( iterFind == iter.end() )
+		{
+			ERROR_MSG( L"CMouse DecideMouseTexture Failed ( Unable to Find Mouse Texture )" );
+			return;
+		}
+	}
+
+	this->m_vecCurTexture = iterFind->second;
+
+	switch ( m_eState )
+	{
+		case CMouse::State_Idle:
+			this->m_pAnimCom->ChangeAnimation( L"Idle" );
+			break;
+
+		case CMouse::State_Drag:
+			this->m_pAnimCom->ChangeAnimation( L"Drag" );
+			break;
+
+		case CMouse::State_HoverUnit:
+			this->m_pAnimCom->ChangeAnimation( L"hover" );
+			break;
+
+		case CMouse::State_Scroll:
+			this->m_pAnimCom->ChangeAnimation( L"Scroll" );
+			break;
+
+		case CMouse::State_SelectTarget:
+			this->m_pAnimCom->ChangeAnimation( L"SelectTarget" );
+			break;
+
+	}
+}
+
+void CMouse::InitTexture()
+{
+	/* Get Drag Texture.. */
+	m_pDragTexture = CTextureMgr::GetInstance()->GetTexture( L"Drag" );
+
+	/* Get Mouse Idle State Texture.. */
+	vector<const TEX_INFO*> vecTextureGreen;
+	vector<const TEX_INFO*> vecTextureRed;
+	vector<const TEX_INFO*> vecTextureYellow;
+
+	for ( int i = 0; i < 5; ++i )
+	{
+		const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Arrow", i );
+		vecTextureGreen.push_back( pTexture );
+	}
+
+	m_mapAllTextureArr[State_Idle].insert( make_pair( L"Green", vecTextureGreen ) );
+
+
+	/* Get Mouse Drag State Texture.. */
+	vecTextureGreen.clear();
+	for ( int i = 0; i < 4; ++i )
+	{
+		const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Drag", i );
+		vecTextureGreen.push_back( pTexture );
+	}
+
+	m_mapAllTextureArr[State_Drag].insert( make_pair( L"Green", vecTextureGreen ) );
+
+
+	/* Get Mouse Hover State Texture.. */
+	vecTextureGreen.clear();
+	for ( int i = 0; i < 14; ++i )
+	{
+		const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"magg", i );
+		vecTextureGreen.push_back( pTexture );
+
+		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"magr", i );
+		vecTextureRed.push_back( pTexture );
+
+		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"magy", i );
+		vecTextureYellow.push_back( pTexture );
+	}
+
+	m_mapAllTextureArr[State_HoverUnit].insert( make_pair( L"Green", vecTextureGreen ) );
+	m_mapAllTextureArr[State_HoverUnit].insert( make_pair( L"Red", vecTextureRed ) );
+	m_mapAllTextureArr[State_HoverUnit].insert( make_pair( L"Yellow", vecTextureYellow ) );
+
+
+	/* Get Mouse Scroll State Texture.. */
+	vecTextureGreen.clear();
+	vecTextureRed.clear();
+	vecTextureYellow.clear();
+	for ( int i = 0; i < 8; ++i )
+	{
+		const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Highscroll", i );
+		vecTextureGreen.push_back( pTexture );
+
+		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Lowscroll", i );
+		vecTextureGreen.push_back( pTexture );
+	}
+	m_mapAllTextureArr[State_HoverUnit].insert( make_pair( L"Green", vecTextureGreen ) );
+
+
+	/* Get Mouse SelectTarget State Texture.. */
+	vecTextureGreen.clear();
+	for ( int i = 0; i < 2; ++i )
+	{
+		const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Targg", i );
+		vecTextureGreen.push_back( pTexture );
+
+		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Targr", i );
+		vecTextureRed.push_back( pTexture );
+
+		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Targy", i );
+		vecTextureYellow.push_back( pTexture );
+	}
+	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Green", vecTextureGreen ) );
+	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Red", vecTextureRed ) );
+	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Yellow", vecTextureYellow ) );
+
+}
+
+void CMouse::InitAnimation()
+{
+	this->m_pAnimCom->AddAnimation( L"Idle", FRAME( 0.f, 5.f, 5.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pAnimCom->AddAnimation( L"Drag", FRAME( 0.f, 4.f, 4.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pAnimCom->AddAnimation( L"Hover", FRAME( 0.f, 14.f, 14.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pAnimCom->AddAnimation( L"Scroll", FRAME( 0.f, 2.f, 2.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pAnimCom->AddAnimation( L"SelectTarget", FRAME( 0.f, 2.f, 2.f, 0.f ), CAnimation::Anim_Loop );
 }

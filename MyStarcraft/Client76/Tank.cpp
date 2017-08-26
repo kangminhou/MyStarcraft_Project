@@ -53,12 +53,12 @@ HRESULT CTank::Initialize( void )
 	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tNormalTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_ArcliteCannon );
+	this->m_tNormalTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_ArcliteCannon );
 	this->m_tNormalTankGroundAttData.byAttackNum = 1;
 	this->m_tNormalTankGroundAttData.fAttRange = 7.f;
 	this->m_tNormalTankGroundAttData.pWeapon->SetWeaponOwner( this );
 
-	this->m_tSiegeTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_ArcliteShockCannon );
+	this->m_tSiegeTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_ArcliteShockCannon );
 	this->m_tSiegeTankGroundAttData.byAttackNum = 1;
 	this->m_tSiegeTankGroundAttData.fAttRange = 12.f;
 	this->m_tSiegeTankGroundAttData.pWeapon->SetWeaponOwner( this );
@@ -157,7 +157,7 @@ void CTank::Render( void )
 
 	const FRAME* pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
 
-	if ( pCurAnimation )
+	if ( pCurAnimation && this->m_vecTankTrunkTexture.size() > (unsigned int)pCurAnimation->fIndex )
 	{
 		pDrawTexture = this->m_vecTankTrunkTexture[(unsigned int)pCurAnimation->fIndex];
 	}

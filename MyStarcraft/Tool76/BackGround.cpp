@@ -172,7 +172,9 @@ void CBackGround::Render(void)
 	D3DXMatrixTranslation( &matTrans, 0.f, 0.f, 0.f );
 	CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
 
-	const TEX_INFO* pTexInfo = CTextureMgr::GetInstance()->GetTexture(L"BackGround");
+	const TEX_INFO* pTexInfo = CTextureMgr::GetInstance()->GetTexture( L"BackGround" );
+	if ( !pTexInfo )
+		return;
 	RECT rc = { (m_pMainView->GetScrollPos( 0 )), (m_pMainView->GetScrollPos( 1 )), WINCX, WINCY };
 	rc.right += rc.left;
 	rc.bottom += rc.top;
@@ -246,6 +248,9 @@ void CBackGround::MiniMapRender(void)
 	D3DXMATRIX matTrans, matScale, matWorld;
 
 	const TEX_INFO* pTexInfo = CTextureMgr::GetInstance()->GetTexture( L"BackGround" );
+
+	if ( !pTexInfo )
+		return;
 
 	float fBackScaleX = float( WINCX ) / float( pTexInfo->ImageInfo.Width );
 	float fBackScaleY = float( WINCY ) / float( pTexInfo->ImageInfo.Height );

@@ -94,6 +94,8 @@ void CArmory::SetPattern( const eGameEntityPattern & _ePatternKind, const bool &
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 				this->m_vecTexture = this->m_mapAllTexture.find( L"Build" )->second;
 			}
+			else
+				this->m_pCurActPattern = NULL;
 		}
 		break;
 

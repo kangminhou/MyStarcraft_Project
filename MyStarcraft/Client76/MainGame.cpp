@@ -113,6 +113,14 @@ void CMainGame::Render(void)
 	//	D3DCOLOR_ARGB(255,255,255,255)
 	//);
 
+	//const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"BuildingOrder" );
+	//
+	//D3DXMATRIX matTrans;
+	//D3DXMatrixTranslation( &matTrans, 300.f, 500.f, 0.f );
+	//
+	//CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+	//CDevice::GetInstance()->GetSprite()->Draw( pTexture->pTexture, nullptr, nullptr, nullptr, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+
 	FPS_Render();
 	
 	m_pDevice->Render_End();
@@ -158,6 +166,25 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Minimap/Entity%d.png", L"Minimap", TEX_MULTI, L"Entity", 2 ) ) )
 		return false;
 
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/BuildingOrder.png", L"BuildingOrder", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/ProgressBar.png", L"ProgressBar", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/ProgressGauge.png", L"ProgressGauge", TEX_SINGLE ) ) )
+		return false;
+
+	/* Player Resource Data Image.. */
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Player_Info_Gas.png", L"Info_Gas", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Player_Info_Mineral.png", L"Info_Mineral", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Player_Info_Human.png", L"Info_Human", TEX_SINGLE ) ) )
+		return false;
+
 	/* Map Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"
@@ -172,6 +199,9 @@ bool CMainGame::InitResource( void )
 		return false;
 
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/TestMap.png", L"Map", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Map/MiniMapRect.png", L"Mini_Area", TEX_SINGLE ) ) )
 		return false;
 
 	if ( FAILED( CTextureMgr::GetInstance()->LoadImagePath( L"../Data/ImagePath.txt" ) ) )

@@ -29,6 +29,7 @@ void CPattern_Building_Build::OnEnable()
 
 int CPattern_Building_Build::Update()
 {
+	int iOut = CEntityPattern::Event_None;
 	float fCurHp = this->m_pGameEntity->GetCurHp() + this->m_fHpPlusSpeed * GET_TIME;
 
 	if ( fCurHp >= this->m_pGameEntity->GetMaxHp() )
@@ -36,11 +37,15 @@ int CPattern_Building_Build::Update()
 		fCurHp = this->m_pGameEntity->GetMaxHp();
 		/* ##건물을 다지어서 이벤트 함수를 호출해야 함..*/
 		dynamic_cast<CBuilding*>(this->m_pGameEntity)->SuccessBuild();
+
+		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
+		iOut = CEntityPattern::Event_Pattern_Change;
+
 	}
 
 	this->m_pGameEntity->SetCurHp( fCurHp );
 
-	return 0;
+	return iOut;
 }
 
 void CPattern_Building_Build::Release()

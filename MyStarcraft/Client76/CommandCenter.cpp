@@ -7,6 +7,8 @@
 
 #include "Move.h"
 #include "Pattern_Building_Build.h"
+#include "Pattern_Die.h"
+#include "Pattern_MakeUnit.h"
 #include "UIMgr.h"
 #include "Player.h"
 #include "ObjMgr.h"
@@ -27,7 +29,7 @@ HRESULT CCommandCenter::Initialize( void )
 	this->m_wstrStateKey = L"Control";
 
 	/* 유닛의 데이터 초기화.. */
-	this->m_tInfoData.fMaxHp = 1500.f;
+	this->m_tInfoData.fMaxHp = 100.f;
 	this->m_tInfoData.fCurHp = 0.f;
 	this->m_tInfoData.iDefense = 1;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
@@ -94,18 +96,59 @@ void CCommandCenter::SetPattern( const eGameEntityPattern & _ePatternKind, const
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 				this->m_vecTexture = this->m_mapAllTexture.find( L"Build" )->second;
 			}
+			else
+				this->m_pCurActPattern = NULL;
+
+			this->m_bUseActiveTexture = false;
 		}
 		break;
 
 		case CGameEntity::Pattern_Make_Unit:
 		{
-			//this->m_pPushData->iMessage
-			CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::eEntityType( this->m_pPushData->iMessage ), this->CalcNearEmptySpace(), this->GetObjectType() );
-			
-			CObjMgr::GetInstance()->AddGameObject( pEntity, this->GetObjectType() );
-			pEntity->UpdatePosition( pEntity->GetPos() );
+			if ( !this->GetIsFullOrderVector() )
+			{
+				//this->m_pPushData->iMessage
+				UNIT_GENERATE_DATA* pUnitGenData = new UNIT_GENERATE_DATA( this->m_pEntityMgr->GetEntityGenData( CEntityMgr::eEntityType( this->m_pPushData->iMessage ) ) );
+
+				if ( !this->m_pPlayer->CheckCanBuyUnit( *pUnitGenData ) )
+				{
+					return;
+				}
+				else
+				{
+					this->m_pPlayer->BuyUnit( *pUnitGenData );
+
+					this->AddOrderIcon( pUnitGenData->nIconFrame, this->m_pPushData->iMessage, pUnitGenData );
+
+					this->m_bUseActiveTexture = true;
+
+					this->ShowUpdateOrderData();
+				}
+
+
+			}
+
+			if ( this->m_curActPatternKind != CGameEntity::Pattern_Make_Unit )
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"Make_Unit" )->second;
+			else
+				return;
+
+			//D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
+			//CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( 
+			//						(CEntityMgr::eEntityType)this->m_pPushData->iMessage, vMousePos, this->GetObjectType() );
+			//
+			//this->RenderBuildingArea( pEntity );
 		}
 		break;
+
+		case CGameEntity::Pattern_Die:
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"Die" )->second;;
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Die" );
+			this->m_wstrStateKey = L"Die";
+
+			if ( this->m_pEntityBelongToCorps )
+				this->m_pEntityBelongToCorps->EraseUnit( this );
+			break;
 
 	}
 
@@ -143,6 +186,8 @@ void CCommandCenter::InitAnimation()
 void CCommandCenter::InitPattern()
 {
 	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Building_Build ) );
+	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
+	this->m_mapPatterns.insert( make_pair( L"Make_Unit", new CPattern_MakeUnit ) );
 }
 
 void CCommandCenter::InitTexture()

@@ -61,6 +61,6 @@ int CPattern_HealOurForces::Update()
 	return Event_None;
 }
 
-void CPattern_HealOurForces::Release()
+void CPattern_HealOurForces::Release() 
 {
 }

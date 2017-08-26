@@ -49,6 +49,12 @@ void CWeaponMgr::Initialize()
 
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].nIconFrame = 326;
+
+	for ( int i = 0; i < Weapon_End; ++i )
+	{
+		m_tWeaponDataArr2[i] = m_tWeaponDataArr[i];
+	}
+
 }
 
 void CWeaponMgr::Release()
@@ -77,7 +83,7 @@ void CWeaponMgr::Release()
 	}
 }
 
-CWeapon * CWeaponMgr::GetNewWeapon( const eWeaponKind& _eWeaponKind )
+CWeapon * CWeaponMgr::GetNewWeapon( const eObjectType& _eObjType, const eWeaponKind& _eWeaponKind )
 {
 	CWeapon* pOutWeapon = nullptr;
 
@@ -85,10 +91,71 @@ CWeapon * CWeaponMgr::GetNewWeapon( const eWeaponKind& _eWeaponKind )
 		return pOutWeapon;
 
 	pOutWeapon = new CWeapon;
-	pOutWeapon->SetWeaponData( &this->m_tWeaponDataArr[_eWeaponKind] );
+	if ( _eObjType == OBJ_TYPE_USER )
+	{
+		pOutWeapon->SetWeaponData( &this->m_tWeaponDataArr[_eWeaponKind] );
+	}
+	else
+	{
+		pOutWeapon->SetWeaponData( &this->m_tWeaponDataArr2[_eWeaponKind] );
+	}
+
 	pOutWeapon->Initialize();
 
 	return pOutWeapon;
+}
+
+void CWeaponMgr::UpgradeWeapon( const eObjectType & _eObjType, const eWeaponUpgradeType & _eWeaponUpgradeType )
+{
+	if ( _eObjType != OBJ_TYPE_USER && _eObjType != OBJ_TYPE_USER2 )
+	{
+		ERROR_MSG( L"CWeaponMgr UpgradeWeapon Failed ( Out Range _eObjType Param )" );
+		return;
+	}
+
+	vector<WEAPON_DATA*> vecUpgradeWeapon;
+
+	if ( _eObjType == OBJ_TYPE_USER )
+	{
+		//auto& iter = m_vecAllWeapon[0][_eWeaponUpgradeType];
+		//for ( size_t i = 0; i < iter.size(); ++i )
+		//{
+		//	iter[i]->UpgradeWeapon();
+		//}
+
+		switch ( _eWeaponUpgradeType )
+		{
+			case Upgrade_Terran_Vehicle_Weapons:
+			{
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_ArcliteCannon]) );
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_ArcliteShockCannon]) );
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_FragmentationGrenade]) );
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_HelfireMissilePack]) );
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_TwinAutocannons]) );
+			}
+			break;
+
+			case Upgrade_Terran_Infantry_Weapons:
+			{
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_GaussRifle]) );
+				vecUpgradeWeapon.push_back( &(this->m_tWeaponDataArr[Weapon_FlameThrower]) );
+			}
+			break;
+
+			default:
+			{
+				ERROR_MSG( L"CWeaponMgr UpgradeWeapon Failed ( Out Range _eWeaponUpgradeType Param )" );
+			}
+			return;
+
+		}
+
+		for ( size_t i = 0; i < vecUpgradeWeapon.size(); ++i )
+		{
+			vecUpgradeWeapon[i]->fUpgradeDamage += (float)vecUpgradeWeapon[i]->iUpgradePlus;
+			++vecUpgradeWeapon[i]->iUpgradeNum;
+		}
+	}
 }
 
 void CWeaponMgr::LoadWeaponData()
@@ -180,9 +247,9 @@ void CWeaponMgr::LoadWeaponData()
 		if ( pImagePath->wstrObjKey != L"NULL" )
 		{
 			D3DCOLOR color = D3DCOLOR_ARGB( 255, 0, 0, 0 );
-			if ( pImagePath->wstrObjKey == L"Effect" &&
-				 pImagePath->wstrStateKey == L"SiegeTankFire" )
-				color = D3DCOLOR_ARGB( 255, 0, 255, 0 );
+			//if ( pImagePath->wstrObjKey == L"Effect" &&
+			//	 pImagePath->wstrStateKey == L"SiegeTankFire" )
+			//	color = D3DCOLOR_ARGB( 255, 0, 255, 0 );
 
 			CTextureMgr::GetInstance()->InsertTexture( pImagePath->wstrPath.c_str(),
 													   pImagePath->wstrObjKey.c_str(), TEX_MULTI,

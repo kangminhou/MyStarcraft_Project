@@ -12,6 +12,7 @@ protected:
 	CGameEntity*			m_pTarget;
 
 	float					m_fRestInterval;
+	float					m_fAttInterval;
 
 public:
 	CWeapon();

@@ -20,14 +20,19 @@ public:
 
 private:
 	WEAPON_DATA m_tWeaponDataArr[Weapon_End];	// 모든 무기의 초기 값이 세팅될 예정..
+	WEAPON_DATA m_tWeaponDataArr2[Weapon_End];	// 모든 무기의 초기 값이 세팅될 예정..
 
 public:
 	CWeaponMgr();
 	~CWeaponMgr();
 
+public:
 	void Initialize();
 	void Release();
-	CWeapon* GetNewWeapon( const eWeaponKind& _eWeaponKind );
+
+public:
+	CWeapon* GetNewWeapon( const eObjectType& _eObjType, const eWeaponKind& _eWeaponKind );
+	void UpgradeWeapon( const eObjectType& _eObjType, const eWeaponUpgradeType& _eWeaponUpgradeType );
 
 private:
 	void LoadWeaponData();

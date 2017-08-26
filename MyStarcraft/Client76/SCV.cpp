@@ -82,7 +82,7 @@ HRESULT CSCV::Initialize( void )
 	this->m_tInfoData.nDefenceIconFrame = 292;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FusionCutter );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FusionCutter );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 1.f;
 
@@ -108,6 +108,9 @@ int CSCV::Update( void )
 
 void CSCV::Render( void )
 {
+	if ( this->m_bHideEntity )
+		return;
+
 	CUnit::Render();
 }
 
@@ -120,14 +123,12 @@ void CSCV::Release( void )
 			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 			this->m_pVecActButton = this->m_pVecAdvancedStructureButton;
 			this->m_pVecAdvancedStructureButton = pTemp;
-			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
 		}
 		else
 		{
 			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 			this->m_pVecActButton = this->m_pVecStructureButton;
 			this->m_pVecStructureButton = pTemp;
-			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
 		}
 
 		safe_delete( this->m_pDrawBuilding );
@@ -215,13 +216,28 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 			if ( !this->m_bRenderBuildingArea )
 			{
 				D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
-				CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( (CEntityMgr::eEntityType)this->m_pPushData->iMessage, vMousePos, this->GetObjectType() );
+				UNIT_GENERATE_DATA tUnitGenData = this->m_pEntityMgr->GetEntityGenData( (CEntityMgr::eEntityType)this->m_pPushData->iMessage );
+
+				if ( !this->m_pPlayer->CheckCanBuyUnit( tUnitGenData ) )
+				{
+					this->SetPattern( CGameEntity::Pattern_Idle );
+					return;
+				}
+
+				CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::eEntityType( this->m_pPushData->iMessage ), 
+																			vMousePos, this->GetObjectType() );
+				
+				//if ( !this->MakeEntity( pEntity, (CEntityMgr::eEntityType)this->m_pPushData->iMessage, vMousePos ) )
+				//{
+				//	//this->m_bCanBuild = false;
+				//	this->SetPattern( CGameEntity::Pattern_Idle );
+				//	return;
+				//}
 
 				this->RenderBuildingArea( pEntity );
 			}
 			else
 			{
-
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 			}
 		}
@@ -264,6 +280,7 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 					dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
 				}
 
+				CUIMgr::GetInstance()->HideFrameBuilding();
 				this->m_bCanBuild = false;
 			}
 			break;
@@ -348,8 +365,14 @@ void CSCV::MouseEvent()
 {
 	if ( this->m_bRenderBuildingArea && this->m_pDrawBuilding->GetIsCanBuild() )
 	{
+		//D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
+		//vMousePos -= D3DXVECTOR3( float(int(vMousePos.x) % TILECX), float(int(vMousePos.y) % TILECY), 0.f ) - D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
+
 		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
-		vMousePos -= D3DXVECTOR3( float(int(vMousePos.x) % TILECX), float(int(vMousePos.y) % TILECY), 0.f ) - D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
+		RECT rcCol = m_pDrawBuilding->GetColRect();
+		vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
+			D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
+
 		this->BuildBuilding( this->m_pDrawBuilding, vMousePos );
 
 		if ( this->m_bBuildAdvancedStructure )
@@ -357,14 +380,14 @@ void CSCV::MouseEvent()
 			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 			this->m_pVecActButton = this->m_pVecAdvancedStructureButton;
 			this->m_pVecAdvancedStructureButton = pTemp;
-			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+			m_pPlayer->DecideShowButton();
 		}
 		else
 		{
 			vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 			this->m_pVecActButton = this->m_pVecStructureButton;
 			this->m_pVecStructureButton = pTemp;
-			dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+			m_pPlayer->DecideShowButton();
 		}
 
 		this->m_pPlayer->EraseMouseClickEventEntity( this );
@@ -407,6 +430,8 @@ void CSCV::BuildStart()
 	this->m_pAnimCom->ChangeAnimation( L"Attack" );
 	this->m_wstrStateKey = L"Attack";
 	this->ChangeLookAnimTexture();
+
+	this->m_pPlayer->BuyUnit( this->m_pBuildEntity->GetGenerateData() );
 }
 
 void CSCV::SuccessBuild()

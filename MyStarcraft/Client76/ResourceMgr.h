@@ -18,12 +18,16 @@ public:
 
 private:
 	queue<CResourceObj*>	m_queueResourceObject;
-	vector<CGameEntity*>	m_vecResource;
+	vector<CGameEntity*>	m_vecResource[Resource_End];
 
 public:
 	CResourceMgr();
 	~CResourceMgr();
 
+public:
+	vector<CGameEntity*>* GetVecResource( const eResourceType& _eMakeType );
+
+public:
 	void Initialize();
 	void Release();
 	

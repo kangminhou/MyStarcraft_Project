@@ -10,3 +10,13 @@ static void safe_delete(T& rData)		//댕글리 포인터를 방지하기 위해서
 		rData = NULL;
 	}
 }
+
+template<typename T>
+static void safe_release(T& rData)		//댕글리 포인터를 방지하기 위해서 
+{
+	if(rData)
+	{
+		rData->Release();
+		rData = NULL;
+	}
+}

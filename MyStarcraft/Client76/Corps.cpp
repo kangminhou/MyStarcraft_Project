@@ -157,6 +157,7 @@ void CCorps::EraseUnit( CGameEntity * _pEntity )
 			if ( i == this->m_byCurUnitNum )
 				break;
 
+			this->m_pEntityArr[i]->SetEntityBelongToCorps( NULL );
 			this->m_pEntityArr[i] = this->m_pEntityArr[i + 1];
 		}
 	}
@@ -167,7 +168,10 @@ void CCorps::ResetCorps( void )
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
 		if ( this->m_pEntityArr[i] )
+		{
+			this->m_pEntityArr[i]->SetEntityBelongToCorps( NULL );
 			this->m_pEntityArr[i] = NULL;
+		}
 	}
 
 	this->m_byCurUnitNum = 0;

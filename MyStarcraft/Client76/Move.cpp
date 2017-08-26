@@ -10,9 +10,13 @@
 #include "Astar.h"
 #include "Corps.h"
 #include "Random.h"
+#include "AStarManager.h"
 
 
 CMove::CMove()
+	: m_iCurIndexNum(0)
+	, m_bWaitAStarResult(false)
+	, m_bMoveStop(false)
 {
 }
 
@@ -31,6 +35,8 @@ void CMove::Initialize()
 	this->m_pAStar = new CAStar;
 	this->m_pAStar->SetBackground( this->m_pBackground );
 	this->m_pAStar->SetEntity( this->m_pGameEntity );
+
+	this->m_pAStarManager = CAStarManager::GetInstance();
 }
 
 void CMove::Release()
@@ -40,19 +46,27 @@ void CMove::Release()
 
 int CMove::Update()
 {
+	float fEntitySpeed = this->m_pGameEntity->GetSpeed() * GET_TIME * 1.4f;
+	float fDist = D3DXVec3Length( &(this->m_vDestination - this->m_pGameEntity->GetPos()) );
+
 	/* 더 이상 이동할 경로가 없다 == 도착했다.. */
-	if ( (unsigned int)(this->m_iCurIndexNum) >= this->m_vecMovePath.size() )
+	if ( ((unsigned int)(this->m_iCurIndexNum) >= this->m_vecMovePath.size() && fDist <= fEntitySpeed) || 
+		 this->m_bMoveStop )
 	{
 		//m_pBackground->UpdateUnitPosData( this->m_pGameEntity);
 		return 1;
 	}
 
-	m_fRestReFindPath -= GET_TIME;
 	if ( m_fRestReFindPath <= 0.f )
 	{
-		this->ReFindPath();
-		this->m_bCanRestReFindPath = true;
+		//if ( fDist <= 500.f )
+		{
+			this->ReFindPath();
+			this->m_bCanRestReFindPath = true;
+		}
 	}
+	else
+		m_fRestReFindPath -= GET_TIME;
 
 	if ( this->m_pGameEntity->GetIsCollision() && m_bCanRestReFindPath )
 	{
@@ -61,23 +75,24 @@ int CMove::Update()
 		return 0;
 	}
 
-	if ( this->m_bCanMove )
+	if ( !this->m_bWaitAStarResult )
 	{
-		/* 이동할 경로로 이동.. */
-		this->m_pGameEntity->LookPos( m_vTilePos );
-		this->m_pGameEntity->MoveEntity();
-
-		D3DXVECTOR3 vEntityPos = this->m_pGameEntity->GetPos();
-		D3DXVECTOR3 vTilePos = m_vecMovePath[this->m_iCurIndexNum];
-
-		float fEntitySpeed = this->m_pGameEntity->GetSpeed() * GET_TIME;
-
-		if ( D3DXVec3Length( &(vTilePos - vEntityPos) ) <= fEntitySpeed )
+		if ( this->m_bCanMove )
 		{
-			++m_iCurIndexNum;
-			if ( (unsigned int)(this->m_iCurIndexNum) < this->m_vecMovePath.size() )
+			/* 이동할 경로로 이동.. */
+			this->m_pGameEntity->LookPos( m_vTilePos );
+			this->m_pGameEntity->MoveEntity();
+
+			D3DXVECTOR3 vEntityPos = this->m_pGameEntity->GetPos();
+			D3DXVECTOR3 vTilePos = m_vecMovePath[this->m_iCurIndexNum];
+
+			if ( D3DXVec3Length( &(vTilePos - vEntityPos) ) <= fEntitySpeed )
 			{
-				this->SettingMoveData();
+				++m_iCurIndexNum;
+				if ( (unsigned int)(this->m_iCurIndexNum) < this->m_vecMovePath.size() )
+				{
+					this->SettingMoveData();
+				}
 			}
 		}
 	}
@@ -100,32 +115,64 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination, const bool& _bChas
 
 void CMove::PathFind()
 {
+	if ( this->m_bWaitAStarResult )
+		return;
 	m_vecMovePath.clear();
 
 	/* AStar 로 최단거리 타일 인덱스 찾기.. */
-	int iEndIndex = m_pBackground->GetTileIndex( m_vDestination );
+	//int iEndIndex = m_pBackground->GetTileIndex( m_vDestination );
 
 	//this->m_bCanMove = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath );
 	this->m_bCanMove = true;
 
 	bool bCheckEntityTile = this->m_pGameEntity->GetIsCheckEntityTile();
-	int iEvent = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
+	int iEvent = this->m_pAStarManager->AddAStar( this, this->m_pAStar, this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
+	//int iEvent = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
+	//int iEvent = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
 
 	switch ( iEvent )
 	{
 		case CAStar::Event_Fail_PathFind:
+			this->m_bCanMove = false;
 			//cout << "이동 경로를 못찾음" << endl;
 			if ( D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) <= TILECX * 2 )
 			{
-				this->m_bCanMove = false;
-				return;
+				this->m_bMoveStop = true;
+				system( "cls" );
+				cout << "Find Path" << endl;
 			}
-			break;
+			//else
+			//	cout << "Can't Find Path" << endl;
+
+			return;
+
 		case CAStar::Event_Fail_Find_NearIndex:
 			//this->m_fRestReFindPath = RANDOM_FLOAT( 0.0f, 0.3f );
 			//cout << "도착 타일을 못찾음" << endl;
 			this->m_bCanMove = false;
+			cout << "Can't Find NearIndex" << endl;
+			//cout << "fDist : " << D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) << endl;
+			if ( D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) <= TILECX * 4 )
+			{
+				this->m_bMoveStop = true;
+			}
 			return;
+
+		case CAStar::Event_Index_OutRange_TileSize:
+			this->m_bCanMove = false;
+			system( "cls" );
+			cout << "Event_Index_OutRange_TileSize" << endl;
+			//ERROR_MSG( L"Event_Index_OutRange_TileSize" );
+			return;
+
+		case CAStar::Event_Success_PathFind:
+			this->GetAStarResult( this->m_pAStar->GetDestination(), iEvent );
+			break;
+
+		case CAStar::Event_Can_PathFind:
+			this->m_bWaitAStarResult = true;
+			break;
+
 	}
 
 	//if ( this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath ) )
@@ -136,20 +183,30 @@ void CMove::PathFind()
 	//	this->m_fRestReFindPath = RANDOM_FLOAT( 0.0f, 0.3f );
 	//}
 
-	cout << "x : " << m_vDestination.x << ", y : " << m_vDestination.y << endl;
-
-	this->m_vecMovePath.push_back( m_vDestination );
-
-	this->m_iCurIndexNum = 0;
-	this->SettingMoveData();
-
-	this->m_fRestReFindPath = RANDOM_FLOAT( 2.f, 5.f );
+	//cout << "x : " << m_vDestination.x << ", y : " << m_vDestination.y << endl;
 }
 
 void CMove::ReFindPath()
 {
 	//cout << "경로 재탐색" << endl;
 	this->PathFind();
+}
+
+void CMove::GetAStarResult( const D3DXVECTOR3 & _vDestination, const int & _iReturnEvent )
+{
+	this->m_bWaitAStarResult = false;
+
+	if ( _iReturnEvent != CAStar::Event_Success_PathFind )
+		return;
+
+	this->m_vecMovePath.push_back( _vDestination );
+	this->m_vDestination = _vDestination;
+
+	this->m_iCurIndexNum = 0;
+	this->SettingMoveData();
+
+	this->m_fRestReFindPath = RANDOM_RANGE_FLOAT( 5.f, 10.f );
+
 }
 
 void CMove::SettingMoveData()

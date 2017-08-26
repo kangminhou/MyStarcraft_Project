@@ -104,6 +104,11 @@ void CUI::ChangeDrawTexture( const vector<const TEX_INFO*>& vecDrawTexture )
 	}
 }
 
+void CUI::ChangeDrawTexture( const TEX_INFO * _pTexture )
+{
+	this->m_vecDrawTexture.push_back( _pTexture );
+}
+
 HRESULT CUI::Initialize( void )
 {
 	if ( this->m_eKind == CUI::UI_Anim_Loop )
@@ -129,7 +134,14 @@ int CUI::Update( void )
 
 void CUI::Render( void )
 {
+	if ( this->m_vecDrawTexture.size() <= m_iDrawIndex )
+		return;
+
 	const TEX_INFO* pDrawTexture = this->m_vecDrawTexture[m_iDrawIndex];
+
+	if ( !pDrawTexture )
+		return;
+
 	D3DXVECTOR3 vCenter( 0.f, 0.f, 0.f );
 	if ( this->m_bShowCenterPos )
 		vCenter = D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f );
@@ -141,7 +153,14 @@ void CUI::Render( void )
 
 void CUI::Render( const int & _iDrawIndex, const D3DXMATRIX& _vDrawWorldMatrix )
 {
+	if ( this->m_vecDrawTexture.size() <= _iDrawIndex )
+		return;
+
 	const TEX_INFO* pDrawTexture = this->m_vecDrawTexture[_iDrawIndex];
+
+	if ( !pDrawTexture )
+		return;
+
 	D3DXVECTOR3 vCenter( 0.f, 0.f, 0.f );
 	if ( this->m_bShowCenterPos )
 		vCenter = D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f );

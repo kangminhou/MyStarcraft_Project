@@ -20,6 +20,11 @@ CResourceMgr::~CResourceMgr()
 	Release();
 }
 
+vector<CGameEntity*>* CResourceMgr::GetVecResource( const eResourceType & _eMakeType )
+{
+	return &this->m_vecResource[_eMakeType];
+}
+
 void CResourceMgr::Initialize()
 {
 	for ( int i = 0; i < 50; ++i )
@@ -35,6 +40,11 @@ void CResourceMgr::Release()
 		safe_delete( this->m_queueResourceObject.front() );
 		this->m_queueResourceObject.pop();
 	}
+
+	for ( int i = 0; i < Resource_End; ++i )
+	{
+		this->m_vecResource[i].clear();
+	}
 }
 
 CResourceObj * CResourceMgr::PopObject( const eResourceType& _eType, CGameEntity * _pEntity )
@@ -45,7 +55,7 @@ CResourceObj * CResourceMgr::PopObject( const eResourceType& _eType, CGameEntity
 
 	if ( _eType == CResourceMgr::Resource_Mineral )
 		pOut->SetDrawTexture( L"Mineral", L"All", 0, 17 );
-	else if ( _eType == CResourceMgr::Resource_Mineral )
+	else if ( _eType == CResourceMgr::Resource_Gas )
 		pOut->SetDrawTexture( L"gasorb", L"All", 0, 17 );
 	else
 		return nullptr;
@@ -99,6 +109,7 @@ CGameEntity* CResourceMgr::MakeResource( const D3DXVECTOR3 & _vPos, const eResou
 		dynamic_cast<CGas*>(pOut)->UpdateTileData();
 	
 	CObjMgr::GetInstance()->GetList( _eType )->push_back( pOut );
+	this->m_vecResource[_eMakeType].push_back( pOut );
 
 	return nullptr;
 }

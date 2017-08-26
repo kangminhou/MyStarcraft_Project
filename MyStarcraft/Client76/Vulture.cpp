@@ -50,7 +50,7 @@ HRESULT CVulture::Initialize( void )
 	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_FragmentationGrenade );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FragmentationGrenade );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 5.f;
 

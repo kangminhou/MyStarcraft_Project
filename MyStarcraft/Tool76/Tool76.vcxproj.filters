@@ -218,6 +218,9 @@
     <ClInclude Include="WeaponTool.h">
       <Filter>01.View\04. Popup\00. Sheet\03. WeaponPage</Filter>
     </ClInclude>
+    <ClInclude Include="..\Headers\Function.h">
+      <Filter>99.Default\헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Tool76.ico">

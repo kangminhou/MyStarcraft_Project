@@ -4,14 +4,16 @@
 #include "TextureMgr.h"
 #include "Animation.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
+#include "ObjMgr.h"
+#include "ResourceMgr.h"
+
 
 #include "Move.h"
 #include "Pattern_Building_Build.h"
-#include "UIMgr.h"
 #include "Player.h"
-#include "ObjMgr.h"
 #include "Background.h"
-#include "EntityMgr.h"
+#include "Gas.h"
 
 
 CRefinery::CRefinery()
@@ -41,7 +43,7 @@ HRESULT CRefinery::Initialize( void )
 	this->m_byFaceFrameNum = 45;
 
 	//RECT tRect = { -8, -9, 8, 10 };
-	RECT tRect = { -48, -32, 48, 32 };
+	RECT tRect = { -47, -32, 48, 32 };
 	this->m_tOriginColRect = tRect;
 
 	CBuilding::Initialize();
@@ -50,6 +52,8 @@ HRESULT CRefinery::Initialize( void )
 	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 8 );
 
 	this->m_pVecTile = this->m_pBackground->GetTile();
+
+	this->m_pVecGas = CResourceMgr::GetInstance()->GetVecResource( CResourceMgr::Resource_Gas );
 
 	return S_OK;
 }
@@ -64,6 +68,8 @@ int CRefinery::Update( void )
 void CRefinery::Render( void )
 {
 	CBuilding::Render();
+
+	//this->DrawRect( this->m_tColRect );
 }
 
 void CRefinery::Release( void )
@@ -77,6 +83,25 @@ void CRefinery::UpdatePosition( const D3DXVECTOR3 & vPrevPos )
 
 void CRefinery::SuccessBuild()
 {
+	for ( size_t i = 0; i < this->m_pVecGas->size(); ++i )
+	{
+		CGameEntity* pCheckEntity = (*this->m_pVecGas)[i];
+		RECT rcGasCol = pCheckEntity->GetColRect();
+		RECT rc = { 0, 0, 0, 0 };
+
+		if ( IntersectRect( &rc, &this->m_tColRect, &rcGasCol ) )
+		{
+			CGas* pGas = dynamic_cast<CGas*>(pCheckEntity);
+
+			if ( pGas )
+			{
+				pGas->BuildRefinery( this );
+				break;
+			}
+		}
+
+	}
+
 	CBuilding::SuccessBuild();
 }
 
@@ -96,6 +121,8 @@ void CRefinery::SetPattern( const eGameEntityPattern & _ePatternKind, const bool
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 				this->m_vecTexture = this->m_mapAllTexture.find( L"Build" )->second;
 			}
+			else
+				this->m_pCurActPattern = NULL;
 		}
 		break;
 

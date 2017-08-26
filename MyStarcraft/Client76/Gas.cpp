@@ -2,11 +2,15 @@
 #include "Gas.h"
 
 #include "TextureMgr.h"
+#include "ObjMgr.h"
 
 #include "Background.h"
+#include "Refinery.h"
 
 
 CGas::CGas()
+	: m_bCanGather(false)
+	, m_byGatherEntityNum(0)
 {
 }
 
@@ -41,6 +45,8 @@ HRESULT CGas::Initialize( void )
 
 	CGameEntity::Initialize();
 
+	this->m_pBackground = CObjMgr::GetInstance()->FindGameObject<CBackground>();
+
 	return S_OK;
 }
 
@@ -49,6 +55,8 @@ int CGas::Update( void )
 	//this->SetPos( CMouse::GetInstance()->GetPos() );
 
 	D3DXVECTOR3 vPos = this->GetPos();
+
+	this->UpdateMatrix();
 
 	this->m_tColRect.left = (LONG)(this->m_tOriginColRect.left + vPos.x);
 	this->m_tColRect.right = (LONG)(this->m_tOriginColRect.right + vPos.x);
@@ -67,7 +75,7 @@ void CGas::Render( void )
 	{
 		//D3DXMATRIX matWorld = m_shadWorldMatrix * this->GetWorldMatrix();
 		D3DXMATRIX matWorld = this->GetWorldMatrix();
-
+	
 		this->DrawTexture( pShadTexture, 
 						   matWorld,
 						   D3DXVECTOR3( pShadTexture->ImageInfo.Width * 0.5f, pShadTexture->ImageInfo.Height * 0.5f, 0.f ) );
@@ -81,7 +89,7 @@ void CGas::Render( void )
 	}
 
 	//TCHAR str[128];
-	//swprintf_s( str, L"%f, %f, %f", CMouse::GetInstance()->GetPos().x, CMouse::GetInstance()->GetPos().y, 0.f );
+	//swprintf_s( str, L"%f, %f, %f", this->GetWorldMatrix()._41, this->GetWorldMatrix()._42, 0.f );
 	//D3DXMATRIX matTrans;
 	//D3DXMatrixTranslation( &matTrans, 400.f, 400.f, 0.f );
 	//this->DrawFont( matTrans, str );
@@ -89,7 +97,7 @@ void CGas::Render( void )
 	//D3DXMatrixTranslation( &matTrans, 400.f, 150.f, 0.f );
 	//this->DrawFont( matTrans, str );
 
-	this->DrawRect( this->m_tColRect );
+	//this->DrawRect( this->m_tColRect );
 }
 
 void CGas::Release( void )
@@ -105,6 +113,24 @@ void CGas::BuildRefinery( CRefinery * _pBuilding )
 void CGas::UpdateTileData()
 {
 	this->m_pBackground->ObjectDataUpdate( this, 3 );
+}
+
+bool CGas::GatherGas()
+{
+	if ( this->m_byGatherEntityNum >= 1 )
+		return false;
+
+	++m_byGatherEntityNum;
+
+	return true;
+}
+
+void CGas::GatherEnd()
+{
+	if ( this->m_byGatherEntityNum <= 0 )
+		return;
+
+	--this->m_byGatherEntityNum;
 }
 
 void CGas::UpdatePosition( const D3DXVECTOR3 & vPrevPos )

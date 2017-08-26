@@ -10,7 +10,10 @@ class CCorps;
 class CBackground;
 class CPlayer;
 class CUI;
+class CUIMgr;
 class CMiniMap;
+class CEntityMgr;
+class CUpgradeMgr;
 
 class CGameEntity :
 	public CGameObject
@@ -31,6 +34,7 @@ public:
 		Pattern_Cancel,
 		Pattern_Make_Unit,
 		Pattern_Gather,
+		Pattern_Research,
 		Pattern_Die,
 	};
 
@@ -64,9 +68,23 @@ public:
 		CGameEntity*	pAttackEntity;
 	}ATTACK_DATA;
 
+	typedef struct tagOrderData
+	{
+		SHORT	nIconNum;
+		int		iMessage;
+		void*	pData;
+	}ORDER_DATA;
+
 protected:
+	CEntityMgr*				m_pEntityMgr;
+	CUpgradeMgr*			m_pUpgradeMgr;
+	CUIMgr*					m_pUIMgr;
+
 	D3DXVECTOR3				m_vHitShowPos;
 	D3DXVECTOR3				m_vEffectShowPos;
+
+	vector<ORDER_DATA>			m_vecOrderData;
+	BYTE						m_byProgressRatio;
 
 	CEntityMgr::eEntityType	m_eEntityType;
 
@@ -92,7 +110,7 @@ protected:
 	vector<eGameEntityPattern>	m_vecActPatterns;
 
 	CCorps*					m_pEntityBelongToCorps;		// 현재 부대..
-	static CPlayer*			m_pPlayer;
+	CPlayer*				m_pPlayer;
 
 	BYTE					m_byDirAnimIndex;
 	bool					m_bUseDirAnimIndex;
@@ -120,7 +138,7 @@ protected:
 
 	list<pair<int, BYTE>>	m_standTileIndexList;
 
-	vector<int>				m_vecSpaceDataKey;
+	vector<_Dlong>			m_vecSpaceDataKey;
 	int						m_iEntitySpaceDataKey;
 
 	BYTE					m_byKillEnemy;
@@ -136,10 +154,14 @@ protected:
 
 	int						m_iEntityMgrListIndex;
 
+	D3DXVECTOR3				m_vDestination;
+
 	bool					m_bDrawHpBarUI;
 	bool					m_bIgnoreAttack;
 	bool					m_bUseDeathEffect;
 	bool					m_bCheckEntityTile;
+	bool					m_bHideEntity;
+	bool					m_bUseDestination;
 
 public:
 	CGameEntity();
@@ -153,6 +175,7 @@ public:
 	void SetEntityBelongToCorps( CCorps* _pEntityBelongToCorps );
 	void SetTarget( CGameEntity* _pTarget );
 	void SetGenerateData( const UNIT_GENERATE_DATA* _pGenData );
+	void SetPlayer( CPlayer* _pPlayer );
 	static void SetBackground(CBackground* pBackground)
 	{
 		m_pBackground = pBackground;
@@ -166,6 +189,11 @@ public:
 	void SetMinimapSpaceDataKey( const int& _iMinimapSpaceKey );
 	void SetEntityMgrListIndex( const int& _iEntityMgrListIndex );
 	void SetIsCheckEntityTile( const bool& _bCheckEntityTile );
+	void SetHideUnit( const bool& _bHideUnit );
+	void SetUseDestination( const bool& _bUseDestination );
+	void SetDestination( const D3DXVECTOR3& _vDestination );
+	void SetProgressRatio( const BYTE& _byProgressRatio );
+	bool AddOrderIcon( const SHORT& _nIcon, const int& _iMessage, void* _pData );
 
 public:
 	float GetCurHp() const;
@@ -182,6 +210,8 @@ public:
 	bool GetIsCollision() const;
 	bool GetIsDie() const;
 	bool GetIsCheckEntityTile() const;
+	bool GetIsUseDestination() const;
+	bool GetIsFullOrderVector() const;
 	const list<pair<int, BYTE>>* GetStandTileIndexList();
 	ATTACK_DATA GetGroundAttackData() const;
 	ATTACK_DATA GetAirAttackData() const;
@@ -191,8 +221,10 @@ public:
 	BYTE GetDirAnimIndex() const;
 	BYTE GetLookAnimIndex() const;
 	BYTE GetFaceFrameNum() const;
+	BYTE GetProgressRatio() const;
 	D3DXVECTOR3 GetHitShowPos() const;
 	D3DXVECTOR3 GetEffectShowPos() const;
+	D3DXVECTOR3 GetDestination() const;
 	UNIT_GENERATE_DATA GetGenerateData() const;
 	wstring GetWireFrameKey() const;
 	wstring GetFaceKey() const;
@@ -202,10 +234,15 @@ public:
 	vector<BUTTON_DATA*>* GetButtonData() const;
 	D3DXVECTOR3 GetImageSize();
 
+	int GetOrderVectorSize() const;
+	ORDER_DATA GetOrderData(const int& _iIndex) const;
+
 public:
 	bool GetCheckUnitInformation( const eEntityInformation& _eEntityInfo );
 	void KillEnemy();
 	virtual void PushMessage( const BUTTON_DATA* _pButtonData );
+
+	void ShowOrderIcon();
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -239,6 +276,8 @@ public:
 	void OffRenderHpBar();
 
 	void RenderHpUI();
+
+	void UpgradeArmor( const int& _iUpgradeArmor );
 
 protected:
 	virtual void InitAnimation() PURE;

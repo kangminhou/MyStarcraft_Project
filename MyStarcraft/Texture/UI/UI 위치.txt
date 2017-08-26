@@ -26,3 +26,10 @@ Progress Bar 진행도 UI 간격
 
 x 거리 : 1
 y 거리 : 0
+
+
+Resrouce Data UI
+시작 : 528, 8
+
+x 거리 : 76
+y 거리 : 0

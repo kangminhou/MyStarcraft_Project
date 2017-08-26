@@ -19,11 +19,10 @@ CWeapon::~CWeapon()
 
 void CWeapon::SetAttInterval( const float & _fAttInterval )
 {
-	if ( this->m_pWeaonData )
-		this->m_pWeaonData->fAttInterval = _fAttInterval;
+	this->m_fAttInterval = _fAttInterval;
 }
 
-void CWeapon::SetWeaponData( WEAPON_DATA * _pWeaponData )
+void CWeapon::SetWeaponData( WEAPON_DATA* _pWeaponData )
 {
 	if ( _pWeaponData )
 		this->m_pWeaonData = _pWeaponData;
@@ -55,6 +54,7 @@ const CGameEntity * CWeapon::GetTarget() const
 void CWeapon::Initialize()
 {
 	this->m_fRestInterval = 0.f;
+	this->m_fAttInterval = 1.f;
 }
 
 void CWeapon::Release()
@@ -66,7 +66,7 @@ void CWeapon::Release()
 
 void CWeapon::Attack( CGameEntity * _pAttTarget )
 {
-	this->m_fRestInterval = this->m_pWeaonData->fAttInterval;
+	this->m_fRestInterval = this->m_pWeaonData->fAttInterval * m_fAttInterval;
 	this->m_pTarget = _pAttTarget;
 	
 	/* 즉시 공격인지 투사체 공격인지 판별.. */
@@ -113,12 +113,12 @@ bool CWeapon::IsCanAttack()
 
 void CWeapon::NormalAttack()
 {
-	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage );
+	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage + this->m_pWeaonData->fUpgradeDamage );
 }
 
 void CWeapon::NormalSplashAttack()
 {
-	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage );
+	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage + this->m_pWeaonData->fUpgradeDamage );
 
 	vector<CGameEntity*> vecNearEntity;
 	for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
@@ -127,7 +127,7 @@ void CWeapon::NormalSplashAttack()
 			continue;
 
 		vecNearEntity.clear();
-		CObjMgr::GetInstance()->CheckNearEntitys( &vecNearEntity, this->m_pTarget, this->m_pWeaonData->iOutSide, (eObjectType)i );
+		CObjMgr::GetInstance()->CheckNearEntitys( &vecNearEntity, this->m_pTarget, (float)this->m_pWeaonData->iOutSide, (eObjectType)i );
 
 		size_t iLength = vecNearEntity.size();
 		for ( size_t i = 0; i < iLength; ++i )
@@ -151,5 +151,5 @@ void CWeapon::NormalSplashAttack()
 
 void CWeapon::CircleSplashAttack()
 {
-	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage );
+	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage + this->m_pWeaonData->fUpgradeDamage );
 }

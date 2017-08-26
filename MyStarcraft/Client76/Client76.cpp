@@ -6,6 +6,10 @@
 //#include "Include.h"
 #include "MainGame.h"
 
+#include "Timer.h"
+#include "Timer_Manager.h"
+#include "Frame_Manager.h"
+
 #define MAX_LOADSTRING 100
 
 HWND g_hWnd;
@@ -60,10 +64,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return FALSE;
 	}
 
-	DWORD dwOldTime, dwCurTime;
-	DWORD dwFramePerSec = 1000 / 100;
+	CTimer* pDefaultTimer = CTimer::Create();
+	CTimer_Manager* pTimer_Manager = CTimer_Manager::GetInstance();
+	pTimer_Manager->Add_Timer( L"Default_Timer", pDefaultTimer );
 
-	dwCurTime = dwOldTime = GetTickCount();
+	CFrame_Manager*  pFrame_Manager = CFrame_Manager::GetInstance();
+	pFrame_Manager->Add_Frame( L"Frame_60", 60.f );
 
 	while(msg.message != WM_QUIT)
 	{
@@ -74,18 +80,21 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		}
 		else
 		{
-			dwCurTime = GetTickCount();
-			//if ( dwCurTime >= dwOldTime + dwFramePerSec )
+			pTimer_Manager->Compute_Timer( L"Default_Timer" );
+			float fDeltaTime = pTimer_Manager->Get_TimeDelta( L"Default_Timer" );
+
+			if ( pFrame_Manager->Permit_Call( L"Frame_60", fDeltaTime ) )
 			{
 				if(MainGame.Update() != 0)
 					break;
 
 				MainGame.Render();
-
-				dwOldTime = dwCurTime;
 			}
 		}
 	}
+
+	safe_release( pTimer_Manager );
+	safe_release( pFrame_Manager );
 
 //#ifdef _DEBUG
 	// 콘솔창 해제..

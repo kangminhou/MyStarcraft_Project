@@ -5,6 +5,7 @@ class CTransform;
 class CBackground;
 class CGameEntity;
 class CAStar;
+class CAStarManager;
 
 /* 길찾기를 사용하지 않는 객체들이 움직일 때 사용하는 클래스.. */
 class CMove :
@@ -18,6 +19,7 @@ public:
 	};
 
 private:
+	CAStarManager*		m_pAStarManager;
 	CAStar*				m_pAStar;
 
 	CGameEntity*		m_pGameEntity;
@@ -39,6 +41,8 @@ private:
 
 	bool				m_bCanRestReFindPath;
 	bool				m_bCanMove;
+	bool				m_bWaitAStarResult;
+	bool				m_bMoveStop;
 
 public:
 	CMove();
@@ -54,6 +58,8 @@ public:
 	void SetDestination( const D3DXVECTOR3& _vDestination, const bool& _bChaseTarget = false );
 	void PathFind();
 	void ReFindPath();
+
+	void GetAStarResult(const D3DXVECTOR3& _vDestination, const int& _iReturnEvent );
 
 private:
 	void SettingMoveData();

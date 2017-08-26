@@ -3,6 +3,8 @@
 #include "Include.h"
 #include "Transform.h"
 
+typedef LONGLONG _Dlong;
+
 class CGameObject
 {
 private:

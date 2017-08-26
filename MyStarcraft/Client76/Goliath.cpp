@@ -53,11 +53,11 @@ HRESULT CGoliath::Initialize( void )
 	this->m_tInfoData.nDefenceIconFrame = 293;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_TwinAutocannons );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_TwinAutocannons );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 6.f;
 
-	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_HelfireMissilePack );
+	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_HelfireMissilePack );
 	this->m_tAirAttWeapon.byAttackNum = 2;
 	this->m_tAirAttWeapon.fAttRange = 5.f;
 

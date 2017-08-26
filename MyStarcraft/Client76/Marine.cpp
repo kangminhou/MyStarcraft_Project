@@ -49,13 +49,14 @@ HRESULT CMarine::Initialize( void )
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 7;
 	this->m_tInfoData.nDefenceIconFrame = 292;
+	this->m_tInfoData.eArmorUpgradeType = Upgrade_Terran_Infantry_Armor;
 
 	/* 유닛 무기 초기화.. */
-	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
+	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_GaussRifle );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 4.f;
 
-	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( CWeaponMgr::Weapon_GaussRifle );
+	this->m_tAirAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_GaussRifle );
 	this->m_tAirAttWeapon.byAttackNum = 1;
 	this->m_tAirAttWeapon.fAttRange = 4.f;
 
@@ -97,6 +98,23 @@ int CMarine::Update( void )
 	//		this->m_tOriginColRect.bottom += iPlus;
 	//	}
 	//}
+
+	if ( this->m_bUseSteampack )
+	{
+		this->m_fSteampackDuration -= GET_TIME;
+
+		if ( this->m_fSteampackDuration <= 0.f )
+		{
+			this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 1.f );
+			this->m_tAirAttWeapon.pWeapon->SetAttInterval( 1.f );
+
+			this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
+
+			this->m_pAnimCom->SetAnimationData( L"Attack", FRAME( 0.f, 10.f, 3.f, 0.f ) );
+
+			this->m_bUseSteampack = false;
+		}
+	}
 
 	return CUnit::Update();
 }
@@ -233,6 +251,40 @@ void CMarine::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _
 	if ( bChangeAnimation )
 		this->ChangeLookAnimTexture();
 
+}
+
+bool CMarine::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTarget )
+{
+	switch ( _eSkillKind )
+	{
+		case CGameEntity::Skill_SteamPack:
+		{
+			if ( this->m_tInfoData.fCurHp <= 10.f )
+				return false;
+
+			if ( !m_bUseSteampack )
+			{
+				this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 0.7f );
+				this->m_tAirAttWeapon.pWeapon->SetAttInterval( 0.7f );
+
+				this->m_tInfoData.fSpeed *= 1.4f;
+
+				this->m_pAnimCom->SetAnimationData( L"Attack", FRAME( 0.f, 14.f, 3.f, 0.f ) );
+
+				this->m_bUseSteampack = true;
+			}
+
+			this->m_tInfoData.fCurHp -= 10.f;
+			this->m_fSteampackDuration = 15.f;
+		}
+			break;
+
+		default:
+			return false;
+
+	}
+
+	return true;
 }
 
 void CMarine::InitAnimation()

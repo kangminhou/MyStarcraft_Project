@@ -238,6 +238,39 @@
     <Filter Include="01. GameObject\00. GameEntity\01. Building\05. Refinery">
       <UniqueIdentifier>{722ae6ba-d8e7-40fb-a8a5-f54c9728c2ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="98. Manager\13. FrameMgr">
+      <UniqueIdentifier>{35d174b4-4c75-4321-826f-a405c0d56bf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\13. FrameMgr\00. Frame">
+      <UniqueIdentifier>{0c550823-1733-49de-8af6-4e5aa787f1c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\14. TimerMgr">
+      <UniqueIdentifier>{ecbfc44a-85a8-4dc4-9787-4a0b34215539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\14. TimerMgr\00. Timer">
+      <UniqueIdentifier>{f35c4087-65a6-4000-b5c0-18a4c0aac164}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\06. Supply Depot">
+      <UniqueIdentifier>{cabf8624-d0b2-4032-88ed-6a9787f90ab7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\07. Engineering Bay">
+      <UniqueIdentifier>{b8c97e04-9f59-4f8a-a7a3-ff49dbbca03f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\15. UpgradeMgr">
+      <UniqueIdentifier>{eee2e4c0-819f-4fe3-8e3c-42980bdb0c40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\16. EnemyMgr">
+      <UniqueIdentifier>{49615f38-a59f-453f-97d6-642dea02e9b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\17. ResearchMgr">
+      <UniqueIdentifier>{8935d3ea-56bb-4e4b-97db-80d3c486425d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\01. Building\02. Research">
+      <UniqueIdentifier>{d6586195-d9f1-4e89-a4a1-b3325e570cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03. Component\03. EntityPattern\00. Unit\09. Make_Unit">
+      <UniqueIdentifier>{7e296c98-f3c1-4413-b32d-c69abab50511}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -485,6 +518,39 @@
     </ClCompile>
     <ClCompile Include="Refinery.cpp">
       <Filter>01. GameObject\00. GameEntity\01. Building\05. Refinery</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer_Manager.cpp">
+      <Filter>98. Manager\14. TimerMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame_Manager.cpp">
+      <Filter>98. Manager\13. FrameMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame.cpp">
+      <Filter>98. Manager\13. FrameMgr\00. Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>98. Manager\14. TimerMgr\00. Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="SupplyDepot.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\06. Supply Depot</Filter>
+    </ClCompile>
+    <ClCompile Include="Engineering_Bay.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\07. Engineering Bay</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeMgr.cpp">
+      <Filter>98. Manager\15. UpgradeMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMgr.cpp">
+      <Filter>98. Manager\16. EnemyMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="ResearchMgr.cpp">
+      <Filter>98. Manager\17. ResearchMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Research.cpp">
+      <Filter>03. Component\03. EntityPattern\01. Building\02. Research</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_MakeUnit.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\09. Make_Unit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -739,6 +805,42 @@
     </ClInclude>
     <ClInclude Include="Refinery.h">
       <Filter>01. GameObject\00. GameEntity\01. Building\05. Refinery</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer_Manager.h">
+      <Filter>98. Manager\14. TimerMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame_Manager.h">
+      <Filter>98. Manager\13. FrameMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame.h">
+      <Filter>98. Manager\13. FrameMgr\00. Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>98. Manager\14. TimerMgr\00. Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="SupplyDepot.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\06. Supply Depot</Filter>
+    </ClInclude>
+    <ClInclude Include="Engineering_Bay.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\07. Engineering Bay</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeMgr.h">
+      <Filter>98. Manager\15. UpgradeMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Headers\Enum.h">
+      <Filter>99. Default\헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMgr.h">
+      <Filter>98. Manager\16. EnemyMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="ResearchMgr.h">
+      <Filter>98. Manager\17. ResearchMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Research.h">
+      <Filter>03. Component\03. EntityPattern\01. Building\02. Research</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_MakeUnit.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\09. Make_Unit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

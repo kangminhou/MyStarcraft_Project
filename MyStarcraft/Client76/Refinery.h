@@ -1,10 +1,13 @@
 #pragma once
 #include "Building.h"
+
+
 class CRefinery :
 	public CBuilding
 {
 private:
-	vector<TILE*>*	m_pVecTile;
+	vector<TILE*>*			m_pVecTile;
+	vector<CGameEntity*>*	m_pVecGas;
 
 public:
 	CRefinery();

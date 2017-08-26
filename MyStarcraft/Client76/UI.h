@@ -41,6 +41,7 @@ public:
 	bool DecideDrawTexture( const wstring& _wstrTextureKey );
 	void ChangeDrawTexture( const wstring& _wstrObjKey, const wstring& _wstrStateKey = L"", const int& _iCount = 1 );
 	void ChangeDrawTexture( const vector<const TEX_INFO*>& vecDrawTexture );
+	void ChangeDrawTexture( const TEX_INFO* _pTexture );
 
 public:
 	virtual HRESULT Initialize( void ) override;

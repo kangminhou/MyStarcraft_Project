@@ -515,15 +515,14 @@ int CObjMgr::Update(void)
 {
 	vector<CGameObject*> vecDeleteObject;
 
-	for(size_t i = 0; i < OBJ_TYPE_MAX; ++i)
+	for ( size_t i = 0; i < OBJ_TYPE_MAX; ++i )
 	{
-		list<CGameObject*>::iterator iter = m_ObjList[i].begin();
-		list<CGameObject*>::iterator iter_end = m_ObjList[i].end();
-
-		for(iter; iter != iter_end; )
+		for ( auto iter = this->m_ObjList[i].begin(); iter != this->m_ObjList[i].end(); )
 		{
 			if ( !(*iter) )
-				continue;
+			{
+				iter = m_ObjList[i].erase( iter );
+			}
 
 			int iEvent = (*iter)->Update();
 			if ( iEvent == Event_DestoryObject )

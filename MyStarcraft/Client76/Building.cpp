@@ -3,6 +3,8 @@
 
 #include "TextureMgr.h"
 #include "ObjMgr.h"
+#include "ResearchMgr.h"
+#include "UIMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -17,6 +19,7 @@ CBuilding::CBuilding()
 	, m_bSuccessBuild(false)
 	, m_bApplyCol(false)
 	, m_bCanBuild(false)
+	, m_bUseActiveTexture(false)
 {
 	this->SetObjKey( L"Building" );
 }
@@ -44,15 +47,21 @@ bool CBuilding::GetIsCanBuild() const
 	return this->m_bCanBuild;
 }
 
+eResearchKind CBuilding::GetResearchKind()
+{
+	return this->m_eResearchKind;
+}
+
 HRESULT CBuilding::Initialize( void )
 {
-	if ( this->GetObjectType() == OBJ_TYPE_USER )
-		this->m_pPlayer = (CPlayer*)CObjMgr::GetInstance()->GetList( this->GetObjectType() )->front();
-
 	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Building );
+
+	this->m_bUseDeathEffect = true;
 
 	this->m_pBuildRectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"Build_OK" );
 	this->m_pBuildRectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"Build_OFF" );
+
+	this->m_pResearchMgr = CResearchMgr::GetInstance();
 
 	InitTexture();
 	CGameEntity::Initialize();
@@ -114,6 +123,26 @@ void CBuilding::Render( void )
 
 	//this->DrawRect( this->m_tColRect );
 
+	if ( this->m_bUseActiveTexture )
+	{
+		if ( this->m_pAnimCom )
+		{
+			const FRAME* pFrame = this->m_pAnimCom->GetCurAnimation();
+
+			if ( pFrame && this->m_vecResearchShowTexture.size() > (unsigned int)pFrame->fIndex )
+			{
+				const TEX_INFO* pTexture = this->m_vecResearchShowTexture[(unsigned int)pFrame->fIndex];
+
+				if ( pTexture )
+				{
+					D3DXVECTOR3 vCenter( pTexture->ImageInfo.Width * 0.5f, pTexture->ImageInfo.Height * 0.5f, 0.f );
+
+					this->DrawTexture( pTexture, this->GetWorldMatrix(), vCenter );
+				}
+			}
+		}
+	}
+
 	if ( this->m_bDrawHpBarUI )
 	{
 		this->RenderHpUI();
@@ -143,6 +172,13 @@ void CBuilding::RectRender( const RECT & _rcDraw )
 	int iEndX = iEndIndex % TILEX;
 	int iEndY = iEndIndex / TILEX;
 
+	int iRealStartIndex = this->m_pBackground->GetTileIndex( D3DXVECTOR3( (float)(_rcDraw.left + m_vScroll.x), (float)(_rcDraw.top + m_vScroll.y), 0.f ) );
+	//int iRealStartIndex = this->m_pBackground->GetTileIndex( D3DXVECTOR3( (float)_rcDraw.left + m_vScroll.x, (float)_rcDraw.top + m_vScroll.y, 0.f ) );
+	//int iRealEndIndex = this->m_pBackground->GetTileIndex( D3DXVECTOR3( (float)_rcDraw.right + m_vScroll.x, (float)_rcDraw.bottom + m_vScroll.y, 0.f ) );
+
+	int iRealStartX = iRealStartIndex % TILEX;
+	int iRealStartY = iRealStartIndex / TILEX;
+
 	D3DXMATRIX matWorld;
 	D3DXVECTOR3 vCenter( m_pBuildRectTexture[0]->ImageInfo.Width * 0.5f, m_pBuildRectTexture[0]->ImageInfo.Height * 0.5f, 0.f );
 
@@ -150,10 +186,14 @@ void CBuilding::RectRender( const RECT & _rcDraw )
 
 	for ( int i = iStartY; i < iEndY; ++i )
 	{
+		int iYPlus = i - iStartY;
 		for ( int j = iStartX; j < iEndX; ++j )
 		{
+			int iXPlus = j - iStartX;
+
 			D3DXMatrixTranslation( &matWorld, j * TILECX + vCenter.x, i * TILECY + vCenter.y, 0.f );
-			int iIndex = j + i * TILEX;
+			//int iIndex = j + i * TILEX;
+			int iIndex = (iRealStartX + iXPlus) + (iRealStartY + iYPlus) * TILEX;
 			if ( this->CheckCanBuild( iIndex ) )
 			{
 				this->DrawTexture( this->m_pBuildRectTexture[0], matWorld, vCenter );
@@ -171,6 +211,45 @@ void CBuilding::RectRender( const RECT & _rcDraw )
 void CBuilding::BuildStart()
 {
 	this->m_iMinimapSpaceDataKey = this->m_pMiniMap->MoveEntity( this );
+}
+
+void CBuilding::SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKind )
+{
+	if ( this->m_vecOrderData.empty() )
+		return;
+
+	auto& front = this->m_vecOrderData.front();
+
+	if ( _ePatternKind == CGameEntity::Pattern_Make_Unit )
+	{
+		if ( !this->m_pPlayer->CheckCanMakeUnit( *((UNIT_GENERATE_DATA*)front.pData) ) )
+		{
+			return;
+		}
+
+		CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( 
+			CEntityMgr::eEntityType( front.iMessage ), this->CalcNearEmptySpace(), this->GetObjectType() );
+
+		CObjMgr::GetInstance()->AddGameObject( pEntity, this->GetObjectType() );
+		pEntity->UpdatePosition( pEntity->GetPos() );
+	}
+
+	safe_delete( front.pData );
+
+	this->m_vecOrderData.erase( this->m_vecOrderData.begin() );
+
+	this->ShowUpdateOrderData();
+
+}
+
+void CBuilding::SuccessResearch()
+{
+	this->m_pResearchMgr->SuccessResearch( this->m_eResearchKind );
+}
+
+void CBuilding::UpdateOrderRestTime( const BYTE& _byRatio )
+{
+	
 }
 
 void CBuilding::UpdateLookAnimIndex()
@@ -204,7 +283,7 @@ void CBuilding::SuccessBuild()
 
 	m_bSuccessBuild = true;
 	this->DecideTexture();
-	CEntityMgr::GetInstance()->BuildBuilding( this->m_eEntityType );
+	this->m_pEntityMgr->BuildBuilding( this->m_eEntityType );
 }
 
 bool CBuilding::CheckCanBuild( const int & _iIndex )
@@ -279,6 +358,14 @@ D3DXVECTOR3 CBuilding::CalcNearEmptySpace()
 	}
 
 	return vOut;
+}
+
+void CBuilding::ShowUpdateOrderData()
+{
+	vector<SHORT> vecIcon;
+	for ( size_t i = 0; i < this->m_vecOrderData.size(); ++i )
+		vecIcon.push_back( this->m_vecOrderData[i].nIconNum );
+	this->m_pUIMgr->ShowBuildingOrderUI( vecIcon );
 }
 
 void CBuilding::InitBasicBuildTexture()

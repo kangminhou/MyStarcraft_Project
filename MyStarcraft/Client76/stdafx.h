@@ -44,6 +44,6 @@
 
 #import <msxml4.dll>
 
-#ifdef _DEBUG
-#include <vld.h>
-#endif
+//#ifdef _DEBUG
+//#include <vld.h>
+//#endif

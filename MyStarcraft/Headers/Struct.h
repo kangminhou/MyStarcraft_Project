@@ -120,6 +120,7 @@ typedef struct tagTile
 typedef struct tagAStarNode 
 {
 	float			fCost;
+	float			fGCost;
 	int				iIndex;
 	BYTE			byEntityTileData;
 	tagAStarNode*	pParent;
@@ -135,9 +136,17 @@ typedef struct tagCommonData
 	float fSpeed;
 
 	int iDefense;
+	int iUpgradeDefense;
 	int iScope;
 
 	SHORT	nDefenceIconFrame;
+
+	eArmorUpgradeType eArmorUpgradeType;
+
+	tagCommonData()
+		: eArmorUpgradeType(Upgrade_Armor_End)
+		, iUpgradeDefense(0)
+	{}
 
 	/* 유닛 타입.. */
 
@@ -148,6 +157,31 @@ typedef struct tagEntityManaData
 	int iCurMP;
 	int iMaxMP;
 } ENTITY_MANA_DATA;
+
+typedef struct tagResearchData
+{
+	float fResearchTime;
+	int iRequireMineral;		// 생성 시 필요한 미네랄..
+	int iRequireGas;			// 생성 시 필요한 가스..
+
+	SHORT	nIconFrame;			// 아이콘 프레임..
+
+	wstring	wstrName;
+
+	vector<int>	vecRequireBuilding;		// 생성 하기위해 지어져야 하는 건물..
+
+	tagResearchData()
+		: wstrName(L"")
+	{}
+
+	tagResearchData(const float& _fResearchTime, const int& _iRequireMineral, const int& _iRequireGas, const wstring& _wstrName)
+		: fResearchTime(_fResearchTime)
+		, iRequireMineral(_iRequireMineral)
+		, iRequireGas(_iRequireGas)
+		, wstrName(_wstrName)
+	{}
+
+}RESEARCH_DATA;
 
 typedef struct tagUnitGenerateData
 {
@@ -168,7 +202,7 @@ typedef struct tagUnitGenerateData
 
 	tagUnitGenerateData(const float& _fGenerateTime, const int& _iRequireMineral, const int& _iRequireGas,
 						 const int& _iRequirePopulation, const SHORT& _nIconFrame)
-		: fGenerateTime(_fGenerateTime)
+		: fGenerateTime(_fGenerateTime * 0.1f)
 		, iRequireMineral(_iRequireMineral)
 		, iRequireGas(_iRequireGas)
 		, iRequirePopulation(_iRequirePopulation)
@@ -228,21 +262,23 @@ typedef struct tagButtonData
 	BYTE	byShortCutKey;	// 단축키..
 	BYTE	byDrawColumn;	// 그릴 행..
 
-	bool	bSkill;			// 스킬인가??..
+	int		iBtnKind;		// 버튼을 눌렀을 때 실행할 행동 종류..
 	bool	bCanUse;		// 현재 사용 가능한가??..
+	bool	bImmediate;		// 누르자마자 사용하는 버튼??..
 
 	tagButtonData()
 	{}
 
 	tagButtonData( const int& _iFunc, const SHORT& _nIconFrame, const BYTE& _byShortCutKey, const BYTE& _byDrawColumn,
-				   const bool& _bSkill, const bool& _bCanUse, const int& _iMessage = -1 )
+				   const int& _iBtnKind, const bool& _bCanUse, const int& _iMessage = -1, const bool& _bImmediate = false )
 		: iFunc( _iFunc )
 		, nIconFrame( _nIconFrame )
 		, byShortCutKey( _byShortCutKey )
 		, byDrawColumn( _byDrawColumn )
-		, bSkill( _bSkill )
+		, iBtnKind( _iBtnKind )
 		, bCanUse( _bCanUse )
 		, iMessage(_iMessage)
+		, bImmediate(_bImmediate)
 	{}
 
 }BUTTON_DATA;
@@ -275,8 +311,11 @@ typedef struct tagWeaponData
 	float fDamage;
 	float fAttInterval;
 
+	float fUpgradeDamage = 0.f;
+
 	eWeaponUpgradeType eUpgradeType;
 	int iUpgradePlus;
+	int iUpgradeNum = 0;
 
 	int iMinAttRange;
 	int iMaxAttRange;

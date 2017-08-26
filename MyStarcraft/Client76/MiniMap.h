@@ -2,6 +2,8 @@
 #include "GameObject.h"
 
 class CGameEntity;
+class CPlayer;
+class CMouse;
 
 class CMiniMap :
 	public CGameObject
@@ -15,7 +17,19 @@ private:
 
 private:
 	const TEX_INFO*	m_pBackTexture;
+	const TEX_INFO*	m_pAreaTexture;
+
 	D3DXVECTOR3 m_vImageHalfSize;
+	D3DXVECTOR3	m_vMinimapSize;
+
+	D3DXMATRIX	m_matAreaWorld;
+
+	CPlayer*	m_pPlayer;
+	CMouse*		m_pMouse;
+
+	RECT		m_rcMouseCol;
+
+	bool		m_bInitRect;
 
 	vector<pair<vector<MINI_ENTITY_DATA>, const TEX_INFO*>>	m_vecMiniEntityData;
 	

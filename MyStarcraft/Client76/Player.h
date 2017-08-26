@@ -6,6 +6,8 @@
 class CMouse;
 class CMineral;
 class CGas;
+class CUIMgr;
+class CUpgradeMgr;
 
 /* 실제 게임을 조종하는 클래스 ( 실제 게임을 플레이하는 플레이어 ).. */
 class CPlayer :
@@ -25,23 +27,37 @@ private:
 	CCorps	m_hotKeyCorps[10];		// 단축키로 지정해놓은 부대..
 	CCorps*	m_pCurCorps;
 
+	CUIMgr*			m_pUIMgr;
+	CUpgradeMgr*	m_pUpgradeMgr;
+
 	RESOURCE_DATA	m_tResourceData;	// 플레이어의 리소스 데이터..
 
 	CMouse*			m_pMouse;
 
 	vector<BUTTON_DATA*>	m_vecCurCanActButton;
-	BUTTON_DATA*			m_pCancelButton;
+	vector<BUTTON_DATA*>	m_vecCancelButton;
 
 	const BUTTON_DATA*		m_pPushButtonData;
 	bool					m_bOrderAct;
+
+	bool					m_bWaitAct;
 
 	vector<CGameEntity*>	m_vecClickEventEntity;
 	vector<CMineral*>		m_vecMineral;
 	vector<CGas*>			m_vecGas;
 
+	BYTE					m_byCnt;
+
 public:
 	CPlayer();
 	virtual ~CPlayer();
+
+public:
+	void SetTotalPopulation( const BYTE& _byTotalPopulation );
+
+public:
+	RESOURCE_DATA GetResourceData() const;
+	BYTE GetTotalPopulation() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -60,12 +76,20 @@ public:
 	void AddMouseClickEventEntity(CGameEntity* _pEntity);
 	void EraseMouseClickEventEntity( CGameEntity* _pEntity );
 
+	bool BuyUnit( const UNIT_GENERATE_DATA& _tUnitGenData );
+	bool CheckCanMakeUnit( const UNIT_GENERATE_DATA& _tUnitGenData );
+	bool CheckCanBuyUnit( const UNIT_GENERATE_DATA& _tUnitGenData );
+
+	void SetScroll( const D3DXVECTOR3& _vScroll );
+
 private:
 	void KeyCheck( void );
 	void MakeDragUnitCorps();
 
 	void RButtonClick();
 	void UnitMove();
+
+	void ActCommand();
 
 };
 

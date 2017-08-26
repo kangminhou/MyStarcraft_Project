@@ -4,9 +4,11 @@
 #include "TextureMgr.h"
 #include "Animation.h"
 #include "EntityMgr.h"
+#include "ResearchMgr.h"
 
 #include "Move.h"
 #include "Pattern_Building_Build.h"
+#include "Pattern_Research.h"
 #include "UIMgr.h"
 #include "Player.h"
 #include "ObjMgr.h"
@@ -62,6 +64,11 @@ int CAcademy::Update( void )
 void CAcademy::Render( void )
 {
 	CBuilding::Render();
+
+	if ( m_curActPatternKind == Pattern_Research )
+	{
+		
+	}
 }
 
 void CAcademy::Release( void )
@@ -94,8 +101,32 @@ void CAcademy::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 				this->m_vecTexture = this->m_mapAllTexture.find( L"Build" )->second;
 			}
+			else
+				this->m_pCurActPattern = NULL;
 		}
 		break;
+
+		case CGameEntity::Pattern_Research:
+		{
+			if ( this->m_curActPatternKind != CGameEntity::Pattern_Research )
+			{
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"Research" )->second;
+				this->m_pAnimCom->ChangeAnimation( L"Research" );
+			}
+			
+			m_eResearchKind = (eResearchKind)this->m_pPushData->iMessage;
+
+		}
+			break;
+
+		case CGameEntity::Pattern_Die:
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"Die" )->second;;
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Die" );
+			this->m_wstrStateKey = L"Die";
+
+			if ( this->m_pEntityBelongToCorps )
+				this->m_pEntityBelongToCorps->EraseUnit( this );
+			break;
 
 	}
 
@@ -126,11 +157,13 @@ void CAcademy::DecideTexture()
 
 void CAcademy::InitAnimation()
 {
+	this->m_pAnimCom->AddAnimation( L"Research", FRAME( 0.f, 2.f, 2.f, 0.f ), CAnimation::Anim_Loop );
 }
 
 void CAcademy::InitPattern()
 {
 	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Building_Build ) );
+	this->m_mapPatterns.insert( make_pair( L"Research", new CPattern_Research ) );
 }
 
 void CAcademy::InitTexture()
@@ -147,6 +180,9 @@ void CAcademy::InitTexture()
 	{
 		vecTexture.push_back( CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
 	}
+
+	m_vecResearchShowTexture.push_back( NULL );
+	m_vecResearchShowTexture.push_back(CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), 2 ) );
 
 	m_mapAllTexture.insert( make_pair( L"Build", vecTexture ) );
 }

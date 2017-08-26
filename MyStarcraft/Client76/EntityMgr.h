@@ -2,6 +2,8 @@
 #include "Include.h"
 
 class CGameEntity;
+class CPlayer;
+class CUpgradeMgr;
 
 class CEntityMgr
 {
@@ -18,7 +20,9 @@ public:
 		Entity_Goliath,
 		Entity_SCV,
 
-		Entity_Control,
+		Entity_UnitEnd,
+
+		Entity_Control = Entity_UnitEnd,
 		Entity_SupplyDepot,
 		Entity_Refinery,
 		Entity_Barracks,
@@ -42,6 +46,8 @@ private:
 
 	list<CGameEntity*>							m_entityListArr[2][Entity_End];
 
+	CPlayer*									m_pPlayer;
+
 public:
 	CEntityMgr();
 	~CEntityMgr();
@@ -55,9 +61,11 @@ public:
 	void Release();
 
 	void BuildBuilding( const eEntityType& _eEntityType );
+	void SuccessResearch( const wstring& _wstrBtnName );
 
 public:
-	CGameEntity* MakeUnit( const eEntityType& _eEntityType, const D3DXVECTOR3& _vPos, const eObjectType& _eType );
+	CGameEntity* MakeUnit( const eEntityType& _eEntityType, const D3DXVECTOR3& _vPos, const eObjectType& _eType,
+						   const bool& _bFree = false);
 
 };
 

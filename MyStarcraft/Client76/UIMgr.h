@@ -8,12 +8,15 @@ class CMyButton;
 class CPlayer;
 class CMiniMap;
 class CBuilding;
+class CTextureMgr;
 
 class CUIMgr
 {
 	DECLARE_SINGLETON(CUIMgr)
 
 private:
+	CTextureMgr*	m_pTextureMgr;
+
 	CUI*	m_pMainUI;
 
 	CUI*	m_pFaceUI;
@@ -23,6 +26,7 @@ private:
 	CUI*	m_pUnitUpgradeUI[3];
 	CUI*	m_pUnitUpgradeFontUI[3];
 	CUI*	m_pUnitUpgradeBackUI[3];
+	RECT	m_rcUnitUpgradeCol[3];
 
 	CUI*	m_pHpBarBackUI;
 	CUI*	m_pHpBarUI;
@@ -50,6 +54,23 @@ private:
 	vector<CGameEntity*>	m_vecHpBarShowEntity;
 
 	CBuilding*		m_pDrawBuilding;
+
+	CUI*			m_pShowResourceDataUI[3];
+	vector<pair<BYTE, D3DXMATRIX>>	m_vecResourceShowFontData[3];
+
+	CUI*			m_pBuildingOrderUI;
+	CUI*			m_pOrderIconUI[5];
+	CUI*			m_pRatioBackUI;
+
+	const TEX_INFO*	m_pRatioTexture;
+	D3DXMATRIX		m_ratioTextureWorldMatrix;
+
+	bool			m_bShowBuildOrderUI;
+	BYTE			m_byOrderRatio;
+	size_t			m_iDrawOrderIconSize;
+
+	LPD3DXSPRITE	m_pSprite;
+	LPD3DXFONT		m_pFont;
 
 	D3DXMATRIX		m_buildingWorldMatrix;
 	RECT			m_rcBuilding;
@@ -86,8 +107,22 @@ public:
 	void ShowFrameBuilding( CBuilding* _pEntity );
 	void HideFrameBuilding();
 
+	void ShowBuildingOrderUI( const vector<SHORT>& _vecOrderIcon );
+	void HideBuildingOrderUI();
+
+	void UpdateOrderRatio( const BYTE& _byRatio );
+
+public:
+	void UpdatePlayerResourceData( const wstring& _wstrChangeResourceData );
+
+private:
+	void UpdatePlayerMineralData();
+	void UpdatePlayerGasData();
+	void UpdatePlayerPopulationData();
+
 private:
 	void AddDeleteUIList( CUI*& _pDeleteUI );
+	void RenderPlayerResourceData();
 
 };
 

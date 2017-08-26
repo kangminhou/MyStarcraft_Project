@@ -14,6 +14,8 @@ private:
 
 	bool			m_bLookDestination;
 
+	float			m_fSpeed;
+
 public:
 	CEffect_HitTarget();
 	virtual ~CEffect_HitTarget();

@@ -7,6 +7,7 @@
 #include "TimeMgr.h"
 #include "UIMgr.h"
 #include "EffectMgr.h"
+#include "UpgradeMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -19,7 +20,6 @@
 #include "MiniMap.h"
 
 CBackground* CGameEntity::m_pBackground = NULL;
-CPlayer* CGameEntity::m_pPlayer = NULL;
 
 
 CGameEntity::CGameEntity()
@@ -40,6 +40,9 @@ CGameEntity::CGameEntity()
 	, m_iMinimapSpaceDataKey(-1)
 	, m_bUseDeathEffect(true)
 	, m_bCheckEntityTile(true)
+	, m_bHideEntity(false)
+	, m_bUseDestination(false)
+	, m_byProgressRatio(0)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
@@ -108,6 +111,11 @@ void CGameEntity::SetGenerateData( const UNIT_GENERATE_DATA * _pGenData )
 	this->m_pGenerateData = _pGenData;
 }
 
+void CGameEntity::SetPlayer( CPlayer * _pPlayer )
+{
+	this->m_pPlayer = _pPlayer;
+}
+
 
 
 
@@ -159,6 +167,40 @@ void CGameEntity::SetEntityMgrListIndex( const int & _iEntityMgrListIndex )
 void CGameEntity::SetIsCheckEntityTile( const bool & _bCheckEntityTile )
 {
 	m_bCheckEntityTile = _bCheckEntityTile;
+}
+
+void CGameEntity::SetHideUnit( const bool & _bHideUnit )
+{
+	this->m_bHideEntity = _bHideUnit;
+}
+
+void CGameEntity::SetUseDestination( const bool & _bUseDestination )
+{
+	this->m_bUseDestination = _bUseDestination;
+}
+
+void CGameEntity::SetDestination( const D3DXVECTOR3 & _vDestination )
+{
+	this->m_vDestination = _vDestination;
+}
+
+void CGameEntity::SetProgressRatio( const BYTE & _byProgressRatio )
+{
+	this->m_byProgressRatio = _byProgressRatio;
+}
+
+bool CGameEntity::AddOrderIcon( const SHORT & _nIcon, const int& _iMessage, void* _pData )
+{
+	if ( this->GetIsFullOrderVector() )
+		return false;
+
+	ORDER_DATA tOrderData;
+	tOrderData.nIconNum = _nIcon;
+	tOrderData.iMessage = _iMessage;
+	tOrderData.pData = _pData;
+
+	this->m_vecOrderData.push_back( tOrderData );
+	return true;
 }
 
 float CGameEntity::GetCurHp() const
@@ -226,6 +268,19 @@ bool CGameEntity::GetIsCheckEntityTile() const
 	return this->m_bCheckEntityTile;
 }
 
+bool CGameEntity::GetIsUseDestination() const
+{
+	return this->m_bUseDestination;
+}
+
+bool CGameEntity::GetIsFullOrderVector() const
+{
+	if ( this->m_vecOrderData.size() >= 5 )
+		return true;
+
+	return false;
+}
+
 const list<pair<int, BYTE>>* CGameEntity::GetStandTileIndexList()
 {
 	return &this->m_standTileIndexList;
@@ -271,6 +326,11 @@ BYTE CGameEntity::GetFaceFrameNum() const
 	return this->m_byFaceFrameNum;
 }
 
+BYTE CGameEntity::GetProgressRatio() const
+{
+	return this->m_byProgressRatio;
+}
+
 D3DXVECTOR3 CGameEntity::GetHitShowPos() const
 {
 	return this->GetPos() + this->m_vHitShowPos;
@@ -279,6 +339,11 @@ D3DXVECTOR3 CGameEntity::GetHitShowPos() const
 D3DXVECTOR3 CGameEntity::GetEffectShowPos() const
 {
 	return this->GetPos() + this->m_vEffectShowPos;
+}
+
+D3DXVECTOR3 CGameEntity::GetDestination() const
+{
+	return this->m_vDestination;
 }
 
 UNIT_GENERATE_DATA CGameEntity::GetGenerateData() const
@@ -324,6 +389,19 @@ D3DXVECTOR3 CGameEntity::GetImageSize()
 	return D3DXVECTOR3((float)this->m_vecTexture.front()->ImageInfo.Width, (float)this->m_vecTexture.front()->ImageInfo.Height, 0.f);
 }
 
+int CGameEntity::GetOrderVectorSize() const
+{
+	return this->m_vecOrderData.size();
+}
+
+CGameEntity::ORDER_DATA CGameEntity::GetOrderData( const int & _iIndex ) const
+{
+	if ( this->m_vecOrderData.size() <= _iIndex )
+		return ORDER_DATA();
+
+	return this->m_vecOrderData[_iIndex];
+}
+
 bool CGameEntity::GetCheckUnitInformation( const eEntityInformation & _eEntityInfo )
 {
 	for ( size_t i = 0; i < this->m_vecEntityInformation.size(); ++i )
@@ -349,12 +427,24 @@ void CGameEntity::PushMessage( const BUTTON_DATA* _pButtonData )
 	m_pPushData = _pButtonData;
 }
 
+void CGameEntity::ShowOrderIcon()
+{
+	vector<SHORT> vecIcon;
+
+	for ( size_t i = 0; i < m_vecOrderData.size(); ++i )
+		vecIcon.push_back( m_vecOrderData[i].nIconNum );
+
+	this->m_pUIMgr->ShowBuildingOrderUI( vecIcon );
+}
+
 
 
 HRESULT CGameEntity::Initialize( void )
 {
-	//this->m_pAStar = new CAStar;
+	this->m_pUpgradeMgr = CUpgradeMgr::GetInstance();
+	this->m_pUpgradeMgr->AddArmorUpgradeObserver( this, this->m_tInfoData.eArmorUpgradeType );
 
+	//this->m_pAStar = new CAStar;
 	if ( this->m_tAirAttWeapon.pWeapon )
 	{
 		m_tAirAttWeapon.pWeapon->SetWeaponOwner( this );
@@ -368,8 +458,9 @@ HRESULT CGameEntity::Initialize( void )
 
 	this->m_vecActPatterns.reserve( 10 );
 
-	this->m_pHpBarUI = CUIMgr::GetInstance()->GetHpBarUI();
-	this->m_pHpBarBackUI = CUIMgr::GetInstance()->GetHpBarBackUI();
+	this->m_pUIMgr = CUIMgr::GetInstance();
+	this->m_pHpBarUI = m_pUIMgr->GetHpBarUI();
+	this->m_pHpBarBackUI = m_pUIMgr->GetHpBarBackUI();
 
 	this->m_pAnimCom = new CAnimation;
 	this->m_pAnimCom->Initialize();
@@ -397,6 +488,8 @@ HRESULT CGameEntity::Initialize( void )
 	this->m_tColRect = this->m_tOriginColRect;
 
 	this->m_pMiniMap = CUIMgr::GetInstance()->GetMiniMap();
+
+	this->m_pEntityMgr = CEntityMgr::GetInstance();
 
 	CGameObject::Initialize();
 
@@ -475,6 +568,11 @@ void CGameEntity::Release( void )
 {
 	this->m_vecTexture.clear();
 	this->m_vecActPatterns.clear();
+
+	for ( size_t i = 0; i < m_vecOrderData.size(); ++i )
+	{
+		safe_delete( this->m_vecOrderData[i].pData );
+	}
 }
 
 void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
@@ -670,8 +768,15 @@ void CGameEntity::RenderSelectTexture( bool _bPlayer )
 
 void CGameEntity::HitEntity( CGameEntity* _pAttackedObject, float _fDamage )
 {
-	if(_fDamage >= 0.f )
+	if ( _fDamage >= 0.f )
+	{
+		_fDamage -= (float)(this->m_tInfoData.iDefense + this->m_tInfoData.iUpgradeDefense);
+
+		if ( _fDamage <= 0.f )
+			_fDamage = 0.5f;
+
 		this->m_tInfoData.fCurHp -= _fDamage;
+	}
 
 	if ( this->m_tInfoData.fCurHp <= 0.f )
 	{
@@ -696,7 +801,17 @@ void CGameEntity::DieEntity()
 	{
 		/*## 이펙트 터지는 부분.. */
 		/*## 이펙트 터지는 부분.. */
-		CEffectMgr::GetInstance()->ShowEffect( L"Effect", L"DeathUnit", 0, 14, this->GetPos(), D3DXVECTOR3( 0.4f, 0.4f, 1.f ) );
+		D3DXVECTOR3 vSize( 1.f, 1.f, 1.f );
+		vSize.x = (this->m_tColRect.right - this->m_tColRect.left) / 8 * 0.2f;
+		vSize.y = (this->m_tColRect.bottom - this->m_tColRect.top) / 8 * 0.2f;
+
+		if ( this->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+		{
+			vSize.x *= 0.5f;
+			vSize.y *= 0.5f;
+		}
+
+		CEffectMgr::GetInstance()->ShowEffect( L"Effect", L"DeathUnit", 0, 14, this->GetPos(), vSize );
 		this->m_bDestoryEntity = true;
 	}
 
@@ -709,15 +824,14 @@ void CGameEntity::DieEntity()
 
 	if ( this->GetObjectType() == OBJ_TYPE_USER )
 	{
-		if ( !m_pPlayer )
-			m_pPlayer = dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front());
-
 		m_pPlayer->ShowEntityUI();
 	}
 
 	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );
 	this->m_pMiniMap->EraseEntity( this );
+
+	this->m_pUpgradeMgr->EraseArmorUpgradeObserver( this, this->m_tInfoData.eArmorUpgradeType );
 
 }
 
@@ -739,6 +853,11 @@ void CGameEntity::RenderHpUI()
 		this->m_pHpBarUI->Render( 
 			this->m_pHpBarMatrixData->vecHpBarData[j].first, this->m_pHpBarMatrixData->vecHpBarData[j].second );
 	}
+}
+
+void CGameEntity::UpgradeArmor( const int & _iUpgradeArmor )
+{
+	this->m_tInfoData.iUpgradeDefense = _iUpgradeArmor;
 }
 
 void CGameEntity::ChangeLookAnimTexture()
@@ -796,6 +915,10 @@ void CGameEntity::CollisionCheck()
 		vMove = vDir + vColDir;
 
 		this->Translate( vMove );
+
+		int iTileIndex = this->m_pBackground->GetTileIndex( this->GetPos() );
+		if ( !this->m_pBackground->CheckCanGoTile( iTileIndex, 0, this, false ) )
+			this->Translate( -vMove );
 
 		if ( !m_bCollision )
 		{

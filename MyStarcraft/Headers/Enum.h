@@ -42,8 +42,23 @@ enum eSceneType
 
 enum eWeaponUpgradeType
 {
-	Upgrade_Terran_Vehicle_Weapons,
 	Upgrade_Terran_Infantry_Weapons,
+	Upgrade_Terran_Vehicle_Weapons,
+	Upgrade_Weapon_End
+};
+
+enum eArmorUpgradeType
+{
+	Upgrade_Terran_Infantry_Armor,
+	Upgrade_Armor_End
+};
+
+enum eButtonKind
+{
+	Button_Act_Pattern,
+	Button_Act_Skill,
+	Button_Act_Upgrade,
+	Button_Act_Research,
 };
 
 enum eGameObjectEvent
@@ -69,6 +84,14 @@ enum eEffectShowKind
 	Effect_Show_Hit_Target,					// 이펙트가 공격 당한 객체의 좌표로 날아감 ( 발사했을 때 객체의 좌표로 (유도X,체력은 깎임) )..
 	Effect_Show_Chase_Target,				// 이펙트가 공격 당한 객체를 쫓아가 맞힘 ( 유도O )..
 	Effect_Show_Target_AND_Owner_Position,	// 이펙트가 공격 당한 객체와 공격한 객체 좌표에서 띄움..
+};
+
+enum eResearchKind
+{
+	//Research_
+	Research_SteamPack,
+	Research_SiegeTank,
+	Research_End
 };
 
 //enum eItemType

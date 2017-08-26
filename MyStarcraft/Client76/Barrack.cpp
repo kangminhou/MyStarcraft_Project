@@ -97,12 +97,23 @@ void CBarrack::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Build" )->second;
 				this->m_vecTexture = this->m_mapAllTexture.find( L"Build" )->second;
 			}
+			else
+				this->m_pCurActPattern = NULL;
 		}
 		break;
 
 		case CGameEntity::Pattern_Make_Unit:
 		{
 			//this->m_pPushData->iMessage
+			UNIT_GENERATE_DATA tUnitGenData = this->m_pEntityMgr->GetEntityGenData( CEntityMgr::eEntityType( this->m_pPushData->iMessage ) );
+			if ( !this->m_pPlayer->CheckCanBuyUnit( tUnitGenData ) )
+			{
+				this->SetPattern( CGameEntity::Pattern_Idle );
+				return;
+			}
+			else
+				this->m_pPlayer->BuyUnit( tUnitGenData );
+
 			CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::eEntityType( this->m_pPushData->iMessage ), this->CalcNearEmptySpace(), this->GetObjectType() );
 
 			CObjMgr::GetInstance()->AddGameObject( pEntity, this->GetObjectType() );

@@ -18,6 +18,8 @@ private:
 
 	bool		m_bCanGather;
 
+	BYTE		m_byGatherEntityNum;
+
 public:
 	CGas();
 	virtual ~CGas();
@@ -35,6 +37,9 @@ public:
 public:
 	void BuildRefinery( CRefinery* _pBuilding );
 	void UpdateTileData();
+
+	bool GatherGas();
+	void GatherEnd();
 
 public:
 	virtual void UpdatePosition( const D3DXVECTOR3& vPrevPos ) override;
