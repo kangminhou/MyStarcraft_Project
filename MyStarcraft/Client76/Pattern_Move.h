@@ -2,12 +2,14 @@
 #include "EntityPattern.h"
 
 class CMove;
+class CMouse;
 /* 주변의 적을 검사하여 적이 시야 안에 왔다면 적 추적 패턴으로 바뀜.. */
 class CPattern_Move :
 	public CEntityPattern
 {
 private:
 	CMove*	m_pMoveComponent;
+	CMouse*	m_pMouse;
 
 public:
 	CPattern_Move();

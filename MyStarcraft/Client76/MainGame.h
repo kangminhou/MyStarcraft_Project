@@ -3,10 +3,23 @@
 #include "Include.h"
 
 class CDevice;
+class CSoundMgr;
+class CMouse;
+class CSceneMgr;
+class CKeyMgr;
+class CTimeMgr;
+
 class CMainGame
 {
 private:
 	CDevice*		m_pDevice;
+
+	CSoundMgr*	m_pSoundMgr;
+	CMouse*		m_pMouse;
+	CSceneMgr*	m_pSceneMgr;
+	CKeyMgr*	m_pKeyMgr;
+	CTimeMgr*	m_pTimeMgr;
+
 
 private:
 	float		m_fTime;
@@ -24,7 +37,10 @@ public:
 	void	Release(void);
 
 private:
+#ifndef _IMAGE_THREAD_LOADING
 	bool	InitResource( void );
+#endif
+	HRESULT InitSound( void );
 
 public:
 	CMainGame(void);

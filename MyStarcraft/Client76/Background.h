@@ -22,12 +22,33 @@ public:
 
 	}ENTITY_TILE_DATA;
 
+	typedef struct tagFogData
+	{
+		bool		bNotFog;
+		bool		bAlreadySeeTile;
+
+		tagFogData()
+			: bNotFog( false ), bAlreadySeeTile( false )
+		{}
+
+	}FOG_DATA;
+
 private:
+	LPD3DXFONT			m_pFont;
+
 	vector<TILE*>		m_vecTile;
 	ENTITY_TILE_DATA	m_entityTileData[TILEX * TILEY * ENTITY_TOTAL_TILE_DIV];
 
+	list<CGameObject*>*	m_pPlayerObjList;
+
 	const TEX_INFO*		m_pBackgroundTexture;
+	const TEX_INFO*		m_pBlackTileTexture;
 	vector<const TEX_INFO*>	m_vecTileTexture;
+
+	vector<FOG_DATA*>	m_vecFogData;
+	vector<FOG_DATA*>	m_vecNotFog;
+
+	bool				m_bActiveFog;
 
 public:
 	vector<TILE*>*	GetTile(void)
@@ -73,6 +94,9 @@ public:
 
 private:
 	void LoadTileData();
+
+	bool CheckRay( const D3DXVECTOR3& _vStart, const D3DXVECTOR3& _vEnd );
+	bool CheckRay( const int& _iStartIndex, const int& _iEndIndex );
 
 };
 

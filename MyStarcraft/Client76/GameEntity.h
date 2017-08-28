@@ -14,11 +14,26 @@ class CUIMgr;
 class CMiniMap;
 class CEntityMgr;
 class CUpgradeMgr;
+class CMouse;
+class CObjMgr;
+class CSoundMgr;
+class CRandom;
+class CTimeMgr;
 
 class CGameEntity :
 	public CGameObject
 {
 public:
+	enum eUnit_Sound_Kind
+	{
+		Sound_Born,
+		Sound_Click,
+		Sound_ActPattern,
+		Sound_Death,
+		Sound_ETC,
+		Sound_End,
+	};
+
 	enum eGameEntityPattern
 	{
 		Pattern_Idle,
@@ -46,6 +61,9 @@ public:
 		Skill_BuildStructure,
 		Skill_BuildAdvancedStructure,
 		Skill_SteamPack,
+		SKill_LockDown,
+		Skill_Nuclear,
+		Skill_Clocking,
 	};
 
 	enum eEntityInformation
@@ -73,12 +91,22 @@ public:
 		SHORT	nIconNum;
 		int		iMessage;
 		void*	pData;
+
+		int		iDataType;
+
 	}ORDER_DATA;
 
 protected:
 	CEntityMgr*				m_pEntityMgr;
 	CUpgradeMgr*			m_pUpgradeMgr;
 	CUIMgr*					m_pUIMgr;
+	CMouse*					m_pMouse;
+	CObjMgr*				m_pObjMgr;
+	CSoundMgr*				m_pSoundMgr;
+	CRandom*				m_pRandom;
+	CTimeMgr*				m_pTimeMgr;
+
+	vector<TCHAR*>			m_vecSoundName[Sound_End];
 
 	D3DXVECTOR3				m_vHitShowPos;
 	D3DXVECTOR3				m_vEffectShowPos;
@@ -156,12 +184,20 @@ protected:
 
 	D3DXVECTOR3				m_vDestination;
 
+	float					m_fStopTime;
+	float					m_fIntervalSoundTime;
+	float					m_fSoundPlayGlobalTime;
+	float					m_fCurTime;
+
 	bool					m_bDrawHpBarUI;
 	bool					m_bIgnoreAttack;
 	bool					m_bUseDeathEffect;
 	bool					m_bCheckEntityTile;
 	bool					m_bHideEntity;
 	bool					m_bUseDestination;
+	bool					m_bUpdateOrderData;
+	bool					m_bStopAct;
+	bool					m_bClocking;
 
 public:
 	CGameEntity();
@@ -176,6 +212,7 @@ public:
 	void SetTarget( CGameEntity* _pTarget );
 	void SetGenerateData( const UNIT_GENERATE_DATA* _pGenData );
 	void SetPlayer( CPlayer* _pPlayer );
+	void SetUpdateOrderData( const bool& _bUpdateOrderData );
 	static void SetBackground(CBackground* pBackground)
 	{
 		m_pBackground = pBackground;
@@ -193,7 +230,8 @@ public:
 	void SetUseDestination( const bool& _bUseDestination );
 	void SetDestination( const D3DXVECTOR3& _vDestination );
 	void SetProgressRatio( const BYTE& _byProgressRatio );
-	bool AddOrderIcon( const SHORT& _nIcon, const int& _iMessage, void* _pData );
+	bool AddOrderIcon( const SHORT& _nIcon, const int& _iMessage, void* _pData, const int& _iDataType );
+	void SetStopTIme( const float& _fStopTime );
 
 public:
 	float GetCurHp() const;
@@ -212,6 +250,7 @@ public:
 	bool GetIsCheckEntityTile() const;
 	bool GetIsUseDestination() const;
 	bool GetIsFullOrderVector() const;
+	bool GetIsClocking() const;
 	const list<pair<int, BYTE>>* GetStandTileIndexList();
 	ATTACK_DATA GetGroundAttackData() const;
 	ATTACK_DATA GetAirAttackData() const;
@@ -242,7 +281,7 @@ public:
 	void KillEnemy();
 	virtual void PushMessage( const BUTTON_DATA* _pButtonData );
 
-	void ShowOrderIcon();
+	virtual void SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKind );
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -278,6 +317,14 @@ public:
 	void RenderHpUI();
 
 	void UpgradeArmor( const int& _iUpgradeArmor );
+
+	bool GetOrderIconData( vector<SHORT>& _vecGet );
+
+	void SoundPlay( const eUnit_Sound_Kind& _eSoundKind );
+	void SoundPlay( const eUnit_Sound_Kind& _eSoundKind, const int& _iIndex );
+	void SoundPlay( const eUnit_Sound_Kind& _eSoundKind, const int& _iStartIndex, const int& _iSize );
+
+	void AddSound( TCHAR * pStr, const eUnit_Sound_Kind & _eSoundKind );
 
 protected:
 	virtual void InitAnimation() PURE;

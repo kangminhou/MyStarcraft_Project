@@ -19,6 +19,7 @@ public:
 protected:
 	CEffect*				m_pEffect;
 	CTransform*				m_pEffectTransform;
+	LPD3DXSPRITE			m_pSprite;
 
 	vector<const TEX_INFO*>	m_vecDrawTexture;
 	CAnimation*				m_pAnimation;

@@ -36,13 +36,28 @@ CGoliath::~CGoliath()
 
 HRESULT CGoliath::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"tgordy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tgoyes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tgoyes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tgoyes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tgoyes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tgowht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"tgowht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"tgowht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"tgowht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"tgodth00.wav", CUnit::Sound_Death );
+
 	this->SetObjKey( L"GoliathtUpper" );
 	this->m_wstrStateKey = L"Idle";
 
 	this->m_wstrFaceKey = L"FaceGoliath";
 	this->m_wstrWireFrameKey = L"Goliatht";
 
-	this->m_byFaceFrameNum = 45;
+	this->m_byFaceFrameNum = 30;
 
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 125.f;
@@ -51,6 +66,8 @@ HRESULT CGoliath::Initialize( void )
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
 	this->m_tInfoData.nDefenceIconFrame = 293;
+
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Mechanic );
 
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_TwinAutocannons );
@@ -64,7 +81,7 @@ HRESULT CGoliath::Initialize( void )
 	this->m_pCannonAnim = new CAnimation;
 	this->m_pCannonAnim->Initialize();
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -16, -16, 16, 16 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -144,20 +161,27 @@ void CGoliath::Render( void )
 
 		/* 그릴 텍스쳐를 찾아냄.. */
 		pDrawTexture = NULL;
-		pCurAnimation = this->m_pAnimCom->GetCurAnimation();
-
-		size_t u = (size_t)pCurAnimation->fIndex;
-		if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
-			pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
-
-		/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
-		if ( pDrawTexture )
+		if ( this->m_pAnimCom )
 		{
-			float fX = pDrawTexture->ImageInfo.Width * 0.5f;
-			float fY = pDrawTexture->ImageInfo.Height * 0.5f;
-			this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
+			pCurAnimation = this->m_pAnimCom->GetCurAnimation();
+
+			if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
+				pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
+
+			/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
+			if ( pDrawTexture )
+			{
+				float fX = pDrawTexture->ImageInfo.Width * 0.5f;
+				float fY = pDrawTexture->ImageInfo.Height * 0.5f;
+				this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
+			}
 		}
 	}
+
+	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+		(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+
+	this->DrawRect( rcDraw );
 }
 
 void CGoliath::Release( void )
@@ -172,7 +196,7 @@ void CGoliath::InitAnimation()
 	this->m_pAnimCom->AddAnimation( L"Attack", FRAME( 0.f, 3.f, 1.f, 0.f ), CAnimation::Anim_ClampForever );
 
 	this->m_pCannonAnim->AddAnimation( L"Idle", FRAME( 0.f, 1.f, 1.f, 0.f ), CAnimation::Anim_Loop );
-	this->m_pCannonAnim->AddAnimation( L"Move", FRAME( 0.f, 10.f, 10.f, 0.f ), CAnimation::Anim_Loop );
+	this->m_pCannonAnim->AddAnimation( L"Work", FRAME( 0.f, 10.f, 10.f, 0.f ), CAnimation::Anim_Loop );
 }
 
 void CGoliath::InitPattern()
@@ -196,8 +220,10 @@ void CGoliath::ChangeDirAnimIndex()
 		m_vecTrunkTexture.clear();
 
 		int iAnimLength = int( pTempCurFrame->fMax );
-		int iStart = ((m_bInfluenceDir) ? iAnimLength * this->m_byDirAnimIndex : 0);
+		int iStart = ((m_bInfluenceDir) ? iAnimLength * this->m_byLookAnimIndex : 0);
 		int iEnd = iAnimLength + iStart;
+
+		//cout << "iStart : " << iStart << ", iAnimLength : " << iAnimLength << ", iEnd : " << iEnd << endl;
 
 		for ( ; iStart < iEnd; ++iStart )
 		{
@@ -243,7 +269,7 @@ void CGoliath::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Move" )->second;
 
 			this->m_wstrStateKey = L"Work";
-			this->m_wstrCannonStateKey = L"Move";
+			this->m_wstrCannonStateKey = L"Work";
 
 			if ( this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey.c_str() ) )
 				bChangeAnimation = true;
@@ -256,7 +282,7 @@ void CGoliath::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"MoveAlert" )->second;
 
 			this->m_wstrStateKey = L"Work";
-			this->m_wstrCannonStateKey = L"Move";
+			this->m_wstrCannonStateKey = L"Work";
 
 			if ( this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey.c_str() ) )
 				bChangeAnimation = true;
@@ -292,7 +318,7 @@ void CGoliath::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Patrol" )->second;
 
 			this->m_wstrStateKey = L"Work";
-			this->m_wstrCannonStateKey = L"Move";
+			this->m_wstrCannonStateKey = L"Work";
 
 			if ( this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey.c_str() ) )
 				bChangeAnimation = true;
@@ -316,7 +342,7 @@ void CGoliath::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"ChaseTarget" )->second;
 
 			this->m_wstrStateKey = L"Work";
-			this->m_wstrCannonStateKey = L"Move";
+			this->m_wstrCannonStateKey = L"Work";
 
 			if ( this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey.c_str() ) )
 				bChangeAnimation = true;
@@ -328,7 +354,7 @@ void CGoliath::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"ChaseTarget" )->second;
 
 			this->m_wstrStateKey = L"Work";
-			this->m_wstrCannonStateKey = L"Move";
+			this->m_wstrCannonStateKey = L"Work";
 
 			if ( this->m_pAnimCom->ChangeAnimation( this->m_wstrStateKey.c_str() ) )
 				bChangeAnimation = true;

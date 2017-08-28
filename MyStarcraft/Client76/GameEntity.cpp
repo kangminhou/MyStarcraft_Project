@@ -8,6 +8,9 @@
 #include "UIMgr.h"
 #include "EffectMgr.h"
 #include "UpgradeMgr.h"
+#include "Mouse.h"
+#include "Random.h"
+#include "SoundMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -43,12 +46,18 @@ CGameEntity::CGameEntity()
 	, m_bHideEntity(false)
 	, m_bUseDestination(false)
 	, m_byProgressRatio(0)
+	, m_bUpdateOrderData(false)
+	, m_bClocking(false)
+	, m_fIntervalSoundTime(1.f)
+	, m_fSoundPlayGlobalTime(0.f)
 {
 	ZeroMemory( &this->m_tInfoData, sizeof( COMMON_DATA ) );
 	ZeroMemory( &this->m_tGroundAttWeapon, sizeof( ATTACK_DATA ) );
 	ZeroMemory( &this->m_tAirAttWeapon, sizeof( ATTACK_DATA ) );
 
 	this->m_tGroundAttWeapon.pAttackEntity = this->m_tAirAttWeapon.pAttackEntity = this;
+
+	this->m_pTimeMgr = CTimeMgr::GetInstance();
 }
 
 
@@ -114,6 +123,11 @@ void CGameEntity::SetGenerateData( const UNIT_GENERATE_DATA * _pGenData )
 void CGameEntity::SetPlayer( CPlayer * _pPlayer )
 {
 	this->m_pPlayer = _pPlayer;
+}
+
+void CGameEntity::SetUpdateOrderData( const bool & _bUpdateOrderData )
+{
+	this->m_bUpdateOrderData = _bUpdateOrderData;
 }
 
 
@@ -189,7 +203,7 @@ void CGameEntity::SetProgressRatio( const BYTE & _byProgressRatio )
 	this->m_byProgressRatio = _byProgressRatio;
 }
 
-bool CGameEntity::AddOrderIcon( const SHORT & _nIcon, const int& _iMessage, void* _pData )
+bool CGameEntity::AddOrderIcon( const SHORT & _nIcon, const int& _iMessage, void* _pData, const int& _iDataType )
 {
 	if ( this->GetIsFullOrderVector() )
 		return false;
@@ -198,9 +212,18 @@ bool CGameEntity::AddOrderIcon( const SHORT & _nIcon, const int& _iMessage, void
 	tOrderData.nIconNum = _nIcon;
 	tOrderData.iMessage = _iMessage;
 	tOrderData.pData = _pData;
+	tOrderData.iDataType = _iDataType;
 
 	this->m_vecOrderData.push_back( tOrderData );
 	return true;
+}
+
+void CGameEntity::SetStopTIme( const float & _fStopTime )
+{
+	if ( _fStopTime > 0.f )
+		this->m_bStopAct = true;
+
+	this->m_fStopTime = _fStopTime;
 }
 
 float CGameEntity::GetCurHp() const
@@ -279,6 +302,11 @@ bool CGameEntity::GetIsFullOrderVector() const
 		return true;
 
 	return false;
+}
+
+bool CGameEntity::GetIsClocking() const
+{
+	return this->m_bClocking;
 }
 
 const list<pair<int, BYTE>>* CGameEntity::GetStandTileIndexList()
@@ -427,20 +455,16 @@ void CGameEntity::PushMessage( const BUTTON_DATA* _pButtonData )
 	m_pPushData = _pButtonData;
 }
 
-void CGameEntity::ShowOrderIcon()
+void CGameEntity::SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKind )
 {
-	vector<SHORT> vecIcon;
-
-	for ( size_t i = 0; i < m_vecOrderData.size(); ++i )
-		vecIcon.push_back( m_vecOrderData[i].nIconNum );
-
-	this->m_pUIMgr->ShowBuildingOrderUI( vecIcon );
+	this->m_bUpdateOrderData = true;
 }
-
-
 
 HRESULT CGameEntity::Initialize( void )
 {
+	this->m_pMouse = CMouse::GetInstance();
+	this->m_pObjMgr = CObjMgr::GetInstance();
+
 	this->m_pUpgradeMgr = CUpgradeMgr::GetInstance();
 	this->m_pUpgradeMgr->AddArmorUpgradeObserver( this, this->m_tInfoData.eArmorUpgradeType );
 
@@ -515,8 +539,16 @@ int CGameEntity::Update( void )
 	if ( this->m_bScrollMove )
 		this->UpdateMatrix();
 
-	if ( this->m_pCurActPattern )
+	if ( this->m_bStopAct )
+	{
+		this->m_fStopTime -= GET_TIME;
+		if ( this->m_fStopTime <= 0.f )
+			this->m_bStopAct = false;
+	}
+	else if ( this->m_pCurActPattern )
+	{
 		this->m_pCurActPattern->Update();
+	}
 
 	if ( this->m_pAnimCom )
 		this->m_pAnimCom->UpdateAnim();
@@ -571,7 +603,27 @@ void CGameEntity::Release( void )
 
 	for ( size_t i = 0; i < m_vecOrderData.size(); ++i )
 	{
-		safe_delete( this->m_vecOrderData[i].pData );
+		if ( this->m_vecOrderData[i].iDataType == CGameEntity::Pattern_Make_Unit )
+		{
+			UNIT_GENERATE_DATA* pDelete = ((UNIT_GENERATE_DATA*)(this->m_vecOrderData[i].pData));
+			safe_delete( pDelete );
+		}
+		else if ( this->m_vecOrderData[i].iDataType == CGameEntity::Pattern_Research )
+		{
+			RESEARCH_DATA* pDelete = ((RESEARCH_DATA*)(this->m_vecOrderData[i].pData));
+			safe_delete( pDelete );
+		}
+	}
+
+	for ( int i = 0; i < Sound_End; ++i )
+	{
+		for ( size_t j = 0; j < m_vecSoundName[i].size(); ++j )
+		{
+			delete[] this->m_vecSoundName[i][j];
+			this->m_vecSoundName[i][j] = nullptr;
+		}
+
+		this->m_vecSoundName[i].clear();
 	}
 }
 
@@ -583,8 +635,8 @@ void CGameEntity::UpdatePosition( const D3DXVECTOR3& vPrevPos )
 	m_pBackground->EraseUnitData( m_vecSpaceDataKey );
 	m_pBackground->UpdateUnitData( this, m_vecSpaceDataKey );
 
-	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
-	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
+	this->m_pObjMgr->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
+	this->m_pObjMgr->InsertEntitySpaceData( this );
 
 	CGameObject::UpdatePosition( vPrevPos );
 	m_iMinimapSpaceDataKey = this->m_pMiniMap->MoveEntity( this );
@@ -610,7 +662,7 @@ bool CGameEntity::CheckAlertEnemy( vector<CGameEntity*>* pVecEntitys, const int 
 		if ( i == this->GetObjectType() )
 			continue;
 
-		if ( !bOut && CObjMgr::GetInstance()->CheckNearEntitys( pVecEntitys, this, (eObjectType)i, iVecLimitSize ) )
+		if ( !bOut && this->m_pObjMgr->CheckNearEntitys( pVecEntitys, this, (eObjectType)i, iVecLimitSize ) )
 			bOut = true;
 	}
 
@@ -627,7 +679,7 @@ bool CGameEntity::CheckRangeAlertEnemy( const float & _fRange, vector<CGameEntit
 		if ( i == this->GetObjectType() )
 			continue;
 
-		if ( !bOut && CObjMgr::GetInstance()->CheckNearEntitys( pVecEntitys, this, _fRange, (eObjectType)i, iVecLimitSize ) )
+		if ( !bOut && this->m_pObjMgr->CheckNearEntitys( pVecEntitys, this, _fRange, (eObjectType)i, iVecLimitSize ) )
 			bOut = true;
 	}
 
@@ -640,7 +692,7 @@ bool CGameEntity::CheckAlertOurForces( vector<CGameEntity*>* pVecEntitys, const 
 	bool bOut = false;
 	vector<CGameEntity*> vecEntitys;
 
-	CObjMgr::GetInstance()->CheckNearEntitys( &vecEntitys, this, this->GetObjectType() );
+	this->m_pObjMgr->CheckNearEntitys( &vecEntitys, this, this->GetObjectType() );
 
 	int iTempVecLimitSize = iVecLimitSize;
 
@@ -648,6 +700,9 @@ bool CGameEntity::CheckAlertOurForces( vector<CGameEntity*>* pVecEntitys, const 
 	for ( size_t i = 0; i < iLength; ++i )
 	{
 		if ( (vecEntitys[i]->m_tInfoData.fMaxHp - vecEntitys[i]->m_tInfoData.fCurHp) <= EPSILON )
+			continue;
+
+		if ( !vecEntitys[i]->GetCheckUnitInformation( CGameEntity::Entity_Bionic ) )
 			continue;
 		
 		if ( !bOut )
@@ -802,8 +857,8 @@ void CGameEntity::DieEntity()
 		/*## 이펙트 터지는 부분.. */
 		/*## 이펙트 터지는 부분.. */
 		D3DXVECTOR3 vSize( 1.f, 1.f, 1.f );
-		vSize.x = (this->m_tColRect.right - this->m_tColRect.left) / 8 * 0.2f;
-		vSize.y = (this->m_tColRect.bottom - this->m_tColRect.top) / 8 * 0.2f;
+		vSize.x = (this->m_tColRect.right - this->m_tColRect.left) / 8 * 0.1f;
+		vSize.y = (this->m_tColRect.bottom - this->m_tColRect.top) / 8 * 0.1f;
 
 		if ( this->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
 		{
@@ -827,11 +882,13 @@ void CGameEntity::DieEntity()
 		m_pPlayer->ShowEntityUI();
 	}
 
-	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
+	this->m_pObjMgr->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
 	this->m_pBackground->EraseUnitData( m_vecSpaceDataKey );
 	this->m_pMiniMap->EraseEntity( this );
 
 	this->m_pUpgradeMgr->EraseArmorUpgradeObserver( this, this->m_tInfoData.eArmorUpgradeType );
+
+	this->SoundPlay( CGameEntity::Sound_Death );
 
 }
 
@@ -858,6 +915,71 @@ void CGameEntity::RenderHpUI()
 void CGameEntity::UpgradeArmor( const int & _iUpgradeArmor )
 {
 	this->m_tInfoData.iUpgradeDefense = _iUpgradeArmor;
+}
+
+bool CGameEntity::GetOrderIconData( vector<SHORT>& _vecGet )
+{
+	if ( this->m_bUpdateOrderData )
+	{
+		vector<SHORT> vecIcon;
+
+		for ( size_t i = 0; i < m_vecOrderData.size(); ++i )
+			_vecGet.push_back( m_vecOrderData[i].nIconNum );
+
+		this->m_bUpdateOrderData = false;
+
+		return true;
+	}
+
+	return false;
+}
+
+void CGameEntity::SoundPlay( const eUnit_Sound_Kind & _eSoundKind )
+{
+	if ( m_vecSoundName[_eSoundKind].empty() )
+		return;
+
+	size_t iSoundNum = m_vecSoundName[_eSoundKind].size();
+	size_t iSelectSoundNum = m_pRandom->GetValue( iSoundNum );
+
+	this->SoundPlay( _eSoundKind, iSelectSoundNum );
+}
+
+void CGameEntity::SoundPlay( const eUnit_Sound_Kind & _eSoundKind, const int & _iIndex )
+{
+	if ( _eSoundKind != CGameEntity::Sound_Death )
+	{
+		this->m_fCurTime = this->m_pTimeMgr->GetGlobalTime();
+
+		if(this->m_fCurTime - this->m_fIntervalSoundTime < this->m_fSoundPlayGlobalTime )
+			return;
+	}
+
+	if ( m_vecSoundName[_eSoundKind].empty() )
+		return;
+
+	this->m_pSoundMgr->PlaySound( m_vecSoundName[_eSoundKind][_iIndex], CSoundMgr::Channel_Player );
+
+	this->m_fSoundPlayGlobalTime = this->m_fCurTime;
+}
+
+void CGameEntity::SoundPlay( const eUnit_Sound_Kind & _eSoundKind, const int & _iStartIndex, const int & _iSize )
+{
+	if ( m_vecSoundName[_eSoundKind].empty() )
+		return;
+
+	size_t iSelectSoundNum = m_pRandom->GetValue( _iStartIndex, _iStartIndex + _iSize );
+
+	this->SoundPlay( _eSoundKind, iSelectSoundNum );
+}
+
+void CGameEntity::AddSound( TCHAR * pStr, const eUnit_Sound_Kind & _eSoundKind )
+{
+	TCHAR* pPushString = new TCHAR[MAX_PATH];
+
+	lstrcpy( pPushString, pStr );
+
+	this->m_vecSoundName[_eSoundKind].push_back( pPushString );
 }
 
 void CGameEntity::ChangeLookAnimTexture()
@@ -894,7 +1016,7 @@ void CGameEntity::CollisionCheck()
 	//return;
 	vector<CGameEntity*> vColEntity;
 	
-	CObjMgr::GetInstance()->CheckEntitysCol( &vColEntity, this );
+	this->m_pObjMgr->CheckEntitysCol( &vColEntity, this );
 	
 	if ( !vColEntity.empty() )
 	{

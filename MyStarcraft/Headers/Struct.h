@@ -111,7 +111,7 @@ typedef struct tagTile
 	BYTE		byHeight;		// 타일의 높이..
 
 	tagTile()
-		: byHeight(0), byDrawID(0), byOption(0)
+		: byHeight( 0 ), byDrawID( 0 ), byOption( 0 )
 	{}
 
 }TILE, *PTILE, *pTILE;
@@ -174,11 +174,13 @@ typedef struct tagResearchData
 		: wstrName(L"")
 	{}
 
-	tagResearchData(const float& _fResearchTime, const int& _iRequireMineral, const int& _iRequireGas, const wstring& _wstrName)
-		: fResearchTime(_fResearchTime)
-		, iRequireMineral(_iRequireMineral)
-		, iRequireGas(_iRequireGas)
-		, wstrName(_wstrName)
+	tagResearchData( const float& _fResearchTime, const int& _iRequireMineral, const int& _iRequireGas,
+					 const wstring& _wstrName, const SHORT& _nIconFrame )
+		: fResearchTime( _fResearchTime )
+		, iRequireMineral( _iRequireMineral )
+		, iRequireGas( _iRequireGas )
+		, wstrName( _wstrName )
+		, nIconFrame( _nIconFrame )
 	{}
 
 }RESEARCH_DATA;
@@ -202,7 +204,7 @@ typedef struct tagUnitGenerateData
 
 	tagUnitGenerateData(const float& _fGenerateTime, const int& _iRequireMineral, const int& _iRequireGas,
 						 const int& _iRequirePopulation, const SHORT& _nIconFrame)
-		: fGenerateTime(_fGenerateTime * 0.1f)
+		: fGenerateTime(_fGenerateTime)
 		, iRequireMineral(_iRequireMineral)
 		, iRequireGas(_iRequireGas)
 		, iRequirePopulation(_iRequirePopulation)

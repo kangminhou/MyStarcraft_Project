@@ -39,6 +39,8 @@ const BUTTON_DATA * CMyButton::GetButtonData() const
 
 HRESULT CMyButton::Initialize()
 {
+	m_pMouse = CMouse::GetInstance();
+
 	m_bClickButton = false;
 
 	CGameObject::Initialize();
@@ -64,7 +66,7 @@ int CMyButton::Update()
 		return 2;
 	}
 
-	D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos();
+	D3DXVECTOR3 vMousePos = this->m_pMouse->GetPos();
 
 	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) && !m_bClickButton )
 	{

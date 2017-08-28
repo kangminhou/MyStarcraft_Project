@@ -8,6 +8,7 @@ private:
 	CAnimation*				m_pCannonAnim;
 	vector<const TEX_INFO*>	m_vecTankTrunkTexture;
 	D3DXMATRIX				m_matCannonWorld;
+	D3DXMATRIX				m_matTrunkWorld;
 
 	wstring					m_wstrCannonObjKey;
 	wstring					m_wstrCannonStateKey;
@@ -17,9 +18,12 @@ private:
 
 	int						m_iModeChangeLevel;
 
+	float					m_fAttachSoundWaitTime;
+
 	bool					m_bChangeMode;
 	bool					m_bSiegeMode;
 	bool					m_bInfluenceDir;
+	bool					m_bPlayAttachSound;
 
 public:
 	CTank();

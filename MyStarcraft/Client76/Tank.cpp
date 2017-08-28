@@ -36,6 +36,24 @@ CTank::~CTank()
 
 HRESULT CTank::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"ttardy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"ttayes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"ttayes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"ttayes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"ttayes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"ttawht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"ttawht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"ttawht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"ttawht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"ttadth00.wav", CUnit::Sound_Death );
+
+	this->AddSound( L"ttatra00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"ttatra01.wav", CUnit::Sound_ETC );
+
 	this->SetObjKey( L"TankUpper" );
 	this->m_wstrStateKey = L"All";
 
@@ -51,6 +69,8 @@ HRESULT CTank::Initialize( void )
 	//this->m_tInfoData.fSpeed = Calc_Entity_Speed( 10.f );
 	this->m_tInfoData.iScope = 8;
 	this->m_tInfoData.nDefenceIconFrame = 293;
+
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Mechanic );
 
 	/* 유닛 무기 초기화.. */
 	this->m_tNormalTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_ArcliteCannon );
@@ -68,7 +88,7 @@ HRESULT CTank::Initialize( void )
 	this->m_pCannonAnim = new CAnimation;
 	this->m_pCannonAnim->Initialize();
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -16, -16, 16, 16 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -93,11 +113,6 @@ HRESULT CTank::Initialize( void )
 
 int CTank::Update( void )
 {
-	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'O' ) )
-	{
-		this->UseSkill( CGameEntity::Skill_SiegeOnOff, NULL );
-	}
-
 	if ( this->m_pCannonAnim )
 		this->m_pCannonAnim->UpdateAnim();
 
@@ -133,14 +148,33 @@ int CTank::Update( void )
 
 	if ( this->m_bSiegeMode || this->m_bChangeMode )
 	{
+		D3DXVECTOR3 vPos = this->GetPos();
+		D3DXVECTOR3 vSize = this->GetTransform()->GetSize();
 		D3DXMATRIX matTrans, matScale;
-		D3DXMatrixTranslation( &matTrans, -9.f, -16.f, 0.f );
-		D3DXMatrixScaling( &matScale, ((this->GetTransform()->GetLook().x < 0.f) ? -1.f : 1.f), 1.f, 1.f );
-		this->m_matCannonWorld = matScale * matTrans * this->GetWorldMatrix();
+
+		if(vSize.x >= 0.f )
+			D3DXMatrixTranslation( &matTrans, -9.f, -16.f, 0.f );
+		else
+			D3DXMatrixTranslation( &matTrans, 9.f, -16.f, 0.f );
+
+		//D3DXMatrixScaling( &matScale, ((this->GetTransform()->GetSize().x < 0.f) ? -1.f : 1.f), 1.f, 1.f );
+		D3DXMatrixScaling( &matScale, 1.f, 1.f, 1.f );
+		this->m_matCannonWorld = matTrans * this->GetWorldMatrix();
+
+		D3DXMatrixTranslation( &matTrans, vPos.x - m_vScroll.x, vPos.y - m_vScroll.y, 0.f );
+
+		this->m_matTrunkWorld = matScale * matTrans;
 	}
 	else
 	{
+		D3DXVECTOR3 vPos = this->GetPos();
+		D3DXMATRIX matTrans, matScale;
+		//D3DXMatrixScaling( &matScale, ((this->GetTransform()->GetSize().x < 0.f) ? -1.f : 1.f), 1.f, 1.f );
+
+		D3DXMatrixTranslation( &matTrans, vPos.x, vPos.y, vPos.z );
+
 		this->m_matCannonWorld = this->GetWorldMatrix();
+		this->m_matTrunkWorld = this->GetWorldMatrix();
 	}
 
 	return CUnit::Update();
@@ -154,30 +188,30 @@ void CTank::Render( void )
 
 	/* 그릴 텍스쳐를 찾아냄.. */
 	const TEX_INFO* pDrawTexture = NULL;
-
+	
 	const FRAME* pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
-
+	
 	if ( pCurAnimation && this->m_vecTankTrunkTexture.size() > (unsigned int)pCurAnimation->fIndex )
 	{
 		pDrawTexture = this->m_vecTankTrunkTexture[(unsigned int)pCurAnimation->fIndex];
 	}
-
+	
 	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
 	if ( pDrawTexture )
 	{
 		float fX = pDrawTexture->ImageInfo.Width * 0.5f;
 		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
-		this->DrawTexture( pDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
+		this->DrawTexture( pDrawTexture, this->m_matTrunkWorld, D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
 	/* 그릴 텍스쳐를 찾아냄.. */
 	pDrawTexture = NULL;
 	pCurAnimation = this->m_pAnimCom->GetCurAnimation();
-
+	
 	size_t u = (size_t)pCurAnimation->fIndex;
 	if ( pCurAnimation && this->m_vecTexture.size() > (size_t)pCurAnimation->fIndex )
 		pDrawTexture = this->m_vecTexture[(unsigned int)(pCurAnimation->fIndex)];
-
+	
 	/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */
 	if ( pDrawTexture )
 	{
@@ -185,14 +219,20 @@ void CTank::Render( void )
 		float fY = pDrawTexture->ImageInfo.Height * 0.5f;
 		this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
 	}
+
+	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+		(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+
+	this->DrawRect( rcDraw );
 }
 
 void CTank::Release( void )
 {
 	safe_delete( m_pCannonAnim );
-	if ( this->m_bSiegeMode )
-		safe_delete( this->m_tNormalTankGroundAttData.pWeapon );
-	else
+
+	//if ( this->m_bSiegeMode )
+	//	safe_delete( this->m_tNormalTankGroundAttData.pWeapon );
+	//else
 		safe_delete( this->m_tSiegeTankGroundAttData.pWeapon );
 	//safe_delete( this->m_tNormalTankGroundAttData.pWeapon );
 	//safe_delete( this->m_tSiegeTankGroundAttData.pWeapon );
@@ -416,6 +456,7 @@ void CTank::UpdateModeChange()
 			{
 				this->m_bInfluenceDir = false;
 				this->m_bInfluenceLook = false;
+				this->m_bUseDirAnimIndex = false;
 
 				D3DXVECTOR3 vLook, vDir;
 				D3DXVec3Normalize( &vLook, &D3DXVECTOR3( 1.f, -1.f, 0.f ) );
@@ -439,17 +480,50 @@ void CTank::UpdateModeChange()
 				this->ChangeDirAnimIndex();
 
 				this->m_iModeChangeLevel = 1;
+
+				this->m_fAttachSoundWaitTime = 0.1f;
+				this->m_bPlayAttachSound = false;
+				this->m_pCannonAnim->PauseAnim();
+
 			}
 				break;
 			case 1:
+			{
+				if ( !this->m_bPlayAttachSound )
+				{
+					this->m_fAttachSoundWaitTime -= this->m_pTimeMgr->GetTime();
+
+					if ( this->m_fAttachSoundWaitTime <= 0.f )
+					{
+						this->m_pCannonAnim->StopPauseAnim();
+						this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+						this->m_bPlayAttachSound = true;
+					}
+				}
+
 				if ( this->m_pCannonAnim->GetIsAnimEnd() )
 				{
-					this->m_pAnimCom->StopPauseAnim();
+					this->m_fAttachSoundWaitTime = 0.5f;
+					this->m_bPlayAttachSound = false;
 
 					this->m_iModeChangeLevel = 2;
 				}
-				break;
+			}
+			break;
 			case 2:
+			{
+				if ( !this->m_bPlayAttachSound )
+				{
+					this->m_fAttachSoundWaitTime -= this->m_pTimeMgr->GetTime();
+
+					if ( this->m_fAttachSoundWaitTime <= 0.f )
+					{
+						this->m_pAnimCom->StopPauseAnim();
+						this->SoundPlay( CGameEntity::Sound_ETC, 0 );
+						this->m_bPlayAttachSound = true;
+					}
+				}
+
 				if ( this->m_pAnimCom->GetIsAnimEnd() )
 				{
 					//this->m_pAnimCom->PauseAnim();
@@ -462,7 +536,8 @@ void CTank::UpdateModeChange()
 
 					this->ModeChangeEnd();
 				}
-				break;
+			}
+			break;
 		}
 	}
 	else
@@ -489,16 +564,49 @@ void CTank::UpdateModeChange()
 				this->UpdateLookAnimIndex();
 
 				this->m_iModeChangeLevel = 1;
+
+				this->m_fAttachSoundWaitTime = 0.1f;
+				this->m_bPlayAttachSound = false;
+				this->m_pAnimCom->PauseAnim();
 			}
 				break;
 			case 1:
+			{
+				if ( !this->m_bPlayAttachSound )
+				{
+					this->m_fAttachSoundWaitTime -= this->m_pTimeMgr->GetTime();
+
+					if ( this->m_fAttachSoundWaitTime <= 0.f )
+					{
+						this->m_pAnimCom->StopPauseAnim();
+						this->SoundPlay( CGameEntity::Sound_ETC, 0 );
+						this->m_bPlayAttachSound = true;
+					}
+				}
+
 				if ( this->m_pAnimCom->GetIsAnimEnd() )
 				{
-					this->m_pCannonAnim->StopPauseAnim();
 					this->m_iModeChangeLevel = 2;
+
+					this->m_fAttachSoundWaitTime = 0.5f;
+					this->m_bPlayAttachSound = false;
 				}
-				break;
+			}
+			break;
 			case 2:
+			{
+				if ( !this->m_bPlayAttachSound )
+				{
+					this->m_fAttachSoundWaitTime -= this->m_pTimeMgr->GetTime();
+
+					if ( this->m_fAttachSoundWaitTime <= 0.f )
+					{
+						this->m_pCannonAnim->StopPauseAnim();
+						this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+						this->m_bPlayAttachSound = true;
+					}
+				}
+
 				if ( this->m_pCannonAnim->GetIsAnimEnd() )
 				{
 					this->m_bInfluenceDir = true;
@@ -512,11 +620,14 @@ void CTank::UpdateModeChange()
 					this->m_wstrCannonStateKey = L"Idle";
 					this->m_pCannonAnim->ChangeAnimation( L"Idle" );
 
+					this->m_bUseDirAnimIndex = true;
+
 					this->UpdateLookAnimIndex();
 
 					this->ModeChangeEnd();
 				}
-				break;
+			}
+			break;
 		}
 	}
 	/* 탱크 노말 -> 시즈 모드 */

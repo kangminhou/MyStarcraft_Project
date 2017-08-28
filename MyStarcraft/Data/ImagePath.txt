@@ -1,5 +1,17 @@
+MainMenu|Editor|85|..\Texture\MainMenu\Editor\editor%d.png
+MainMenu|EMouseOn|20|..\Texture\MainMenu\EMouseOn\editoron%d.png
+MainMenu|Exit|50|..\Texture\MainMenu\Exit\exit%d.png
+MainMenu|SinglePlay|35|..\Texture\MainMenu\SinglePlay\single%d.png
+MainMenu|SMouseOn|60|..\Texture\MainMenu\SMouseOn\singleon%d.png
+MainMenu|XMouseOn|30|..\Texture\MainMenu\XMouseOn\exiton%d.png
+Bullet|MissileAtt|17|..\Texture\Bullet\MissileAtt\missile%d.png
 Effect|DeathUnit|14|..\Texture\Effect\DeathUnit\tbangx%d.png
 Effect|GasSmoke|8|..\Texture\Effect\GasSmoke\GasSmoke%d.png
+Effect|LockDownL|14|..\Texture\Effect\LockDownL\eldlarge%d.png
+Effect|LockDownM|14|..\Texture\Effect\LockDownM\eldmed%d.png
+Effect|LockDownS|14|..\Texture\Effect\LockDownS\eldsmall%d.png
+Effect|NuClearReady|2|..\Texture\Effect\NuClearReady\NuClearReady%d.png
+Effect|Nuke|26|..\Texture\Effect\Nuke\nukehit%d.png
 Building|Academy|3|..\Texture\Building\Academy\academy%d.png
 Building|Barrack|9|..\Texture\Building\Barrack\tbarrack%d.png
 Building|Bunker|19|..\Texture\Building\Bunker\pillbox%d.png
@@ -79,7 +91,7 @@ Ghost|Die|8|..\Texture\Unit\Ghost\Die\ghost%d.png
 Ghost|Idle|17|..\Texture\Unit\Ghost\Idle\ghost%d.png
 Ghost|Work|153|..\Texture\Unit\Ghost\Work\ghost%d.png
 GoliathtLower|Idle|17|..\Texture\Unit\Goliatht\GoliathtLower\Idle\goliath%d.png
-GoliathtLower|Move|170|..\Texture\Unit\Goliatht\GoliathtLower\Move\goliath%d.png
+GoliathtLower|Work|170|..\Texture\Unit\Goliatht\GoliathtLower\Work\goliath%d.png
 GoliathtUpper|Attack|17|..\Texture\Unit\Goliatht\GoliathtUpper\Attack\goliatht%d.png
 GoliathtUpper|Idle|17|..\Texture\Unit\Goliatht\GoliathtUpper\Idle\goliatht%d.png
 GoliathtUpper|Work|170|..\Texture\Unit\Goliatht\GoliathtUpper\Work\goliatht%d.png

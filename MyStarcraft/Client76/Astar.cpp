@@ -30,8 +30,8 @@ int CAStar::AStarSetting( const D3DXVECTOR3& _vStartPos, const D3DXVECTOR3& _vEn
 
 	this->m_bCheckEntityTile = _bCheckEntityTile;
 
-	if ( !this->m_pBackground->CheckCanGoTile( this->m_iStartIndex, 0, m_pCheckEntity, this->m_bCheckEntityTile ) )
-		return Event_Fail_Find_NearIndex;
+	//if ( !this->m_pBackground->CheckCanGoTile( this->m_iStartIndex, 0, m_pCheckEntity, this->m_bCheckEntityTile ) )
+	//	return Event_Fail_Find_NearIndex;
 
 	if ( m_iEndIndex < 0 || m_iEndIndex >= TILEX * TILEY )
 		return Event_Index_OutRange_TileSize;
@@ -68,7 +68,7 @@ int CAStar::PathFind()
 
 	int	iCnt = 0;
 
-	while(!m_OpenList.empty())
+	while( !m_OpenList.empty() )
 	{
 		byCheckSuccess = 0;
 		/*
@@ -85,6 +85,7 @@ int CAStar::PathFind()
 		//3.Open Or Close List에 있는 노드인가?
 
 		//##위쪽 타일..
+		//cout << "Index : " << pCheckNode->iIndex << endl;
 		iIndex = pCheckNode->iIndex - TILEX;
 
 		if( pCheckNode->iIndex >= TILEX			&&
@@ -303,6 +304,9 @@ int CAStar::PathFind()
 		//OpenList에 담긴 비용을 정렬한다.
 		m_OpenList.sort( Compare );
 
+		if ( this->m_OpenList.empty() )
+			return Event_Fail_PathFind;
+
 		pCheckNode = m_OpenList.front();
 
 		++iCnt;
@@ -315,7 +319,7 @@ int CAStar::PathFind()
 
 		if ( m_CloseList.size() >= Limit_Close_List_Num )
 		{
-			cout << "Too Many size close list" << endl;
+			//cout << "Too Many size close list" << endl;
 			if ( this->AStarSetting( this->m_pCheckEntity->GetPos() ) != Event_Can_PathFind )
 				return Event_Fail_PathFind;
 

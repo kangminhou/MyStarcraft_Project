@@ -43,7 +43,7 @@ HRESULT CAcademy::Initialize( void )
 	this->m_byFaceFrameNum = 45;
 
 	//RECT tRect = { -8, -9, 8, 10 };
-	RECT tRect = { -40, -32, 40, 32 };
+	RECT tRect = { -32, -32, 32, 32 };
 	this->m_tOriginColRect = tRect;
 
 	CBuilding::Initialize();
@@ -56,19 +56,12 @@ HRESULT CAcademy::Initialize( void )
 
 int CAcademy::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CAcademy::Render( void )
 {
 	CBuilding::Render();
-
-	if ( m_curActPatternKind == Pattern_Research )
-	{
-		
-	}
 }
 
 void CAcademy::Release( void )
@@ -108,13 +101,45 @@ void CAcademy::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 
 		case CGameEntity::Pattern_Research:
 		{
+			if ( !this->GetIsFullOrderVector() )
+			{
+				//this->m_pPushData->iMessage
+				RESEARCH_DATA* pResearchData = new RESEARCH_DATA(
+					this->m_pResearchMgr->GetResearchData( eResearchKind( this->m_pPushData->iMessage ) ) );
+
+				int iCanBuyCheck = this->m_pPlayer->CheckCanBuyUnit( *pResearchData );
+				if ( iCanBuyCheck )
+				{
+					if ( iCanBuyCheck == 1 )
+					{
+						this->SoundPlay( CGameEntity::Sound_ETC, 0 );
+						this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Mineral );
+					}
+					else if ( iCanBuyCheck == 2 )
+					{
+						this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+						this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Gas );
+					}
+
+					return;
+				}
+				else
+				{
+					this->m_pPlayer->BuyUnit( *pResearchData );
+
+					this->AddOrderIcon( pResearchData->nIconFrame, this->m_pPushData->iMessage, pResearchData, CGameEntity::Pattern_Research );
+
+					this->ShowUpdateOrderData();
+				}
+
+
+			}
+
 			if ( this->m_curActPatternKind != CGameEntity::Pattern_Research )
 			{
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Research" )->second;
 				this->m_pAnimCom->ChangeAnimation( L"Research" );
 			}
-			
-			m_eResearchKind = (eResearchKind)this->m_pPushData->iMessage;
 
 		}
 			break;
@@ -144,11 +169,18 @@ void CAcademy::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 
 void CAcademy::DecideTexture()
 {
+	if ( this->m_vecTexture.empty() )
+	{
+		this->m_pCurDrawTexture = nullptr;
+		return;
+	}
+
 	if ( !this->m_bSuccessBuild )
 	{
 		int iIndex = int(this->m_tInfoData.fCurHp / this->m_tInfoData.fMaxHp * (this->m_vecTexture.size()));
 		if ( iIndex > 0 )
 			--iIndex;
+
 		this->m_pCurDrawTexture = this->m_vecTexture[iIndex];
 	}
 	else

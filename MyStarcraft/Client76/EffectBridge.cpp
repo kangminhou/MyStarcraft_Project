@@ -56,6 +56,8 @@ void CEffectBridge::Initialize()
 		this->m_pAnimation->Initialize();
 		this->m_pAnimation->SetGameObject( this->m_pEffect );
 
+		this->m_pSprite = CDevice::GetInstance()->GetSprite();
+
 		this->m_bFirstInitialize = false;
 	}
 	else
@@ -76,9 +78,9 @@ void CEffectBridge::Render()
 
 		if ( pDrawTexture )
 		{
-			CDevice::GetInstance()->GetSprite()->SetTransform( &this->m_pEffect->GetWorldMatrix() );
+			this->m_pSprite->SetTransform( &this->m_pEffect->GetWorldMatrix() );
 
-			CDevice::GetInstance()->GetSprite()->Draw(
+			this->m_pSprite->Draw(
 				pDrawTexture->pTexture,
 				NULL,
 				&D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f ),

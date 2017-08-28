@@ -49,11 +49,18 @@ int CMove::Update()
 	float fEntitySpeed = this->m_pGameEntity->GetSpeed() * GET_TIME * 1.4f;
 	float fDist = D3DXVec3Length( &(this->m_vDestination - this->m_pGameEntity->GetPos()) );
 
+#ifdef _AStar_Debug_Log
+	cout << "Update" << endl;
+#endif
+
 	/* 더 이상 이동할 경로가 없다 == 도착했다.. */
 	if ( ((unsigned int)(this->m_iCurIndexNum) >= this->m_vecMovePath.size() && fDist <= fEntitySpeed) || 
 		 this->m_bMoveStop )
 	{
 		//m_pBackground->UpdateUnitPosData( this->m_pGameEntity);
+#ifdef _AStar_Debug_Log
+		cout << "Stop Move" << endl;
+#endif
 		return 1;
 	}
 
@@ -66,12 +73,20 @@ int CMove::Update()
 		}
 	}
 	else
+	{
 		m_fRestReFindPath -= GET_TIME;
+#ifdef _AStar_Debug_Log
+		cout << "GET_TIME" << endl;
+#endif
+	}
 
 	if ( this->m_pGameEntity->GetIsCollision() && m_bCanRestReFindPath )
 	{
 		this->ReFindPath();
 		m_bCanRestReFindPath = false;
+#ifdef _AStar_Debug_Log
+		cout << "Collision" << endl;
+#endif
 		return 0;
 	}
 
@@ -79,23 +94,50 @@ int CMove::Update()
 	{
 		if ( this->m_bCanMove )
 		{
-			/* 이동할 경로로 이동.. */
-			this->m_pGameEntity->LookPos( m_vTilePos );
-			this->m_pGameEntity->MoveEntity();
-
-			D3DXVECTOR3 vEntityPos = this->m_pGameEntity->GetPos();
-			D3DXVECTOR3 vTilePos = m_vecMovePath[this->m_iCurIndexNum];
-
-			if ( D3DXVec3Length( &(vTilePos - vEntityPos) ) <= fEntitySpeed )
+			if ( this->m_vecMovePath.size() > this->m_iCurIndexNum )
 			{
-				++m_iCurIndexNum;
-				if ( (unsigned int)(this->m_iCurIndexNum) < this->m_vecMovePath.size() )
+#ifdef _AStar_Debug_Log
+				cout << "Move" << endl;
+#endif
+				/* 이동할 경로로 이동.. */
+				this->m_pGameEntity->LookPos( m_vTilePos );
+				this->m_pGameEntity->MoveEntity();
+
+				D3DXVECTOR3 vEntityPos = this->m_pGameEntity->GetPos();
+				D3DXVECTOR3 vTilePos = m_vecMovePath[this->m_iCurIndexNum];
+
+				if ( D3DXVec3Length( &(vTilePos - vEntityPos) ) <= fEntitySpeed )
 				{
-					this->SettingMoveData();
+					++m_iCurIndexNum;
+#ifdef _AStar_Debug_Log
+					cout << "COunt Up!! { " << m_iCurIndexNum << " }" << endl;
+#endif
+					if ( (unsigned int)(this->m_iCurIndexNum) < this->m_vecMovePath.size() )
+					{
+						this->SettingMoveData();
+					}
 				}
 			}
+#ifdef _AStar_Debug_Log
+			else
+			{
+				cout << "vecMovePath Size" << endl;
+			}
+#endif
 		}
+#ifdef _AStar_Debug_Log
+		else
+		{
+			cout << "m_bCanMove is false" << endl;
+		}
+#endif
 	}
+#ifdef _AStar_Debug_Log
+	else
+	{
+		cout << "m_bWaitAStarResult is true" << endl;
+	}
+#endif
 
 	return 0;
 }
@@ -107,6 +149,8 @@ void CMove::SetDestination( const D3DXVECTOR3& _vDestination, const bool& _bChas
 
 	if ( !_bChaseTarget )
 	{
+		this->m_bWaitAStarResult = false;
+		this->m_pAStarManager->EraseAStar( this );
 		this->DecidePathFindMethod();
 	}
 	else
@@ -117,6 +161,7 @@ void CMove::PathFind()
 {
 	if ( this->m_bWaitAStarResult )
 		return;
+
 	m_vecMovePath.clear();
 
 	/* AStar 로 최단거리 타일 인덱스 찾기.. */
@@ -124,6 +169,7 @@ void CMove::PathFind()
 
 	//this->m_bCanMove = this->m_pAStar->AStarStartPos( this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath );
 	this->m_bCanMove = true;
+	this->m_bMoveStop = false;
 
 	bool bCheckEntityTile = this->m_pGameEntity->GetIsCheckEntityTile();
 	int iEvent = this->m_pAStarManager->AddAStar( this, this->m_pAStar, this->m_pGameEntity->GetPos(), m_vDestination, this->m_vecMovePath, bCheckEntityTile );
@@ -167,10 +213,12 @@ void CMove::PathFind()
 
 		case CAStar::Event_Success_PathFind:
 			this->GetAStarResult( this->m_pAStar->GetDestination(), iEvent );
+			cout << "Event_Success_PathFind" << endl;
 			break;
 
 		case CAStar::Event_Can_PathFind:
 			this->m_bWaitAStarResult = true;
+			cout << "Event_Can_PathFind" << endl;
 			break;
 
 	}
@@ -204,6 +252,11 @@ void CMove::GetAStarResult( const D3DXVECTOR3 & _vDestination, const int & _iRet
 
 	this->m_iCurIndexNum = 0;
 	this->SettingMoveData();
+
+	this->m_bCanMove = true;
+	this->m_bMoveStop = false;
+
+	cout << "GetResult, size : " << m_vecMovePath.size() << ", Destination : " << m_vDestination.x << ", " << m_vDestination.y << endl;
 
 	this->m_fRestReFindPath = RANDOM_RANGE_FLOAT( 5.f, 10.f );
 

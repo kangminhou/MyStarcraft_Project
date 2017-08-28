@@ -9,13 +9,27 @@ class CPlayer;
 class CMiniMap;
 class CBuilding;
 class CTextureMgr;
+class CBackground;
+class CMouse;
+class CBuilding;
 
 class CUIMgr
 {
 	DECLARE_SINGLETON(CUIMgr)
 
+public:
+	enum eShowFontType
+	{
+		Font_No_Mineral,
+		Font_No_Gas,
+		Font_No_Population,
+	};
+
 private:
+	CMouse*			m_pMouse;
+
 	CTextureMgr*	m_pTextureMgr;
+	CBackground*	m_pBackground;
 
 	CUI*	m_pMainUI;
 
@@ -54,6 +68,7 @@ private:
 	vector<CGameEntity*>	m_vecHpBarShowEntity;
 
 	CBuilding*		m_pDrawBuilding;
+	CBuilding*		m_pGetDataBuilding;
 
 	CUI*			m_pShowResourceDataUI[3];
 	vector<pair<BYTE, D3DXMATRIX>>	m_vecResourceShowFontData[3];
@@ -82,6 +97,11 @@ private:
 	bool	m_bShowCorpsWire;
 	bool	m_bDrawBuildingFrame;
 
+	D3DXMATRIX		m_matFontWorld;
+	wstring			m_wstrFont;
+	float			m_fRestShowFontTime;
+	bool			m_bShowFont;
+
 public:
 	CUIMgr();
 	~CUIMgr();
@@ -93,6 +113,10 @@ public:
 
 public:
 	void SetPlayer( CPlayer* _pPlayer );
+	void SetOrderRatio( const BYTE& _byOrderRatio );
+	void ShowFont( const eShowFontType& _eShowFontType );
+
+	void ShowBuildingData( CBuilding* pBuilding );
 
 public:
 	void Initialize();

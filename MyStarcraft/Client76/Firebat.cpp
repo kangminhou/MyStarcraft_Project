@@ -23,6 +23,8 @@
 
 
 CFirebat::CFirebat()
+	: m_bUseSteampack(false)
+	, m_fSteampackDuration(0.f)
 {
 }
 
@@ -33,6 +35,27 @@ CFirebat::~CFirebat()
 
 HRESULT CFirebat::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"tfbrdy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tfbyes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tfbyes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tfbyes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tfbyes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tfbwht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"tfbwht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"tfbwht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"tfbwht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"tfbdth00.wav", CUnit::Sound_Death );
+	this->AddSound( L"tfbdth01.wav", CUnit::Sound_Death );
+	this->AddSound( L"tfbdth02.wav", CUnit::Sound_Death );
+
+	this->AddSound( L"tmasti00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"tmasti01.wav", CUnit::Sound_ETC );
+
+
 	this->SetObjKey( L"Firebat" );
 	this->m_wstrStateKey = L"Idle";
 
@@ -49,12 +72,14 @@ HRESULT CFirebat::Initialize( void )
 	this->m_tInfoData.iScope = 7;
 	this->m_tInfoData.nDefenceIconFrame = 292; 
 
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Bionic );
+
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FlameThrower );
 	this->m_tGroundAttWeapon.byAttackNum = 2;
 	this->m_tGroundAttWeapon.fAttRange = 1.f;
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -8, -8, 8, 8 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -76,7 +101,6 @@ int CFirebat::Update( void )
 		if ( this->m_fSteampackDuration <= 0.f )
 		{
 			this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 1.f );
-			this->m_tAirAttWeapon.pWeapon->SetAttInterval( 1.f );
 
 			this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
 
@@ -228,7 +252,6 @@ bool CFirebat::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _
 			if ( !m_bUseSteampack )
 			{
 				this->m_tGroundAttWeapon.pWeapon->SetAttInterval( 0.7f );
-				this->m_tAirAttWeapon.pWeapon->SetAttInterval( 0.7f );
 
 				this->m_tInfoData.fSpeed *= 1.4f;
 

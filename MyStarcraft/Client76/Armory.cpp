@@ -54,9 +54,7 @@ HRESULT CArmory::Initialize( void )
 
 int CArmory::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CArmory::Render( void )

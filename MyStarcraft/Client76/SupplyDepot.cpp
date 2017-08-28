@@ -54,9 +54,7 @@ HRESULT CSupplyDepot::Initialize( void )
 
 int CSupplyDepot::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CSupplyDepot::Render( void )
@@ -90,7 +88,7 @@ void CSupplyDepot::SuccessBuild()
 {
 	BYTE byTotalPopulation = this->m_pPlayer->GetTotalPopulation();
 
-	cout << "Population Up" << endl;
+	//cout << "Population Up" << endl;
 
 	byTotalPopulation += 8;
 

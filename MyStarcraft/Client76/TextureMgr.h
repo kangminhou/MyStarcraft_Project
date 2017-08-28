@@ -10,9 +10,15 @@ class CTextureMgr
 
 private:
 	map<const TCHAR*, CTexture*>		m_mapTexture;
+	bool								m_bEndLoading;
 	
 public:
 	wstring m_wstrCurrentPath;
+
+public:
+	bool GetIsEndLoading() const;
+
+	void LoadingEnd();
 
 public:
 	HRESULT	InsertTexture( const TCHAR* pFilePath,		//이미지 경로

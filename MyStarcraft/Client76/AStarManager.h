@@ -26,6 +26,8 @@ public:
 	int AddAStar( CMove* _pMoveComponent, CAStar* _pAStarComponent, const D3DXVECTOR3 & _vStartPos, 
 				   const D3DXVECTOR3 & _vEndPos, vector<D3DXVECTOR3>& vecGetData, const bool & _bCheckEntityTile);
 
+	void EraseAStar( CMove* _pMoveComponent );
+
 public:
 	void Update();
 	void Release();

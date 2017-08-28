@@ -3,6 +3,8 @@
 
 #include "TextureMgr.h"
 #include "Device.h"
+#include "SoundMgr.h"
+#include "Random.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -32,6 +34,9 @@ HRESULT CUnit::Initialize( void )
 	/* 무기 세팅.. */
 	//this->m_pGroundAttWeapon = NULL;
 	//this->m_pAirAttWeapon = NULL;
+
+	this->m_pSoundMgr = CSoundMgr::GetInstance();
+	this->m_pRandom = CRandom::GetInstance();
 
 	CGameEntity::Initialize();
 

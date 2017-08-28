@@ -13,9 +13,20 @@ private:
 
 	D3DXMATRIX	m_shadWorldMatrix;
 
+	vector<CGameEntity*>	m_vecUseEntity;
+	int			m_iMaxGatherNum;
+
 public:
 	CMineral();
 	virtual ~CMineral();
+
+public:
+	void SetUseEntity( CGameEntity* _pEntity );
+	void SetMaxGatherNum( const int& _iMaxGatherNum );
+
+public:
+	bool GetIsCanGather() const;
+	int GetMaxGatherNum() const;
 
 public:
 	// CGameObject을(를) 통해 상속됨
@@ -37,5 +48,6 @@ public:
 protected:
 	virtual void InitAnimation() override;
 	virtual void InitPattern() override;
+
 };
 

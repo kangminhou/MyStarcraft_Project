@@ -30,12 +30,15 @@ protected:
 	const TEX_INFO*			m_pBuildRectTexture[2];
 	vector<const TEX_INFO*>	m_vecResearchShowTexture;
 
+	vector<TILE*>*			m_pVecTile;
+
 public:
 	CBuilding();
 	virtual ~CBuilding();
 
 public:
 	void SetApplyCol( const bool& _bApplyCol );
+	void SetUseActiveTexture( const bool& _bUseActiveTexture );
 
 public:
 	bool GetIsSuccessBuild() const;
@@ -51,7 +54,7 @@ public:
 	void RectRender( const RECT& _rcDraw );
 	void BuildStart();
 
-	void SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKind );
+	virtual void SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKind ) override;
 	void SuccessResearch();
 
 	void UpdateOrderRestTime( const BYTE& _byRatio );

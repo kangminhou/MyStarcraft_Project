@@ -23,11 +23,12 @@ CPattern_Move::~CPattern_Move()
 void CPattern_Move::Initialize()
 {
 	this->m_pMoveComponent = const_cast<CMove*>(this->m_pGameEntity->GetComponent<CMove>());
+	this->m_pMouse = CMouse::GetInstance();
 }
 
 void CPattern_Move::OnEnable()
 {
-	D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
+	D3DXVECTOR3 vMouse = this->m_pMouse->GetPos();
 	vMouse += this->m_pGameEntity->GetScroll();
 
 	this->m_pMoveComponent->SetDestination( vMouse );

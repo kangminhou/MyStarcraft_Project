@@ -3,12 +3,14 @@
 #include "Include.h"
 
 class CMove;
+class CMouse;
 
 class CPattern_MoveAlert :
 	public CEntityPattern 
 {
 private:
 	CMove*	m_pMoveComponent;
+	CMouse*	m_pMouse;
 	bool	m_bCheckEnemy;
 
 public:

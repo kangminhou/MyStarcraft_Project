@@ -7,11 +7,14 @@ class CSCV;
 class CMove;
 class CAnimation;
 class CResourceObj;
+class CPlayer;
 
 class CGatherMineral :
 	public CEntityPattern
 {
 private:
+	CPlayer*			m_pPlayer;
+
 	list<CGameEntity*>*	m_pControlList;
 
 	CGameEntity*	m_pCommandCenter;

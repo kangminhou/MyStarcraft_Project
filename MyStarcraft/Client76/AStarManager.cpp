@@ -36,6 +36,18 @@ int CAStarManager::AddAStar( CMove * _pMoveComponent, CAStar * _pAStarComponent,
 	return CAStar::Event_Can_PathFind;
 }
 
+void CAStarManager::EraseAStar( CMove * _pMoveComponent )
+{
+	for ( auto iter = m_PathfindList.begin(); iter != m_PathfindList.end(); ++iter )
+	{
+		if ( iter->first == _pMoveComponent )
+		{
+			m_PathfindList.erase( iter );
+			break;
+		}
+	}
+}
+
 void CAStarManager::Update()
 {
 	if ( this->m_PathfindList.empty() )

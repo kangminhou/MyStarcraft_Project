@@ -5,6 +5,7 @@
 #include "ObjMgr.h"
 #include "ResearchMgr.h"
 #include "UIMgr.h"
+#include "SoundMgr.h"
 
 #include "Animation.h"
 #include "EntityPattern.h"
@@ -32,9 +33,15 @@ CBuilding::~CBuilding()
 void CBuilding::SetApplyCol( const bool & _bApplyCol )
 {
 	this->m_bApplyCol = _bApplyCol;
-	this->m_pBackground->ObjectDataUpdate( this );
-	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
-	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
+	this->m_pBackground->ObjectDataUpdate( this, 2 );
+	this->m_pObjMgr->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
+	this->m_pObjMgr->InsertEntitySpaceData( this );
+
+}
+
+void CBuilding::SetUseActiveTexture( const bool & _bUseActiveTexture )
+{
+	this->m_bUseActiveTexture = _bUseActiveTexture;
 }
 
 bool CBuilding::GetIsSuccessBuild() const
@@ -54,6 +61,24 @@ eResearchKind CBuilding::GetResearchKind()
 
 HRESULT CBuilding::Initialize( void )
 {
+	this->AddSound( L"taderr00.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr01.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr02.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr03.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr04.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr05.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"taderr06.wav", CGameEntity::Sound_ETC );
+
+	this->AddSound( L"tadupd00.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd01.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd02.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd03.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd04.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd05.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd06.wav", CGameEntity::Sound_ETC );
+	this->AddSound( L"tadupd07.wav", CGameEntity::Sound_ETC );
+
+
 	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Building );
 
 	this->m_bUseDeathEffect = true;
@@ -63,26 +88,26 @@ HRESULT CBuilding::Initialize( void )
 
 	this->m_pResearchMgr = CResearchMgr::GetInstance();
 
+	this->m_pSoundMgr = CSoundMgr::GetInstance();
+
 	InitTexture();
 	CGameEntity::Initialize();
+
+	this->m_pVecTile = this->m_pBackground->GetTile();
 
 	return S_OK;
 }
 
 int CBuilding::Update( void )
 {
+	if ( this->m_bUseActiveTexture )
+	{
+		this->m_pUIMgr->SetOrderRatio( this->m_byProgressRatio );
+	}
+
 	if ( m_bDie )
 	{
-		if ( m_bDestoryEntity )
-			return Event_DestoryObject;
-		else
-		{
-			if ( m_pAnimCom->GetIsAnimEnd() )
-			{
-				m_bDestoryEntity = true;
-				return Event_DestoryObject;
-			}
-		}
+		return Event_DestoryObject;
 	}
 
 	if ( this->m_bScrollMove )
@@ -115,11 +140,11 @@ void CBuilding::Render( void )
 		this->DrawTexture( m_pCurDrawTexture, this->GetWorldMatrix(), D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
-	D3DXMATRIX matTrans;
-	D3DXMatrixTranslation( &matTrans, 500.f, 400.f, 0.f );
-	TCHAR str[128];
-	swprintf_s( str, L"%f, %f", this->m_tInfoData.fMaxHp, this->m_tInfoData.fCurHp );
-	this->DrawFont( matTrans, str );
+	//D3DXMATRIX matTrans;
+	//D3DXMatrixTranslation( &matTrans, 500.f, 400.f, 0.f );
+	//TCHAR str[128];
+	//swprintf_s( str, L"%f, %f", this->m_tInfoData.fMaxHp, this->m_tInfoData.fCurHp );
+	//this->DrawFont( matTrans, str );
 
 	//this->DrawRect( this->m_tColRect );
 
@@ -180,7 +205,8 @@ void CBuilding::RectRender( const RECT & _rcDraw )
 	int iRealStartY = iRealStartIndex / TILEX;
 
 	D3DXMATRIX matWorld;
-	D3DXVECTOR3 vCenter( m_pBuildRectTexture[0]->ImageInfo.Width * 0.5f, m_pBuildRectTexture[0]->ImageInfo.Height * 0.5f, 0.f );
+	//D3DXVECTOR3 vCenter( m_pBuildRectTexture[0]->ImageInfo.Width * 0.5f, m_pBuildRectTexture[0]->ImageInfo.Height * 0.5f, 0.f );
+	D3DXVECTOR3 vCenter( 0.f, 0.f, 0.f );
 
 	this->m_bCanBuild = true;
 
@@ -191,9 +217,15 @@ void CBuilding::RectRender( const RECT & _rcDraw )
 		{
 			int iXPlus = j - iStartX;
 
-			D3DXMatrixTranslation( &matWorld, j * TILECX + vCenter.x, i * TILECY + vCenter.y, 0.f );
 			//int iIndex = j + i * TILEX;
 			int iIndex = (iRealStartX + iXPlus) + (iRealStartY + iYPlus) * TILEX;
+
+			if ( iIndex < 0 || iIndex >= TILEX * TILEY )
+				break;
+
+			D3DXVECTOR3 vTilePos = (*this->m_pVecTile)[iIndex]->vPos;
+			D3DXMatrixTranslation( &matWorld, vTilePos.x - m_vScroll.x, vTilePos.y - m_vScroll.y, 0.f );
+
 			if ( this->CheckCanBuild( iIndex ) )
 			{
 				this->DrawTexture( this->m_pBuildRectTexture[0], matWorld, vCenter );
@@ -224,21 +256,34 @@ void CBuilding::SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKi
 	{
 		if ( !this->m_pPlayer->CheckCanMakeUnit( *((UNIT_GENERATE_DATA*)front.pData) ) )
 		{
+			this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Population );
+			this->SoundPlay( CGameEntity::Sound_ETC, 2 );
 			return;
 		}
 
 		CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( 
 			CEntityMgr::eEntityType( front.iMessage ), this->CalcNearEmptySpace(), this->GetObjectType() );
 
-		CObjMgr::GetInstance()->AddGameObject( pEntity, this->GetObjectType() );
+		m_pObjMgr->AddGameObject( pEntity, this->GetObjectType() );
 		pEntity->UpdatePosition( pEntity->GetPos() );
-	}
 
-	safe_delete( front.pData );
+		UNIT_GENERATE_DATA* pDelete = ((UNIT_GENERATE_DATA*)(front.pData));
+		safe_delete( pDelete );
+
+	}
+	else if ( _ePatternKind == CGameEntity::Pattern_Research )
+	{
+		this->m_pResearchMgr->SuccessResearch( (eResearchKind)front.iMessage );
+
+		this->SoundPlay( CGameEntity::Sound_ETC, 9 );
+
+		RESEARCH_DATA* pDelete = ((RESEARCH_DATA*)(front.pData));
+		safe_delete( pDelete );
+	}
 
 	this->m_vecOrderData.erase( this->m_vecOrderData.begin() );
 
-	this->ShowUpdateOrderData();
+	CGameEntity::SuccessOrder( _ePatternKind );
 
 }
 
@@ -258,11 +303,11 @@ void CBuilding::UpdateLookAnimIndex()
 
 void CBuilding::SuccessBuild()
 {
-	CObjMgr::GetInstance()->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
-	CObjMgr::GetInstance()->InsertEntitySpaceData( this );
+	this->m_pObjMgr->EraseEntitySpaceData( this, this->m_iEntitySpaceDataKey );
+	this->m_pObjMgr->InsertEntitySpaceData( this );
 
 	vector<CGameEntity*> vecEntity;
-	CObjMgr::GetInstance()->CheckEntitysCol( &vecEntity, this, this->GetObjectType() );
+	this->m_pObjMgr->CheckEntitysCol( &vecEntity, this, this->GetObjectType() );
 
 	D3DXVECTOR3 vBuildingPos = this->GetPos();
 	int iColRectCYHalf = ((this->m_tColRect.bottom - this->m_tColRect.top) / 2);
@@ -348,9 +393,9 @@ D3DXVECTOR3 CBuilding::CalcNearEmptySpace()
 				{
 					vOut = D3DXVECTOR3( TILECX * iStartX + TILECX * 0.5f, TILECY * iStartY + TILECY * 0.5f, 0.f );
 					//vOut = D3DXVECTOR3( TILECX * iStartX, TILECY * iStartY, 0.f );
-					cout << "x : " << vOut.x << ", y : " << vOut.y << ", z : " << vOut.z << endl;
-					cout << "iStartTileIndexX : " << iStartTileIndexX << ", iStartTileIndexY : " << iStartTileIndexY << endl;
-					cout << "iStartX : " << iStartX << ", iStartY : " << iStartY << endl;
+					//cout << "x : " << vOut.x << ", y : " << vOut.y << ", z : " << vOut.z << endl;
+					//cout << "iStartTileIndexX : " << iStartTileIndexX << ", iStartTileIndexY : " << iStartTileIndexY << endl;
+					//cout << "iStartX : " << iStartX << ", iStartY : " << iStartY << endl;
 					return vOut;
 				}
 			}

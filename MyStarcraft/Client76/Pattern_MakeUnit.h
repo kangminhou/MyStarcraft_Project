@@ -3,6 +3,8 @@
 #include "GameEntity.h"
 
 class CBuilding;
+class CPlayer;
+class CUIMgr;
 
 class CPattern_MakeUnit :
 	public CEntityPattern
@@ -10,9 +12,13 @@ class CPattern_MakeUnit :
 private:
 	CBuilding*		m_pBuilding;
 	CGameEntity::ORDER_DATA	m_tCurOrderData;
+	CPlayer*		m_pPlayer;
+	CUIMgr*			m_pUIMgr;
 
 	float			m_fRestTime;
 	float			m_fMaxTime;
+
+	bool			m_bStop;
 
 public:
 	CPattern_MakeUnit();

@@ -41,15 +41,16 @@ void CUI::AddFrame( const wstring & _wstrName, const FRAME & tFrame, const CAnim
 	this->m_pAnim->AddAnimation( _wstrName, tFrame, eKind );
 }
 
-bool CUI::ChangeFrame( const wstring & _wstrName )
+bool CUI::ChangeFrame( const wstring & _wstrName, const FRAME& tFrame )
 {
-	return this->m_pAnim->ChangeAnimation( _wstrName );
+	this->m_pAnim->SetAnimationData( _wstrName, tFrame );
+
+	return true;
 }
 
-void CUI::DecideFrame( const wstring & _wstrName, const FRAME & tFrame, const CAnimation::eAnim_Kind & eKind )
+void CUI::DecideFrame( const wstring & _wstrName )
 {
 	this->m_pAnim->ResetFrame();
-	this->m_pAnim->AddAnimation( _wstrName, tFrame, eKind );
 	this->m_pAnim->ChangeAnimation( _wstrName );
 }
 
@@ -106,6 +107,7 @@ void CUI::ChangeDrawTexture( const vector<const TEX_INFO*>& vecDrawTexture )
 
 void CUI::ChangeDrawTexture( const TEX_INFO * _pTexture )
 {
+	this->m_vecDrawTexture.clear();
 	this->m_vecDrawTexture.push_back( _pTexture );
 }
 
@@ -126,6 +128,15 @@ int CUI::Update( void )
 {
 	if ( this->m_eKind == CUI::UI_Anim_Loop )
 	{
+		if ( m_pAnim )
+			this->m_pAnim->UpdateAnim();
+
+		const FRAME* pFrame = this->m_pAnim->GetCurAnimation();
+
+		if ( pFrame && (unsigned int)(pFrame->fIndex) < m_vecDrawTexture.size() )
+		{
+			this->m_iDrawIndex = (unsigned int)pFrame->fIndex;
+		}
 
 	}
 

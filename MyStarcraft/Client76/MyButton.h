@@ -1,10 +1,14 @@
 #pragma once
 #include "GameObject.h"
 
+class CMouse;
+
 class CMyButton :
 	public CGameObject
 {
 private:
+	CMouse*					m_pMouse;
+
 	BUTTON_DATA*			m_pButtonData;
 	const TEX_INFO*			m_pDrawTexture[3];
 

@@ -2,6 +2,7 @@
 #include "EntityPattern.h"
 
 class CMove;
+class CMouse;
 
 class CPattern_Patrol :
 	public CEntityPattern
@@ -11,6 +12,7 @@ private:
 	D3DXVECTOR3 m_vDestinaion;
 
 	CMove*		m_pMoveComponent;
+	CMouse*		m_pMouse;
 	
 	bool		m_bGoDestination;
 

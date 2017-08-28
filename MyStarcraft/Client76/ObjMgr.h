@@ -14,7 +14,11 @@ private:
 
 private:
 	list<CGameObject*>	m_ObjList[OBJ_TYPE_MAX];
+#ifdef _DIV_SPACE_LIST
+	list<CGameEntity*>	m_EntitySpaceList[OBJ_TYPE_MAX][TOTAL_SPACE_NUM];
+#else
 	CGameEntity*		m_EntitySpaceArr[OBJ_TYPE_MAX][TOTAL_SPACE_NUM][EntitySpaceArrSize];
+#endif
 	CBackground*	m_pBackground;
 
 public:
@@ -24,8 +28,10 @@ public:
 	bool CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, int iVecLimitSize = -1 );
 	bool CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, eObjectType _eCheckID, int iVecLimitSize = -1 );
 	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, eObjectType _eCheckID, int iVecLimitSize = -1 );
+	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const D3DXVECTOR3 _vStartPos, const float& _fCheckRadius, const eObjectType& _eCheckID, int iVecLimitSize = -1 );
 	bool CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity* _pGameEntity, const float& _fCheckRadius, const eObjectType& _eCheckID, int iVecLimitSize = -1 );
 	bool CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_DATA& _tDragData, const eObjectType& eID );
+	bool GetSameEntitys( vector<CGameEntity*>& _vecOut, const CGameEntity* _pGameEntity, const float& _fRadius, const eObjectType& _eID, int iVecLimitSize = -1 );
 
 public:
 	list<CGameObject*>* GetList( eObjectType eType );

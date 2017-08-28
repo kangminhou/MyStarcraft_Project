@@ -6,6 +6,10 @@
 #include "TestScene.h"
 #include "FileCopyScene.h"
 #include "AStarTestScene.h"
+#include "FogOfWar_Test.h"
+#include "StarcraftLogo.h"
+#include "StarcraftStartScene.h"
+#include "Starcraft_LoadingScene.h"
 
 IMPLEMENT_SINGLETON(CSceneMgr);
 
@@ -16,7 +20,15 @@ void CSceneMgr::SetScene(eSceneType eType)
 	switch (eType)
 	{
 	case SCENE_LOGO:
-		m_pScene = new CLogo;
+		m_pScene = new CStarcraftLogo;
+		break;
+
+	case SCENE_Loading:
+		m_pScene = new CStarcraft_LoadingScene;
+		break;
+
+	case SCENE_START:
+		m_pScene = new CStarcraftStartScene;
 		break;
 
 	case SCENE_STAGE:
@@ -35,15 +47,25 @@ void CSceneMgr::SetScene(eSceneType eType)
 		m_pScene = new CAStarTestScene;
 		break;
 
+	case SCENE_Fog_Test:
+		m_pScene = new CFogOfWar_Test;
+		break;
+
 	}
 
+	m_eCurType = eType;
 	m_pScene->Initialize();
 }
 
 void CSceneMgr::SetChangeScene(eSceneType eType)
 {
+	m_eType = eType;
 	m_bChangeScene = true;
-	m_eType		   = eType;
+}
+
+eSceneType CSceneMgr::GetSceneType() const
+{
+	return this->m_eCurType;
 }
 
 HRESULT CSceneMgr::Initialize(void)

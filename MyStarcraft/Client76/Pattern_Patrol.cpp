@@ -18,13 +18,14 @@ CPattern_Patrol::~CPattern_Patrol()
 void CPattern_Patrol::Initialize()
 {
 	this->m_pMoveComponent = const_cast<CMove*>(this->m_pGameEntity->GetComponent<CMove>());
+	this->m_pMouse = CMouse::GetInstance();
 }
 
 void CPattern_Patrol::OnEnable()
 {
 	this->m_vBeginPos = this->m_pGameEntity->GetPos();
 
-	D3DXVECTOR3 vMouse = CMouse::GetInstance()->GetPos();
+	D3DXVECTOR3 vMouse = this->m_pMouse->GetPos();
 	vMouse += this->m_pGameEntity->GetScroll();
 
 	this->m_vDestinaion = vMouse;

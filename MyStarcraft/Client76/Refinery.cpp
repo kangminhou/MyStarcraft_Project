@@ -43,7 +43,7 @@ HRESULT CRefinery::Initialize( void )
 	this->m_byFaceFrameNum = 45;
 
 	//RECT tRect = { -8, -9, 8, 10 };
-	RECT tRect = { -47, -32, 48, 32 };
+	RECT tRect = { -48, -32, 48, 32 };
 	this->m_tOriginColRect = tRect;
 
 	CBuilding::Initialize();
@@ -60,9 +60,7 @@ HRESULT CRefinery::Initialize( void )
 
 int CRefinery::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CRefinery::Render( void )

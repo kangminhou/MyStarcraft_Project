@@ -75,11 +75,11 @@ int CPattern_ChaseTarget::Update()
 
 	D3DXVECTOR3 vTargetPos = this->m_pTarget->GetPos();
 
-	if ( D3DXVec3Length( &(vTargetPos - this->m_vPrevTargetPos) ) >= EPSILON )
-	{
-		this->m_pMoveComponent->SetDestination( vTargetPos, true );
-		this->m_vPrevTargetPos = vTargetPos;
-	}
+	//if ( D3DXVec3Length( &(vTargetPos - this->m_vPrevTargetPos) ) >= 10.f )
+	//{
+	//	this->m_pMoveComponent->SetDestination( vTargetPos, true );
+	//	this->m_vPrevTargetPos = vTargetPos;
+	//}
 
 	this->m_pMoveComponent->Update();
 

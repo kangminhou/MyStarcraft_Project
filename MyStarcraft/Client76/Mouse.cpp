@@ -20,7 +20,7 @@ CMouse::CMouse()
 	, m_bMinimapClick(false)
 	, m_pPlayer(NULL)
 {
-	ShowCursor( FALSE );
+	//ShowCursor( FALSE );
 }
 
 CMouse::~CMouse()
@@ -67,10 +67,14 @@ HRESULT CMouse::Initialize( void )
 	this->m_pAnimCom = new CAnimation;
 	this->m_pAnimCom->Initialize();
 
-	this->InitTexture();
 	this->InitAnimation();
 
+#ifndef _IMAGE_THREAD_LOADING
+	this->InitTexture();
 	this->DecideMouseTexture();
+#else
+	this->m_bWaitTextureLoading = true;
+#endif
 
 	this->m_vScrollMoveSpeed = D3DXVECTOR3( 700.f, 600.f, 0.f );
 
@@ -80,6 +84,23 @@ HRESULT CMouse::Initialize( void )
 int CMouse::Update( void )
 {
 	this->UpdatePosition();
+
+#ifdef _IMAGE_THREAD_LOADING
+	if ( this->m_bWaitTextureLoading )
+	{
+		if ( CTextureMgr::GetInstance()->GetIsEndLoading() )
+		{
+			this->InitTexture();
+			this->DecideMouseTexture();
+
+			ShowCursor( FALSE );
+			this->m_bWaitTextureLoading = false;
+		}
+		else
+			return Event_None;
+	}
+#endif
+
 	this->UpdateMouseEvent();
 
 	this->ScrollMoveCheck();
@@ -89,11 +110,14 @@ int CMouse::Update( void )
 	if ( this->m_pAnimCom )
 		this->m_pAnimCom->UpdateAnim();
 
-	return 0;
+	return Event_None;
 }
 
 void CMouse::Render( void )
 {
+	if ( this->m_bWaitTextureLoading )
+		return;
+
 	switch ( m_eState )
 	{
 		case State_Drag:
@@ -107,6 +131,7 @@ void CMouse::Render( void )
 		if ( pFrame->fIndex < this->m_vecCurTexture.size() )
 		{
 			const TEX_INFO* pTexture = this->m_vecCurTexture[(unsigned int)pFrame->fIndex];
+
 			D3DXVECTOR3 vCenter( pTexture->ImageInfo.Width * 0.5f, pTexture->ImageInfo.Height * 0.5f, 0.f );
 			
 			this->m_pSprite->SetTransform( &this->m_matWorld );
@@ -422,6 +447,7 @@ void CMouse::InitTexture()
 		pTexture = CTextureMgr::GetInstance()->GetTexture( L"Cursor", L"Targy", i );
 		vecTextureYellow.push_back( pTexture );
 	}
+
 	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Green", vecTextureGreen ) );
 	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Red", vecTextureRed ) );
 	m_mapAllTextureArr[State_SelectTarget].insert( make_pair( L"Yellow", vecTextureYellow ) );

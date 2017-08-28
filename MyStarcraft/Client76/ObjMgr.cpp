@@ -4,6 +4,7 @@
 
 #include "GameEntity.h"
 #include "Background.h"
+#include "Building.h"
 
 IMPLEMENT_SINGLETON(CObjMgr);
 
@@ -38,6 +39,12 @@ void CObjMgr::InsertEntitySpaceData( CGameEntity* _pGameEntity )
 		return;
 	}
 
+#ifdef _DIV_SPACE_LIST
+	auto& checkEntityList = this->m_EntitySpaceList[iEntityObjectType][iCurSpaceIndex];
+	checkEntityList.push_back( _pGameEntity );
+	iReturnSpaceData = iCurSpaceIndex << 16;
+	iReturnSpaceData += checkEntityList.size() - 1;
+#else
 	for ( int i = 0; i < EntitySpaceArrSize; ++i )
 	{
 		CGameEntity*& pCheckEntity = this->m_EntitySpaceArr[iEntityObjectType][iCurSpaceIndex][i];
@@ -49,8 +56,16 @@ void CObjMgr::InsertEntitySpaceData( CGameEntity* _pGameEntity )
 			break;
 		}
 	}
+#endif
 
 	_pGameEntity->SetEntitySpaceDataKey( iReturnSpaceData );
+
+	//if ( dynamic_cast<CBuilding*>(_pGameEntity) )
+	//{
+	//	wcout << "Name : " << _pGameEntity->GetObjKey().c_str() << endl;
+	//	cout << "SpaceIndex : " << (iReturnSpaceData >> 16) << endl;
+	//	cout << "ArrIndex : " << (iReturnSpaceData << 16 >> 16) << endl;
+	//}
 }
 
 void CObjMgr::EraseEntitySpaceData( CGameEntity * _pGameEntity, const int & iSpaceKey )
@@ -67,6 +82,19 @@ void CObjMgr::EraseEntitySpaceData( CGameEntity * _pGameEntity, const int & iSpa
 		 iIndex < 0 || iIndex >= TOTAL_SPACE_NUM || iEntityArrIndex < 0 || iEntityArrIndex >= EntitySpaceArrSize )
 		return;
 
+#ifdef _DIV_SPACE_LIST
+	auto& checkList = this->m_EntitySpaceList[iObjectType][iIndex];
+
+	for(auto iter = checkList.begin(); iter != checkList.end(); ++iter )
+	{
+		if ( (*iter) == _pGameEntity )
+		{
+			iter = checkList.erase( iter );
+			_pGameEntity->SetEntitySpaceDataKey( -1 );
+			return;
+		}
+	}
+#else
 	if ( _pGameEntity == m_EntitySpaceArr[iObjectType][iIndex][iEntityArrIndex] )
 	{
 		m_EntitySpaceArr[iObjectType][iIndex][iEntityArrIndex] = NULL;
@@ -91,6 +119,7 @@ void CObjMgr::EraseEntitySpaceData( CGameEntity * _pGameEntity, const int & iSpa
 		_pGameEntity->SetEntitySpaceDataKey( -1 );
 	}
 	else
+#endif
 	{
 		//ERROR_MSG( L"Error - CObjMgr Class - EraseEntitySpaceData Function" );
 		return;
@@ -207,9 +236,15 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity * 
 
 			CGameEntity* pCheckEntity = NULL;
 
+#ifdef _DIV_SPACE_LIST
+			for ( auto& iter : this->m_EntitySpaceList[_eCheckID][iIndex] )
+			{
+				pCheckEntity = iter;
+#else
 			for ( int l = 0; l < EntitySpaceArrSize; ++l )
 			{
 				pCheckEntity = this->m_EntitySpaceArr[_eCheckID][iIndex][l];
+#endif
 
 				if ( !pCheckEntity || pCheckEntity->GetIsDie() )
 					break;
@@ -235,6 +270,7 @@ bool CObjMgr::CheckEntitysCol( vector<CGameEntity*>* _pOut, const CGameEntity * 
 				}
 
 			}
+
 		}
 	}
 
@@ -246,11 +282,11 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 	return this->CheckNearEntitys( _pOut, _pGameEntity, _pGameEntity->GetScope() * Object_Scope_Mul, _eCheckID, iVecLimitSize );
 }
 
-bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity * _pGameEntity, const float & _fCheckRadius, const eObjectType & _eCheckID, int iVecLimitSize )
+bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const D3DXVECTOR3 _vStartPos, const float & _fCheckRadius, const eObjectType & _eCheckID, int iVecLimitSize )
 {
 	bool bFind = false;
 
-	D3DXVECTOR3 vEntityPos = _pGameEntity->GetPos();
+	D3DXVECTOR3 vEntityPos = _vStartPos;
 
 	float fScope = _fCheckRadius;
 
@@ -272,9 +308,85 @@ bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity *
 				 j < 0 || j >= SPACEX )
 				continue;
 
+#ifdef _DIV_SPACE_LIST
+			for ( auto& iter : m_EntitySpaceList[_eCheckID][iIndex] )
+			{
+				CGameEntity* pCheckEntity = iter;
+#else
 			for ( int k = 0; k < EntitySpaceArrSize; ++k )
 			{
 				CGameEntity* pCheckEntity = this->m_EntitySpaceArr[_eCheckID][iIndex][k];
+#endif
+
+				if ( !pCheckEntity )
+					break;
+				else if ( pCheckEntity->GetIsDie() )
+				{
+					EraseEntitySpaceData( pCheckEntity, pCheckEntity->GetEntitySpaceDataKey() );
+					continue;
+				}
+				else if ( pCheckEntity->GetIsClocking() )
+					continue;
+
+				D3DXVECTOR3 vCheckEntityPos = pCheckEntity->GetPos();
+
+				if ( vCheckEntityPos.x >= _rcCol.left && vCheckEntityPos.x <= _rcCol.right &&
+					 vCheckEntityPos.y >= _rcCol.top && vCheckEntityPos.y <= _rcCol.bottom )
+				{
+					if ( !bFind )
+						bFind = true;
+
+					if ( iVecLimitSize == 0 || !_pOut )
+						return true;
+					if ( pCheckEntity && _pOut )
+					{
+						_pOut->push_back( pCheckEntity );
+						iVecLimitSize--;
+					}
+				}
+			}
+
+		}
+	}
+
+	return bFind;
+}
+
+bool CObjMgr::CheckNearEntitys( vector<CGameEntity*>* _pOut, const CGameEntity * _pGameEntity, const float & _fCheckRadius, const eObjectType & _eCheckID, int iVecLimitSize )
+{
+	bool bFind = false;
+
+	D3DXVECTOR3 vEntityPos = _pGameEntity->GetPos();
+
+	float fScope = _fCheckRadius;
+
+	RECT _rcCol = { vEntityPos.x - fScope * 0.5f, vEntityPos.y - fScope * 0.5f, vEntityPos.x + fScope * 0.5f, vEntityPos.y + fScope * 0.5f };
+
+	int iStartX = int( _rcCol.left ) / SPACECX;
+	int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
+
+	int iStartY = int( _rcCol.top ) / SPACECY;
+	int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
+
+	for ( int i = iStartY; i <= iEndY; ++i )
+	{
+		for ( int j = iStartX; j <= iEndX; ++j )
+		{
+			int iIndex = j + i * SPACEX;
+
+			if ( i < 0 || i >= SPACEY ||
+				 j < 0 || j >= SPACEX )
+				continue;
+
+#ifdef _DIV_SPACE_LIST
+			for ( auto iter : m_EntitySpaceList[_eCheckID][iIndex] )
+			{
+				CGameEntity* pCheckEntity = iter;
+#else
+			for ( int k = 0; k < EntitySpaceArrSize; ++k )
+			{
+				CGameEntity* pCheckEntity = this->m_EntitySpaceArr[_eCheckID][iIndex][k];
+#endif
 
 				if ( !pCheckEntity )
 					break;
@@ -359,13 +471,23 @@ bool CObjMgr::CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_
 	{
 		for ( int j = iStartX; j <= iEndX; ++j )
 		{
+			if ( j < 0 || i < 0 ||
+				 j >= TILEX || i >= TILEY )
+				continue;
+
 			int iIndex = j + i * SPACEX;
 
 			CGameEntity* pCheckEntity = NULL;
 
+#ifdef _DIV_SPACE_LIST
+			for(auto& iter : this->m_EntitySpaceList[eID][iIndex] )
+			{
+				pCheckEntity = iter;
+#else
 			for ( int k = 0; k < EntitySpaceArrSize; ++k )
 			{
 				pCheckEntity = this->m_EntitySpaceArr[eID][iIndex][k];
+#endif
 
 				if ( !pCheckEntity )
 					break;
@@ -381,111 +503,75 @@ bool CObjMgr::CheckDragEntitys( vector<CGameEntity*>& _vecOut, const MOUSE_DRAG_
 						return true;
 				}
 			}
-	
-			//for each (auto iter in this->m_EntitySpaceArr[eID][iIndex])
-			//{
-			//	RECT rcCheckEntity = iter->GetColRect();
-			//	RECT rc = { 0, 0, 0, 0 };
-			//
-			//	if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
-			//	{
-			//		CGameEntity* pPushEntity = dynamic_cast<CGameEntity*>(iter);
-			//		if ( pPushEntity )
-			//		{
-			//			_vecOut.push_back( pPushEntity );
-			//			bFind = true;
-			//			//if ( _vecOut.size() == 12 )
-			//			//	return true;
-			//		}
-			//	}
-			//
-			//}
 		}
 	}
 
-	/* 시간 계산 ( 마린 50000개 기준 : 공간분한 0ms, 단순 for문 15ms.. */
-	/* 공간 분할.. */
-	//WORD dwResult1, dwResult3, dwResult2, dwResult4;
-	//int cnt2 = 0;
-	//
-	//SYSTEMTIME cur_time, end_Time;
-	//GetLocalTime(&cur_time);
-	//
-	////dwStart = GetTickCount();
-	//for ( int k = 0; k < 1; ++k )
-	//{
-	//	for ( int i = iStartY; i < iEndY; ++i )
-	//	{
-	//		for ( int j = iStartX; j < iEndX; ++j )
-	//		{
-	//			int iIndex = j + i * SPACEX;
-	//
-	//			for each (auto iter in this->m_EntitySpaceList[eID][iIndex])
-	//			{
-	//				++cnt2;
-	//				RECT rcCheckEntity = iter->GetColRect();
-	//				RECT rc = { 0, 0, 0, 0 };
-	//
-	//				if ( IntersectRect( &rc, &rcCheckEntity, &rcMouse ) )
-	//				{
-	//					if ( iter )
-	//					{
-	//						_vecOut.push_back( iter );
-	//						bFind = true;
-	//						if ( _vecOut.size() == 12 )
-	//							break;
-	//					}
-	//				}
-	//
-	//			}
-	//		}
-	//	}
-	//
-	//	_vecOut.clear();
-	//}
-	////dwEnd = GetTickCount();
-	//GetLocalTime(&end_Time);
-	//dwResult1 = end_Time.wSecond - cur_time.wSecond;
-	//dwResult3 = end_Time.wMilliseconds - cur_time.wMilliseconds;
-	//
-	//list<CGameObject*>* pCheckList = &this->m_ObjList[eID];
-	//
-	//GetLocalTime(&cur_time);
-
-	/* 그냥 단순 for문.. */
-	//int cnt = 0;
-	//for ( int k = 0; k < 1; ++k )
-	//{
-	//	for each (auto iter in (*pCheckList))
-	//	{
-	//		++cnt;
-	//		CGameEntity* pPushEntity = (CGameEntity*)(iter);
-	//		if (pPushEntity)
-	//		{
-	//			RECT rcCheckEntity = pPushEntity->GetColRect();
-	//			RECT rc = { 0, 0, 0, 0 };
-	//
-	//			if (IntersectRect(&rc, &rcCheckEntity, &rcMouse))
-	//			{
-	//				_vecOut.push_back(pPushEntity);
-	//				bFind = true;
-	//				if (_vecOut.size() == 12)
-	//					break;
-	//			}
-	//		}
-	//	}
-	//	_vecOut.clear();
-	//}
-	////dwEnd = GetTickCount();
-	////dwResult2 = dwEnd - dwStart;
-	//
-	//GetLocalTime(&end_Time);
-	//dwResult2 = end_Time.wSecond - cur_time.wSecond;
-	//dwResult4 = end_Time.wMilliseconds - cur_time.wMilliseconds;
-	//
-	//int bbbb = cnt2;
-
 	return bFind;
+}
+
+bool CObjMgr::GetSameEntitys( vector<CGameEntity*>& _vecOut, const CGameEntity* _pGameEntity, const float & _fRadius, const eObjectType & _eID, int iVecLimitSize /*= -1*/ )
+{
+	D3DXVECTOR3 vEntityPos = _pGameEntity->GetPos();
+	RECT _rcCol = { vEntityPos.x - _fRadius * 0.5f, vEntityPos.y - _fRadius * 0.5f,
+		vEntityPos.x + _fRadius * 0.5f, vEntityPos.y + _fRadius * 0.5f };
+
+	int iStartX = int( _rcCol.left ) / SPACECX;
+	int iEndX = int( _rcCol.right + (SPACECX - 1) ) / SPACECX;
+
+	int iStartY = int( _rcCol.top ) / SPACECY;
+	int iEndY = int( _rcCol.bottom + (SPACECY - 1) ) / SPACECY;
+
+	for ( int i = iStartY; i < iEndY; ++i )
+	{
+		for ( int j = iStartX; j < iEndX; ++j )
+		{
+			int iIndex = j + i * SPACEX;
+
+			if ( i < 0 || i >= SPACEY ||
+				 j < 0 || j >= SPACEX )
+				continue;
+
+			CGameEntity* pCheckEntity = NULL;
+
+#ifdef _DIV_SPACE_LIST
+			for ( auto& iter : this->m_EntitySpaceList[_eID][iIndex] )
+			{
+				pCheckEntity = iter;
+#else
+			for ( int l = 0; l < EntitySpaceArrSize; ++l )
+			{
+				pCheckEntity = this->m_EntitySpaceArr[_eCheckID][iIndex][l];
+#endif
+
+				if ( !pCheckEntity || pCheckEntity->GetIsDie() )
+					break;
+
+				if ( pCheckEntity== _pGameEntity )
+					continue;
+
+				if ( typeid(*pCheckEntity) != typeid(*_pGameEntity) )
+					continue;
+
+				RECT rcCheckEntity = pCheckEntity->GetColRect();
+				RECT rc = { 0, 0, 0, 0 };
+
+				if ( IntersectRect( &rc, &rcCheckEntity, &_rcCol ) )
+				{
+					if ( iVecLimitSize == 0 )
+						return true;
+					if ( pCheckEntity )
+					{
+						_vecOut.push_back( pCheckEntity );
+						iVecLimitSize--;
+					}
+				}
+
+			}
+
+			}
+		}
+
+	return false;
 }
 
 list<CGameObject*>* CObjMgr::GetList( eObjectType eType )
@@ -497,6 +583,8 @@ HRESULT CObjMgr::Initialize(void)
 {
 	m_pBackground = NULL;
 
+#ifdef _DIV_SPACE_LIST
+#else
 	for ( int i = 0; i < OBJ_TYPE_MAX; ++i )
 	{
 		for ( int j = 0; j < TOTAL_SPACE_NUM; ++j )
@@ -507,6 +595,7 @@ HRESULT CObjMgr::Initialize(void)
 			}
 		}
 	}
+#endif
 
 	return S_OK;
 }

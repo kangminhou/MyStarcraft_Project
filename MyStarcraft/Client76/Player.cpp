@@ -6,6 +6,7 @@
 #include "Mouse.h"
 #include "ObjMgr.h"
 #include "Device.h"
+#include "Player.h"
 
 #include "UIMgr.h"
 #include "UpgradeMgr.h"
@@ -14,12 +15,14 @@
 #include "Mineral.h"
 #include "Gas.h"
 #include "SCV.h"
+#include "Building.h"
 
 
 CPlayer::CPlayer()
-	: m_pCurCorps(NULL)
-	, m_bOrderAct(false)
-	, m_bWaitAct(false)
+	: m_pCurCorps( NULL )
+	, m_bOrderAct( false )
+	, m_bWaitAct( false )
+	, m_bDoubleClick( false )
 {
 	ZeroMemory( &this->m_tResourceData, sizeof( RESOURCE_DATA ) );
 }
@@ -39,6 +42,24 @@ void CPlayer::SetTotalPopulation( const BYTE & _byTotalPopulation )
 	this->m_pUIMgr->UpdatePlayerResourceData( L"Population" );
 }
 
+void CPlayer::GatherMoney( const int & _iMoney )
+{
+	if ( _iMoney > 0 )
+	{
+		this->m_tResourceData.iMineral += _iMoney;
+		this->m_pUIMgr->UpdatePlayerResourceData( L"Mineral" );
+	}
+}
+
+void CPlayer::GahterGas( const int & _iGas )
+{
+	if ( _iGas > 0 )
+	{
+		this->m_tResourceData.iGas += _iGas;
+		this->m_pUIMgr->UpdatePlayerResourceData( L"Gas" );
+	}
+}
+
 CPlayer::RESOURCE_DATA CPlayer::GetResourceData() const
 {
 	return this->m_tResourceData;
@@ -49,16 +70,27 @@ BYTE CPlayer::GetTotalPopulation() const
 	return this->m_tResourceData.byTotalPopulation;
 }
 
+bool CPlayer::GetFullPopulation() const
+{
+	if ( this->m_tResourceData.byCurPopulation == this->m_tResourceData.byTotalPopulation )
+		return true;
+
+	return false;
+}
+
 HRESULT CPlayer::Initialize( void )
 {
+	this->m_pObjMgr = CObjMgr::GetInstance();
+	this->m_pKeyMgr = CKeyMgr::GetInstance();
+
 	this->m_vecCancelButton.push_back( new BUTTON_DATA( CGameEntity::Pattern_Cancel, 236, VK_ESCAPE, 3, false, true ) );
 
 	//this->m_tResourceData.byTotalPopulation = 10;
 	//this->m_tResourceData.iMineral = 50;
 
 	this->m_tResourceData.byTotalPopulation = 10;
-	this->m_tResourceData.iMineral = 5000;
-	this->m_tResourceData.iGas = 500;
+	this->m_tResourceData.iMineral = 300;
+	this->m_tResourceData.iGas = 100;
 
 	this->m_clickCorps.Initialize();
 
@@ -67,7 +99,7 @@ HRESULT CPlayer::Initialize( void )
 
 	this->m_pMouse = CMouse::GetInstance();
 
-	list<CGameObject*>* pResourceList = CObjMgr::GetInstance()->GetList( OBJ_TYPE_RESOURCE );
+	list<CGameObject*>* pResourceList = this->m_pObjMgr->GetList( OBJ_TYPE_RESOURCE );
 	for ( auto& iter : (*pResourceList) )
 	{
 		CMineral* pMineral = dynamic_cast<CMineral*>(iter);
@@ -100,7 +132,7 @@ int CPlayer::Update( void )
 {
 	if ( this->m_bScrollMove )
 	{
-		if(m_byCnt <= 0 )
+		if ( m_byCnt <= 0 )
 			this->m_bScrollMove = false;
 
 		--m_byCnt;
@@ -135,27 +167,61 @@ void CPlayer::Render( void )
 	{
 		this->m_pCurCorps->Render();
 
-		D3DXMATRIX matTrans;
-		D3DXMatrixTranslation( &matTrans, 50.f, 50.f, 0.f );
-
-		TCHAR str[128];
-		swprintf_s( str, L"%d", this->m_pCurCorps->GetCurUnitNum() );
-
-		CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
-		CDevice::GetInstance()->GetFont()->DrawTextW(
-			CDevice::GetInstance()->GetSprite(),
-			str,
-			lstrlen( str ),
-			NULL,
-			NULL,
-			D3DCOLOR_ARGB( 255, 255, 255, 0 )
-		);
+		//D3DXMATRIX matTrans;
+		//D3DXMatrixTranslation( &matTrans, 50.f, 50.f, 0.f );
+		//
+		//TCHAR str[128];
+		//swprintf_s( str, L"%d", this->m_pCurCorps->GetCurUnitNum() );
+		//
+		//CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+		//CDevice::GetInstance()->GetFont()->DrawTextW(
+		//	CDevice::GetInstance()->GetSprite(),
+		//	str,
+		//	lstrlen( str ),
+		//	NULL,
+		//	NULL,
+		//	D3DCOLOR_ARGB( 255, 255, 255, 0 )
+		//);
 	}
 }
 
 void CPlayer::Release( void )
 {
 	safe_delete( m_vecCancelButton.front() );
+}
+
+bool CPlayer::CheckNearMineral( CMineral *& _pOutMineral, CGameEntity * _pEntity )
+{
+	if ( this->m_vecMineral.empty() )
+		return false;
+
+	D3DXVECTOR3 vEntityPos = _pEntity->GetPos();
+
+	auto SortMineralToPos = [&]( CMineral* _pMineral1, CMineral* _pMineral2 )
+	{
+		return D3DXVec3Length( &(_pMineral1->GetPos() - vEntityPos) ) > D3DXVec3Length( &(_pMineral2->GetPos() - vEntityPos) );
+	};
+
+	sort( this->m_vecMineral.begin(), this->m_vecMineral.end(), SortMineralToPos );
+
+	for ( size_t i = 0; i < this->m_vecMineral.size(); ++i )
+	{
+		if ( this->m_vecMineral[i]->GetIsCanGather() )
+		{
+			_pOutMineral = m_vecMineral[i];
+			return true;
+		}
+	}
+
+	_pOutMineral = this->m_vecMineral.front();
+
+	for ( size_t i = 0; i < this->m_vecMineral.size(); ++i )
+	{
+		this->m_vecMineral[i]->SetMaxGatherNum( this->m_vecMineral[i]->GetMaxGatherNum() + 1 );
+		return true;
+	}
+
+	return false;
 }
 
 void CPlayer::OrderActPattern( const BUTTON_DATA * _pButtonData )
@@ -166,6 +232,9 @@ void CPlayer::OrderActPattern( const BUTTON_DATA * _pButtonData )
 
 void CPlayer::DecideShowButton()
 {
+	if ( !this->m_pCurCorps )
+		return;
+
 	m_vecCurCanActButton.clear();
 	if ( this->m_pCurCorps->GetCurUnitNum() > 0 )
 	{
@@ -236,7 +305,7 @@ void CPlayer::EraseMouseClickEventEntity( CGameEntity * _pEntity )
 
 bool CPlayer::BuyUnit( const UNIT_GENERATE_DATA & _tUnitGenData )
 {
-	if ( !this->CheckCanBuyUnit( _tUnitGenData ) )
+	if ( this->CheckCanBuyUnit( _tUnitGenData ) )
 		return false;
 
 	this->m_tResourceData.iMineral -= _tUnitGenData.iRequireMineral;
@@ -246,6 +315,23 @@ bool CPlayer::BuyUnit( const UNIT_GENERATE_DATA & _tUnitGenData )
 	if ( _tUnitGenData.iRequireMineral > 0 )
 		this->m_pUIMgr->UpdatePlayerResourceData( L"Mineral" );
 	if ( _tUnitGenData.iRequireGas > 0 )
+		this->m_pUIMgr->UpdatePlayerResourceData( L"Gas" );
+
+	return true;
+}
+
+bool CPlayer::BuyUnit( const RESEARCH_DATA & _tResearchData )
+{
+	if ( this->CheckCanBuyUnit( _tResearchData ) )
+		return false;
+
+	this->m_tResourceData.iMineral -= _tResearchData.iRequireMineral;
+	this->m_tResourceData.iGas -= _tResearchData.iRequireGas;
+	//this->m_tResourceData.byCurPopulation += _tUnitGenData.iRequirePopulation;
+
+	if ( _tResearchData.iRequireMineral > 0 )
+		this->m_pUIMgr->UpdatePlayerResourceData( L"Mineral" );
+	if ( _tResearchData.iRequireGas > 0 )
 		this->m_pUIMgr->UpdatePlayerResourceData( L"Gas" );
 
 	return true;
@@ -264,12 +350,32 @@ bool CPlayer::CheckCanMakeUnit( const UNIT_GENERATE_DATA & _tUnitGenData )
 	return true;
 }
 
-bool CPlayer::CheckCanBuyUnit( const UNIT_GENERATE_DATA & _tUnitGenData )
+int CPlayer::CheckCanBuyUnit( const UNIT_GENERATE_DATA & _tUnitGenData )
 {
-	if ( m_tResourceData.iMineral < _tUnitGenData.iRequireMineral || m_tResourceData.iGas < _tUnitGenData.iRequireGas )
-		return false;
+	if ( m_tResourceData.iMineral < _tUnitGenData.iRequireMineral )
+	{
+		return 1;
+	}
+	else if ( m_tResourceData.iGas < _tUnitGenData.iRequireGas )
+	{
+		return 2;
+	}
 
-	return true;
+	return 0;
+}
+
+int CPlayer::CheckCanBuyUnit( const RESEARCH_DATA & _tResearchData )
+{
+	if ( m_tResourceData.iMineral < _tResearchData.iRequireMineral )
+	{
+		return 1;
+	}
+	else if ( m_tResourceData.iGas < _tResearchData.iRequireGas )
+	{
+		return 2;
+	}
+
+	return 0;
 }
 
 void CPlayer::SetScroll( const D3DXVECTOR3 & _vScroll )
@@ -294,7 +400,7 @@ void CPlayer::KeyCheck( void )
 {
 	if ( this->m_bWaitAct )
 	{
-		if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_ESCAPE ) )
+		if ( m_pKeyMgr->GetKeyOnceDown( VK_ESCAPE ) )
 		{
 			this->m_bWaitAct = false;
 			this->m_bOrderAct = false;
@@ -303,7 +409,7 @@ void CPlayer::KeyCheck( void )
 			return;
 		}
 
-		if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )
+		if ( m_pKeyMgr->GetKeyOnceDown( VK_LBUTTON ) )
 		{
 			this->m_bWaitAct = false;
 			this->ActCommand();
@@ -313,8 +419,13 @@ void CPlayer::KeyCheck( void )
 		}
 	}
 
+	if ( m_pKeyMgr->GetDoubleClick() )
+	{
+		this->m_bDoubleClick = true;
+	}
+
 	/* 부대 관련 키 체크.. */
-	if ( CKeyMgr::GetInstance()->GetKeyUp( VK_LBUTTON ) )
+	if ( m_pKeyMgr->GetKeyUp( VK_LBUTTON ) )
 	{
 		for ( size_t i = 0; i < this->m_vecClickEventEntity.size(); ++i )
 		{
@@ -324,26 +435,26 @@ void CPlayer::KeyCheck( void )
 		this->MakeDragUnitCorps();
 	}
 
-	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'A' ) )
+	//if ( m_pKeyMgr->GetKeyOnceDown( 'A' ) )
 	//{
 	//	if ( this->m_pCurCorps )
 	//		this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_MoveAlert );
 	//}
 	//
-	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( 'P' ) )
+	//if ( m_pKeyMgr->GetKeyOnceDown( 'P' ) )
 	//{
 	//	if ( this->m_pCurCorps )
 	//		this->m_pCurCorps->SetUnitPattern( CGameEntity::Pattern_Patrol );
 	//}
 
 	/* 부대 매크로 키 관련.. */
-	if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_CONTROL ) )
+	if ( m_pKeyMgr->GetKeyStayDown( VK_CONTROL ) )
 	{
 		for ( BYTE i = '0'; i <= '9'; ++i )
 		{
-			if (CKeyMgr::GetInstance()->GetKeyOnceDown(i))
+			if ( m_pKeyMgr->GetKeyOnceDown( i ) )
 			{
-				if (m_pCurCorps)
+				if ( m_pCurCorps )
 					m_hotKeyCorps[i - '0'] = (*m_pCurCorps);
 				else
 					m_hotKeyCorps[i - '0'].ResetCorps();
@@ -352,13 +463,15 @@ void CPlayer::KeyCheck( void )
 	}
 	else
 	{
-		for (BYTE i = '0'; i <= '9'; ++i)
+		for ( BYTE i = '0'; i <= '9'; ++i )
 		{
-			if (CKeyMgr::GetInstance()->GetKeyOnceDown(i))
+			if ( m_pKeyMgr->GetKeyOnceDown( i ) )
 			{
 				if ( m_hotKeyCorps[i - '0'].GetCurUnitNum() > 0 )
 				{
 					m_pCurCorps = &m_hotKeyCorps[i - '0'];
+					D3DXVECTOR3 vScroll = this->m_pCurCorps->GetEntity( 0 )->GetPos() - D3DXVECTOR3( WINCX * 0.5f, WINCY * 0.5f, 0.f );
+					this->SetScroll( vScroll );
 					this->DecideShowButton();
 					this->m_pUIMgr->ShowEntityUI( this->m_pCurCorps );
 				}
@@ -369,10 +482,36 @@ void CPlayer::KeyCheck( void )
 	}
 
 	/* 명령 키 체크.. */
-	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RBUTTON ) )
+	if ( m_pKeyMgr->GetKeyOnceDown( VK_RBUTTON ) )
 	{
 		if ( this->m_pCurCorps )
 			this->RButtonClick();
+	}
+
+	if ( m_pKeyMgr->GetKeyOnceDown( VK_F1 ) )
+	{
+		this->m_tResourceData.iMineral = 30000;
+		this->m_tResourceData.iGas = 30000;
+		this->m_tResourceData.byTotalPopulation = 200;
+
+		this->m_pUIMgr->UpdatePlayerResourceData( L"All" );
+	}
+
+	if ( m_pKeyMgr->GetKeyStayDown( VK_LEFT ) )
+	{
+		this->SetScroll( this->m_vScroll + D3DXVECTOR3( -GET_TIME * 500.f, 0.f, 0.f ) );
+	}
+	if ( m_pKeyMgr->GetKeyStayDown( VK_RIGHT ) )
+	{
+		this->SetScroll( this->m_vScroll + D3DXVECTOR3( GET_TIME * 500.f, 0.f, 0.f ) );
+	}
+	if ( m_pKeyMgr->GetKeyStayDown( VK_UP ) )
+	{
+		this->SetScroll( this->m_vScroll + D3DXVECTOR3( 0.f, -GET_TIME * 500.f, 0.f ) );
+	}
+	if ( m_pKeyMgr->GetKeyStayDown( VK_DOWN ) )
+	{
+		this->SetScroll( this->m_vScroll + D3DXVECTOR3( 0.f, GET_TIME * 500.f, 0.f ) );
 	}
 
 }
@@ -387,62 +526,113 @@ void CPlayer::MakeDragUnitCorps()
 	mouseDragData.vEndPos += m_vScroll;
 
 	bool bEnemyDrag = false;
-	if ( !CObjMgr::GetInstance()->CheckDragEntitys( vecEntity, mouseDragData, this->GetObjectType() ) )
+
+	int iActLevel = 0;
+
+	if ( !this->m_pObjMgr->CheckDragEntitys( vecEntity, mouseDragData, this->GetObjectType() ) )
 	{
 		for ( int i = OBJ_TYPE_USER2; i <= OBJ_TYPE_USER2; ++i )
 		{
-			bEnemyDrag = CObjMgr::GetInstance()->CheckDragEntitys( vecEntity, mouseDragData, (eObjectType)i );
+			bEnemyDrag = this->m_pObjMgr->CheckDragEntitys( vecEntity, mouseDragData, (eObjectType)i );
 		}
 	}
 
 	if ( !vecEntity.empty() )
 	{
-		this->m_clickCorps.ResetCorps();
-
-		bool bFindBuildingEntity = false;
-		bool bErawBuildingEntity = false;
-		for ( size_t i = 0; i < vecEntity.size(); ++i )
+		if ( this->m_bDoubleClick && this->m_pCurCorps && this->m_pCurCorps->GetCurUnitNum() == 1 &&
+			 !this->m_pCurCorps->GetEntity( 0 )->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
 		{
-			if ( !bFindBuildingEntity )
+			CGameEntity* pEntity = this->m_pCurCorps->GetEntity( 0 );
+
+			if ( vecEntity.front() == pEntity )
 			{
-				bFindBuildingEntity = vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building );
+				iActLevel = 1;
+			}
+		}
+
+		if ( iActLevel == 0 )
+		{
+			this->m_clickCorps.ResetCorps();
+
+			bool bFindBuildingEntity = false;
+			bool bErawBuildingEntity = false;
+			for ( size_t i = 0; i < vecEntity.size(); ++i )
+			{
+				if ( !bFindBuildingEntity )
+				{
+					bFindBuildingEntity = vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building );
+				}
+				else
+				{
+					if ( !vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+					{
+						bErawBuildingEntity = true;
+						for ( size_t j = 0; j < vecEntity.size(); )
+						{
+							if ( vecEntity[j]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
+								vecEntity.erase( vecEntity.begin() + j );
+							else
+								++j;
+						}
+						break;
+
+					}
+				}
+			}
+
+			this->m_pUIMgr->HideBuildingOrderUI();
+
+			if ( bFindBuildingEntity && !bErawBuildingEntity )
+			{
+				CBuilding* pBuilding = dynamic_cast<CBuilding*>(vecEntity[0]);
+				if ( pBuilding )
+					m_pUIMgr->ShowBuildingData( pBuilding );
+
+				vecEntity[0]->SetUpdateOrderData( true );
+				this->m_clickCorps.AddUnit( vecEntity[0] );
 			}
 			else
 			{
-				if ( !vecEntity[i]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
-				{
-					bErawBuildingEntity = true;
-					for ( size_t j = 0; j < vecEntity.size(); )
-					{
-						if ( vecEntity[j]->GetCheckUnitInformation( CGameEntity::Entity_Building ) )
-							vecEntity.erase( vecEntity.begin() + j );
-						else
-							++j;
-					}
-					break;
-
-				}
+				for ( size_t i = 0; i < vecEntity.size(); ++i )
+					this->m_clickCorps.AddUnit( vecEntity[i] );
 			}
-		}
-		 
-		this->m_pUIMgr->HideBuildingOrderUI();
 
-		if ( bFindBuildingEntity && !bErawBuildingEntity )
-		{
-			vecEntity[0]->ShowOrderIcon();
-			this->m_clickCorps.AddUnit( vecEntity[0] );
+			this->m_pCurCorps = &this->m_clickCorps;
 		}
-		else
+		else if ( iActLevel == 1 )
 		{
-			for ( size_t i = 0; i < vecEntity.size(); ++i )
-				this->m_clickCorps.AddUnit( vecEntity[i] );
-		}
+			CGameEntity* pEntity = this->m_pCurCorps->GetEntity( 0 );
+			vecEntity.clear();
 
-		this->m_pCurCorps = &this->m_clickCorps;
+			this->m_pObjMgr->GetSameEntitys( vecEntity, pEntity, 500.f, OBJ_TYPE_USER );
+
+
+			auto SortEntityToPos = [&]( CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity ) {
+				return D3DXVec3Length( &(_pDstEntity->GetPos() - pEntity->GetPos()) ) > D3DXVec3Length( &(_pSrcEntity->GetPos() - pEntity->GetPos()) );
+			};
+
+			sort( vecEntity.begin(), vecEntity.end(), SortEntityToPos );
+
+			size_t iLength = ((vecEntity.size() > 11) ? 11 : vecEntity.size());
+
+			this->m_pCurCorps->ResetCorps();
+			this->m_pCurCorps->AddUnit( pEntity );
+
+			for ( size_t i = 0; i < iLength; ++i )
+			{
+				this->m_pCurCorps->AddUnit( vecEntity[i] );
+			}
+
+			this->m_pUIMgr->HideBuildingOrderUI();
+		}
 
 		this->DecideShowButton();
 		this->ShowEntityUI();
+		this->m_pCurCorps->GetEntity( 0 )->SoundPlay( CGameEntity::Sound_Click );
 	}
+
+	if ( this->m_bDoubleClick )
+		this->m_bDoubleClick = false;
 }
 
 void CPlayer::RButtonClick()
@@ -452,7 +642,7 @@ void CPlayer::RButtonClick()
 	MOUSE_DRAG_DATA tDragData;
 	tDragData.vStartPos = tDragData.vEndPos = m_pMouse->GetPos();
 
-	RECT rcMouse = { (LONG)(tDragData.vStartPos.x + m_vScroll.x), (LONG)(tDragData.vStartPos.y + m_vScroll.y), 
+	RECT rcMouse = { (LONG)(tDragData.vStartPos.x + m_vScroll.x), (LONG)(tDragData.vStartPos.y + m_vScroll.y),
 			(LONG)(tDragData.vEndPos.x + m_vScroll.x), (LONG)(tDragData.vEndPos.y + m_vScroll.y) };
 
 	if ( rcMouse.left == rcMouse.right )
@@ -517,7 +707,7 @@ void CPlayer::RButtonClick()
 	/* 유닛을 클릭했는지 검사.. */
 	for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
 	{
-		if ( CObjMgr::GetInstance()->CheckDragEntitys( vecEntity, tDragData, eObjectType( i ) ) )
+		if ( this->m_pObjMgr->CheckDragEntitys( vecEntity, tDragData, eObjectType( i ) ) )
 		{
 			auto SortEntityToPos = [&]( CGameEntity* _pDstEntity, CGameEntity* _pSrcEntity ) {
 				return D3DXVec3Length( &(_pDstEntity->GetPos() - this->GetPos()) ) > D3DXVec3Length( &(_pSrcEntity->GetPos() - this->GetPos()) );
@@ -555,6 +745,9 @@ void CPlayer::UnitMove()
 
 void CPlayer::ActCommand()
 {
+	if ( !this->m_pCurCorps )
+		return;
+
 	this->m_pCurCorps->PushMessage( this->m_pPushButtonData );
 
 	switch ( this->m_pPushButtonData->iBtnKind )

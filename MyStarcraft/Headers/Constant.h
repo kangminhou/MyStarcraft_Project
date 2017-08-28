@@ -3,6 +3,7 @@
 extern HWND g_hWnd;
 
 const BOOL BWindowed = TRUE;
+const BOOL FOG = FALSE;
 
 const int WINCX = 800;
 const int WINCY = 600;

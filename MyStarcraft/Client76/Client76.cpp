@@ -9,6 +9,7 @@
 #include "Timer.h"
 #include "Timer_Manager.h"
 #include "Frame_Manager.h"
+#include "SceneMgr.h"
 
 #define MAX_LOADSTRING 100
 
@@ -71,6 +72,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	CFrame_Manager*  pFrame_Manager = CFrame_Manager::GetInstance();
 	pFrame_Manager->Add_Frame( L"Frame_60", 60.f );
 
+	CSceneMgr*	pSceneMgr = CSceneMgr::GetInstance();
+
 	while(msg.message != WM_QUIT)
 	{
 		if( PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE) )
@@ -88,7 +91,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 				if(MainGame.Update() != 0)
 					break;
 
-				MainGame.Render();
+				if ( pSceneMgr->GetSceneType() != SCENE_LOGO )
+					MainGame.Render();
 			}
 		}
 	}

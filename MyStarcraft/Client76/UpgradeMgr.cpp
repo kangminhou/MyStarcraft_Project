@@ -2,6 +2,7 @@
 #include "UpgradeMgr.h"
 
 #include "WeaponMgr.h"
+#include "SoundMgr.h"
 
 #include "GameEntity.h"
 
@@ -31,6 +32,8 @@ void CUpgradeMgr::Initialize()
 			m_ArmorUpgradeDataArr[i][j].second = 0;
 		}
 	}
+
+	this->m_pSoundMgr = CSoundMgr::GetInstance();
 }
 
 void CUpgradeMgr::AddArmorUpgradeObserver( CGameEntity* _pObserver, const eArmorUpgradeType & _eUpgradeType )
@@ -85,6 +88,8 @@ void CUpgradeMgr::UpgradeWeapon( const eObjectType& _eObjType, const eWeaponUpgr
 		return;
 
 	m_pWeaponMgr->UpgradeWeapon( _eObjType, _eUpgradeType );
+
+	this->m_pSoundMgr->PlaySound( L"tadupd06.wav", CSoundMgr::Channel_Eff );
 }
 
 void CUpgradeMgr::UpgradeArmor( const eObjectType& _eObjType, const eArmorUpgradeType & _eUpgradeType )
@@ -106,4 +111,6 @@ void CUpgradeMgr::UpgradeArmor( const eObjectType& _eObjType, const eArmorUpgrad
 	{
 		iter->UpgradeArmor( byUpgradeNum );
 	}
+
+	this->m_pSoundMgr->PlaySound( L"tadupd06.wav", CSoundMgr::Channel_Eff );
 }

@@ -54,9 +54,7 @@ HRESULT CEngineering_Bay::Initialize( void )
 
 int CEngineering_Bay::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CEngineering_Bay::Render( void )

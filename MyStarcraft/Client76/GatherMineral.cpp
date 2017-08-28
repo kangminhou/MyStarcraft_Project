@@ -12,6 +12,7 @@
 #include "Move.h"
 #include "Animation.h"
 #include "ResourceObj.h"
+#include "Player.h"
 
 
 CGatherMineral::CGatherMineral()
@@ -29,6 +30,7 @@ void CGatherMineral::Initialize()
 	m_pSCV = dynamic_cast<CSCV*>(this->m_pGameEntity);
 	m_pMove = const_cast<CMove*>(m_pSCV->GetComponent<CMove>());
 	m_pAnimCom = const_cast<CAnimation*>(this->m_pSCV->GetComponent<CAnimation>());
+	m_pPlayer = CObjMgr::GetInstance()->FindGameObject<CPlayer>();
 
 	if ( !m_pSCV )
 	{
@@ -64,6 +66,24 @@ void CGatherMineral::OnEnable()
 		this->m_pSCV->SetPattern( CGameEntity::Pattern_Idle );
 		ERROR_MSG( L"CGatherMineral OnEnable Failed" );
 		return;
+	}
+
+	if ( this->m_pCurGatherMineral->GetIsCanGather() )
+	{
+		this->m_pCurGatherMineral->SetUseEntity( this->m_pGameEntity );
+	}
+	else
+	{
+		if ( this->m_pPlayer->CheckNearMineral(this->m_pCurGatherMineral, this->m_pGameEntity) )
+		{
+			this->m_pCurGatherMineral->SetUseEntity( this->m_pGameEntity );
+		}
+		else
+		{
+			this->m_pSCV->SetPattern( CGameEntity::Pattern_Idle );
+			ERROR_MSG( L"CGatherMineral OnEnable Failed" );
+			return;
+		}
 	}
 
 	this->m_iEntityActLevel = 0;
@@ -134,6 +154,8 @@ int CGatherMineral::Update()
 			{
 				this->m_iEntityActLevel = 3;
 				this->m_fStopTime = 0.f;
+
+				this->m_pPlayer->GatherMoney( 8 );
 			}
 		}
 			break;

@@ -45,7 +45,7 @@ HRESULT CGas::Initialize( void )
 
 	CGameEntity::Initialize();
 
-	this->m_pBackground = CObjMgr::GetInstance()->FindGameObject<CBackground>();
+	this->m_pBackground = this->m_pObjMgr->FindGameObject<CBackground>();
 
 	return S_OK;
 }

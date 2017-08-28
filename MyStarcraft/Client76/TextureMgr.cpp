@@ -5,6 +5,17 @@
 
 IMPLEMENT_SINGLETON(CTextureMgr);
 
+
+bool CTextureMgr::GetIsEndLoading() const
+{
+	return this->m_bEndLoading;
+}
+
+void CTextureMgr::LoadingEnd()
+{
+	this->m_bEndLoading = true;
+}
+
 HRESULT CTextureMgr::InsertTexture( const TCHAR* pFilePath, /*이미지 경로 */
 									const TCHAR* pObjKey, /*객체를 나타내는 고유 키값(ex.Item, Player) */
 									eTextureType eType, /*싱글인지? 멀티인지? */
@@ -13,6 +24,7 @@ HRESULT CTextureMgr::InsertTexture( const TCHAR* pFilePath, /*이미지 경로 */
 									bool bTransparentColor /*= false*/,
 									D3DCOLOR transparentColor /*= D3DCOLOR_ARGB( 255, 0, 0, 0 )*/ )
 {
+	m_wstrCurrentPath = pFilePath;
 	map<const TCHAR*, CTexture*>::iterator iter;
 
 	iter = find_if(m_mapTexture.begin(), m_mapTexture.end(), STRING_COMPARE(pObjKey));
@@ -45,6 +57,9 @@ HRESULT CTextureMgr::InsertTexture( const TCHAR* pFilePath, /*이미지 경로 */
 	}
 	else
 	{
+		if ( eType == TEX_SINGLE )
+			return E_FAIL;
+
 		if ( FAILED( iter->second->InsertTexture( pFilePath, pStateKey, iCount, bTransparentColor, transparentColor ) ) )
 		{
 			MessageBox( g_hWnd, pObjKey, L"Error!!", MB_OK );
@@ -131,8 +146,9 @@ HRESULT CTextureMgr::LoadImagePath( wstring wstrImagePath )
 	return S_OK;
 }
 
-CTextureMgr::CTextureMgr(void)
-	: m_wstrCurrentPath(L"")
+CTextureMgr::CTextureMgr( void )
+	: m_wstrCurrentPath( L"" )
+	, m_bEndLoading( false )
 {
 }
 

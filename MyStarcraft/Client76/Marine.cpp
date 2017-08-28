@@ -23,6 +23,8 @@
 
 
 CMarine::CMarine()
+	: m_bUseSteampack(false)
+	, m_fSteampackDuration(0.f)
 {
 }
 
@@ -34,6 +36,26 @@ CMarine::~CMarine()
 
 HRESULT CMarine::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"tmardy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tmayes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tmayes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tmayes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tmayes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tmawht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"tmawht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"tmawht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"tmawht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"tmadth00.wav", CUnit::Sound_Death );
+	this->AddSound( L"tmadth01.wav", CUnit::Sound_Death );
+
+	this->AddSound( L"tmasti00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"tmasti01.wav", CUnit::Sound_ETC );
+
+
 	this->SetObjKey( L"Marine" );
 	this->m_wstrStateKey = L"Idle";
 
@@ -41,6 +63,8 @@ HRESULT CMarine::Initialize( void )
 	this->m_wstrWireFrameKey = L"Marine";
 
 	this->m_byFaceFrameNum = 45;
+
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Bionic );
 
 	/* 유닛의 데이터 초기화.. */
 	this->m_tInfoData.fMaxHp = this->m_tInfoData.fCurHp = 40.f;
@@ -60,7 +84,7 @@ HRESULT CMarine::Initialize( void )
 	this->m_tAirAttWeapon.byAttackNum = 1;
 	this->m_tAirAttWeapon.fAttRange = 4.f;
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -8, -8, 8, 8 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -77,28 +101,6 @@ HRESULT CMarine::Initialize( void )
 
 int CMarine::Update( void )
 {
-	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) || CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SPACE ) )
-	//{
-	//	int iPlus = ((CKeyMgr::GetInstance()->GetKeyOnceDown( VK_RETURN ) ? 1 : -1));
-	//
-	//	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'A' ) )
-	//	{
-	//		this->m_tOriginColRect.left += iPlus;
-	//	}
-	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'D' ) )
-	//	{
-	//		this->m_tOriginColRect.right += iPlus;
-	//	}
-	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'W' ) )
-	//	{
-	//		this->m_tOriginColRect.top += iPlus;
-	//	}
-	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'S' ) )
-	//	{
-	//		this->m_tOriginColRect.bottom += iPlus;
-	//	}
-	//}
-
 	if ( this->m_bUseSteampack )
 	{
 		this->m_fSteampackDuration -= GET_TIME;

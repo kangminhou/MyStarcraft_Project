@@ -76,7 +76,7 @@ int CPattern_Unit_Build_Building::Update()
 				CEffectMgr::GetInstance()->ShowEffect( this->m_pSCV->GetGroundAttackData().pWeapon, this->m_pBuilding );
 			}
 
-			if ( m_fStopMoveTime >= 4.f )
+			if ( m_fStopMoveTime >= 2.f )
 			{
 				++this->m_byCurMoveArrNum;
 				this->DecideMovePos();

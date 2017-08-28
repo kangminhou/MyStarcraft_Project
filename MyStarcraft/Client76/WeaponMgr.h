@@ -9,6 +9,7 @@ public:
 	{
 		Weapon_ArcliteCannon,
 		Weapon_ArcliteShockCannon,
+		Weapon_C10_ConcussionRifle,
 		Weapon_FlameThrower,
 		Weapon_FragmentationGrenade,
 		Weapon_FusionCutter,

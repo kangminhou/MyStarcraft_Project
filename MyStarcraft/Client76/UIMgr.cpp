@@ -3,6 +3,7 @@
 
 #include "TextureMgr.h"
 #include "Device.h"
+#include "ObjMgr.h"
 
 #include "UI.h"
 #include "GameEntity.h"
@@ -11,6 +12,8 @@
 #include "MyButton.h"
 #include "Player.h"
 #include "MiniMap.h"
+#include "Background.h"
+#include "TimeMgr.h"
 
 #include "Building.h"
 #include "Mouse.h"
@@ -21,6 +24,9 @@ IMPLEMENT_SINGLETON(CUIMgr)
 
 CUIMgr::CUIMgr()
 	: m_bShowBuildOrderUI(false)
+	, m_pBackground(nullptr)
+	, m_bShowFont(false)
+	, m_pGetDataBuilding(nullptr)
 {
 }
 
@@ -48,6 +54,57 @@ CMiniMap * CUIMgr::GetMiniMap() const
 void CUIMgr::SetPlayer( CPlayer * _pPlayer )
 {
 	this->m_pPlayer = _pPlayer;
+}
+
+void CUIMgr::SetOrderRatio( const BYTE & _byOrderRatio )
+{
+	this->m_byOrderRatio = _byOrderRatio;
+}
+
+void CUIMgr::ShowFont( const eShowFontType & _eShowFontType )
+{
+	this->m_fRestShowFontTime = 5.f;
+
+	this->m_bShowFont = true;
+
+	switch ( _eShowFontType )
+	{
+		case CUIMgr::Font_No_Mineral:
+			m_wstrFont = L"Not enough minerals...mine more minerals.";
+			break;
+
+		case CUIMgr::Font_No_Gas:
+			m_wstrFont = L"Not enough Vespene gases...harvest more Gas.";
+			break;
+
+		case CUIMgr::Font_No_Population:
+			m_wstrFont = L"Not enought supplies..build more Supply Depots";
+			break;
+
+	}
+
+	int iLength = lstrlen( m_wstrFont.c_str() );
+	float fStartX = 500.f - iLength * 6;
+	float fStartY = 350.f;
+
+	D3DXMATRIX matScale, matTrans;
+
+	D3DXMatrixScaling( &matScale, 0.6f, 0.6f, 1.f );
+	D3DXMatrixTranslation( &matTrans, fStartX, fStartY, 0.f );
+
+	this->m_matFontWorld = matScale * matTrans;
+
+}
+
+void CUIMgr::ShowBuildingData( CBuilding * pBuilding )
+{
+	if ( m_pGetDataBuilding )
+	{
+		m_pGetDataBuilding->SetUseActiveTexture( false );
+	}
+
+	m_pGetDataBuilding = pBuilding;
+	m_pGetDataBuilding->SetUseActiveTexture( true );
 }
 
 void CUIMgr::Initialize()
@@ -190,8 +247,8 @@ void CUIMgr::Initialize()
 	}
 
 	/* Order Ratio Texture Initialize.. */
-	fX += 40.f;
-	fY += 0.f;
+	fX += 50.f;
+	fY += 35.f;
 	this->m_pRatioBackUI = new CUI;
 	this->m_pRatioBackUI->SetUIKind( CUI::UI_Normal );
 	this->m_pRatioBackUI->Initialize();
@@ -201,10 +258,11 @@ void CUIMgr::Initialize()
 
 	this->m_pRatioTexture = CTextureMgr::GetInstance()->GetTexture( L"ProgressGauge" );
 
-	D3DXMatrixTranslation( &m_ratioTextureWorldMatrix, fX, fY, 0.f );
+	D3DXMatrixTranslation( &m_ratioTextureWorldMatrix, fX, fY + 3.f, 0.f );
 
 
 	/* 그 외의 변수들 초기화.. */
+	this->m_pMouse = CMouse::GetInstance();
 	this->m_pSprite = CDevice::GetInstance()->GetSprite();
 	this->m_pFont = CDevice::GetInstance()->GetFont();
 
@@ -221,6 +279,7 @@ void CUIMgr::Update()
 	{
 		this->m_pFaceUI->Update();
 
+		/* Button Event Check.. */
 		for ( size_t i = 0; i < this->m_vecDrawButton.size(); ++i )
 		{
 			int iEvent = m_vecDrawButton[i]->Update();
@@ -300,6 +359,15 @@ void CUIMgr::Update()
 				*/
 			}
 
+			{
+				vector<SHORT> vecGetIcon;
+				if ( this->m_pCurShowHpEntity->GetOrderIconData( vecGetIcon ) )
+				{
+					this->ShowBuildingOrderUI( vecGetIcon );
+				}
+			}
+
+			/* Unit Hp Data Update.. */
 			int iEntityCurHp = (int)m_pCurShowHpEntity->GetCurHp();
 			int iEntityMaxHp = (int)m_pCurShowHpEntity->GetMaxHp();
 			int iCnt = 0;
@@ -357,30 +425,61 @@ void CUIMgr::Update()
 		}
 	}
 
-	this->m_pBuildingOrderUI->Render();
-
 	/* Building Frame Image Data Update.. */
 	if ( this->m_bDrawBuildingFrame )
 	{
+		if ( GetAsyncKeyState( VK_SPACE ) )
+		{
+			int a = 10;
+		}
+
 		D3DXVECTOR3 vScrollPos = CGameObject::GetScroll();
-		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos();
+		D3DXVECTOR3 vMousePos = this->m_pMouse->GetPos();
 		RECT rcCol = m_pDrawBuilding->GetColRect();
-		vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
-			D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
 
-		//vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
-		//	D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
+		vScrollPos.x = int( vScrollPos.x ) % TILECX;
+		vScrollPos.y = int( vScrollPos.y ) % TILECY;
 
-		//vMousePos -= vScrollPos;
+		D3DXVECTOR3 vPos = vMousePos + D3DXVECTOR3( (float)(rcCol.left % TILECX), (float)(rcCol.top % TILECY), 0.f );
+		vPos.x = (int)(vPos.x - int( vPos.x ) % TILECX);
+		vPos.y = (int)(vPos.y - int( vPos.y ) % TILECY);
 
-		D3DXMatrixTranslation( &this->m_buildingWorldMatrix, vMousePos.x, vMousePos.y, 0.f );
+		if ( !m_pBackground )
+			m_pBackground = CObjMgr::GetInstance()->FindGameObject<CBackground>();
 
-		rcCol.left +=   (LONG)vMousePos.x;
-		rcCol.right +=  (LONG)vMousePos.x;
-		rcCol.top +=    (LONG)vMousePos.y;
-		rcCol.bottom += (LONG)vMousePos.y;
+		int iStartIndex = this->m_pBackground->GetTileIndex( vPos );
+
+		int iXDist = (rcCol.right - rcCol.left) / TILECX;
+		int iYDist = (rcCol.bottom - rcCol.top) / TILECY;
+
+		int iMiddleIndex = iStartIndex + int(iXDist * 0.5) + (int(iYDist * 0.5) * TILEX);
+
+		D3DXVECTOR3 vMiddlePos( float( (iMiddleIndex % TILEX) * TILECX ), float( (iMiddleIndex / TILEX) * TILECY ), 0.f );
+
+		vMiddlePos -= vScrollPos;
+
+		if ( iXDist % 2 )
+			vMiddlePos.x += TILECX * 0.5f;
+		if ( iYDist % 2 )
+			vMiddlePos.y += TILECY * 0.5f;
+
+		//vMiddlePos -= vScrollPos;
+
+		D3DXMatrixTranslation( &this->m_buildingWorldMatrix, vMiddlePos.x, vMiddlePos.y, 0.f );
+
+		rcCol.left += vMiddlePos.x;
+		rcCol.top += vMiddlePos.y;
+		rcCol.right += vMiddlePos.x;
+		rcCol.bottom += vMiddlePos.y;
 
 		this->m_rcBuilding = rcCol;
+	}
+
+	if ( this->m_bShowFont )
+	{
+		m_fRestShowFontTime -= GET_TIME;
+		if ( m_fRestShowFontTime <= 0.f )
+			this->m_bShowFont = false;
 	}
 }
 
@@ -490,7 +589,8 @@ void CUIMgr::Render()
 
 				this->m_pRatioBackUI->Render();
 
-				RECT rc = { 0, 0, this->m_pRatioTexture->ImageInfo.Width * 0.01f * this->m_byOrderRatio, this->m_pRatioTexture->ImageInfo.Height };
+				float fRectRight = this->m_pRatioTexture->ImageInfo.Width * 0.01f * (100 - this->m_byOrderRatio);
+				RECT rc = { 0, 0, (LONG)fRectRight, (LONG)this->m_pRatioTexture->ImageInfo.Height };
 
 				this->m_pSprite->SetTransform( &this->m_ratioTextureWorldMatrix );
 				this->m_pSprite->Draw( this->m_pRatioTexture->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
@@ -505,6 +605,15 @@ void CUIMgr::Render()
 		this->m_pDrawBuilding->RectRender( this->m_rcBuilding );
 		this->m_pDrawBuilding->FrameRender( this->m_buildingWorldMatrix );
 	}
+
+	if ( this->m_bShowFont )
+	{
+		this->m_pSprite->SetTransform( &this->m_matFontWorld );
+
+		this->m_pFont->DrawTextW( this->m_pSprite, m_wstrFont.c_str(), lstrlen( m_wstrFont.c_str() ),
+								  nullptr, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+	}
+
 }
 
 void CUIMgr::Release()
@@ -548,7 +657,8 @@ void CUIMgr::ShowEntityUI( CCorps* _pCorps )
 	CGameEntity* pEntity = _pCorps->GetEntity( 0 );
 	int iFaceAniNum = pEntity->GetFaceFrameNum();
 
-	this->m_pFaceUI->DecideFrame( L"Idle", FRAME( 0.f, (float)(iFaceAniNum), (float)(iFaceAniNum), 0.f ), CAnimation::Anim_Loop );
+	this->m_pFaceUI->ChangeFrame( L"Idle", FRAME( 0.f, (float)(iFaceAniNum) * 0.1f, (float)iFaceAniNum, 0.f ) );
+	this->m_pFaceUI->DecideFrame( L"Idle" );
 	this->m_pFaceUI->ChangeDrawTexture( pEntity->GetFaceKey().c_str(), L"Idle", iFaceAniNum );
 
 	BYTE byCorpsEntityLength = _pCorps->GetCurUnitNum();

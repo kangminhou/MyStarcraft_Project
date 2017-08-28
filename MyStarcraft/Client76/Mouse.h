@@ -45,6 +45,9 @@ private:
 
 	bool					m_bMouseClick;
 	bool					m_bMinimapClick;
+#ifdef _IMAGE_THREAD_LOADING
+	bool					m_bWaitTextureLoading;
+#endif
 
 	float					m_fWaitCheckStateTime;
 	D3DXVECTOR3				m_vScrollMoveSpeed;

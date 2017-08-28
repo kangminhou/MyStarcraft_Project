@@ -46,7 +46,7 @@ void CResearchMgr::Initialize()
 		this->m_ResearchDataArr[i].second = false;
 	}
 
-	this->m_ResearchDataArr[Research_SteamPack].first = RESEARCH_DATA( 10.f, 100, 100, L"Steam pack" );
+	this->m_ResearchDataArr[Research_SteamPack].first = RESEARCH_DATA( 10.f, 100, 100, L"Steam pack", 237 );
 	//this->m_ResearchDataArr[Research_SiegeTank].first = RESEARCH_DATA( 10.f, 100, 100, L"Steam pack" );
 }
 

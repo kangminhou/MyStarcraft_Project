@@ -71,6 +71,8 @@ int CEffect::Update( void )
 		return Event_EraseObjList;
 	}
 
+	this->UpdateMatrix();
+
 	return iEvent;
 }
 

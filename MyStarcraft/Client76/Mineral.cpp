@@ -8,12 +8,33 @@
 
 
 CMineral::CMineral()
+	: m_iMaxGatherNum(1)
 {
 }
 
 
 CMineral::~CMineral()
 {
+}
+
+void CMineral::SetUseEntity( CGameEntity * _pEntity )
+{
+	this->m_vecUseEntity.push_back( _pEntity );
+}
+
+void CMineral::SetMaxGatherNum( const int & _iMaxGatherNum )
+{
+	this->m_iMaxGatherNum = _iMaxGatherNum;
+}
+
+bool CMineral::GetIsCanGather() const
+{
+	return (this->m_vecUseEntity.size() < m_iMaxGatherNum);
+}
+
+int CMineral::GetMaxGatherNum() const
+{
+	return this->m_iMaxGatherNum;
 }
 
 HRESULT CMineral::Initialize( void )
@@ -42,7 +63,7 @@ HRESULT CMineral::Initialize( void )
 
 	CGameEntity::Initialize();
 
-	this->m_pBackground = CObjMgr::GetInstance()->FindGameObject<CBackground>();
+	this->m_pBackground = this->m_pObjMgr->FindGameObject<CBackground>();
 
 	return S_OK;
 }

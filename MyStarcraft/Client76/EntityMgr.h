@@ -19,6 +19,7 @@ public:
 		Entity_Tank,
 		Entity_Goliath,
 		Entity_SCV,
+		Entity_Ghost,
 
 		Entity_UnitEnd,
 

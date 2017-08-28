@@ -3,11 +3,15 @@
 
 #include "Device.h"
 #include "TextureMgr.h"
+#include "ObjMgr.h"
+#include "KeyMgr.h"
 
 #include "GameEntity.h"
+#include "Player.h"
 
 
 CBackground::CBackground()
+	: m_bActiveFog( FOG )
 {
 }
 
@@ -547,6 +551,10 @@ void CBackground::ObjectDataUpdate( CGameEntity * pEntity, int iTileOption /*= 1
 	{
 		for ( int j = iStartX; j <= iEndX; ++j )
 		{
+			if ( j < 0 || i < 0 ||
+				 j >= TILEX || i >= TILEY )
+				continue;
+
 			int iIndex = j + i * TILEX;
 			this->m_vecTile[iIndex]->byOption = iTileOption;
 			this->m_vecTile[iIndex]->byDrawID = 1;
@@ -563,10 +571,19 @@ HRESULT CBackground::Initialize(void)
 
 	this->LoadTileData();
 
+	for ( size_t i = 0; i < this->m_vecTile.size(); ++i )
+		m_vecFogData.push_back( new FOG_DATA() );
+
 	m_pBackgroundTexture = CTextureMgr::GetInstance()->GetTexture( L"BackGround" );
 
 	for ( int i = 0; i < 16; ++i )
 		m_vecTileTexture.push_back( CTextureMgr::GetInstance()->GetTexture( L"Back", L"Tile", i ) );
+
+	m_pBlackTileTexture = CTextureMgr::GetInstance()->GetTexture( L"BlackTile" );
+
+	this->m_pPlayerObjList = CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER );
+
+	this->m_pTempSprite = CDevice::GetInstance()->GetSprite();
 
 	//for(int i = 0; i < TILEY; ++i)	
 	//{
@@ -595,6 +612,89 @@ HRESULT CBackground::Initialize(void)
 
 int CBackground::Update(void)
 {
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SHIFT ) && CKeyMgr::GetInstance()->GetKeyStayDown( VK_CONTROL ) )
+	{
+		this->m_bActiveFog = ((this->m_bActiveFog) ? false : true);
+	}
+
+	int iScope = 0;
+	D3DXVECTOR3 vEntityPos( 0.f, 0.f, 0.f );
+	D3DXVECTOR3 vTilePos;
+	D3DXVECTOR3 vTileCenterPos( TILECX * 0.5f, TILECY * 0.5f, 0.f );
+
+	int iDistX = 0;
+	int iDistY = 0;
+
+	int iEndX = 0;
+	int iEndY = 0;
+
+	int iStartX = 0;
+	int iStartY = 0;
+
+	if ( this->m_bActiveFog )
+	{
+		for ( size_t i = 0; i < this->m_vecNotFog.size(); ++i )
+		{
+			this->m_vecNotFog[i]->bNotFog = false;
+		}
+
+		this->m_vecNotFog.clear();
+
+		for ( auto& iter : (*this->m_pPlayerObjList) )
+		{
+			if ( typeid(*iter) == typeid(CPlayer) )
+				continue;
+
+			//iScope = (int)(((CGameEntity*)(iter))->GetCommanData().iScope * Object_Scope_Mul);
+			iScope = 5 * Object_Scope_Mul;
+			vEntityPos = iter->GetPos();
+
+			iDistX = iScope / TILECX;
+			iDistY = iScope / TILECY;
+
+			iStartX = ((vEntityPos.x)) / TILECX - iDistX;
+			iStartY = ((vEntityPos.y)) / TILECY - iDistY;
+
+			iEndX = iStartX + iDistX * 2; 
+			iEndY = iStartY + iDistY * 2;
+
+			for ( int i = iStartY; i <= iEndY + 1; ++i )
+			{
+				for ( int j = iStartX; j <= iEndX + 1; ++j )
+				{
+					int iIndex = j + i * TILEX;
+
+					if ( j < 0 || i < 0 || j >= TILEX || i >= TILEY )
+						continue;
+
+					auto& tile = this->m_vecTile[iIndex];
+					vTilePos = tile->vPos;
+
+					float fDist = D3DXVec3Length( &(vEntityPos - vTilePos) );
+
+					if ( fDist <= iScope )
+					{
+						auto& fogData = this->m_vecFogData[iIndex];
+						if ( !fogData->bNotFog )
+						{
+							if ( tile->byOption != 0 || this->CheckRay( tile->vPos + vTileCenterPos, vEntityPos ) )
+							{
+								if ( !fogData->bAlreadySeeTile )
+									fogData->bAlreadySeeTile = true;
+
+								fogData->bNotFog = true;
+								this->m_vecNotFog.push_back( fogData );
+							}
+						}
+					}
+
+				}
+
+			}
+
+		}
+	}
+
 	return 0;
 }
 
@@ -605,33 +705,78 @@ void CBackground::Render(void)
 	TCHAR szIndexText[MIDDLE_STR] = L"";
 
 	D3DXMatrixTranslation( &matTrans, 0.f, 0.f, 0.f );
-	CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+	this->m_pTempSprite->SetTransform( &matTrans );
 
 	RECT rc = { (LONG)m_vScroll.x, (LONG)m_vScroll.y, WINCX, WINCY };
 	rc.right += rc.left;
 	rc.bottom += rc.top;
 
-	CDevice::GetInstance()->GetSprite()->Draw( m_pBackgroundTexture->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+	this->m_pTempSprite->Draw( m_pBackgroundTexture->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
-	int iStartY = (LONG)((m_vScroll.y) / TILECY);
-	int iEndY = (LONG)((m_vScroll.y + WINCY) / TILECY);
+	if ( this->m_bActiveFog )
+	{
+		int iStartX = m_vScroll.x / TILECX;
+		int iStartY = m_vScroll.y / TILECY;
 
-	int iStartX = (LONG)((m_vScroll.x) / (TILECX));
-	int iEndX = (LONG)((m_vScroll.x + WINCX) / (TILECX));
+		int iEndX = WINCX / TILECX + iStartX;
+		int iEndY = WINCY / TILECY + iStartY;
+
+		const TEX_INFO* pTileTex = this->m_pBlackTileTexture;
+		D3DCOLOR color;
+
+		for ( int i = iStartY; i < iEndY + 2; ++i )
+		{
+			for ( int j = iStartX; j < iEndX + 2; ++j )
+			{
+				int iIndex = i * TILEX + j;
+
+				if ( j < 0 || i < 0 || j >= TILEX || i >= TILEY )
+					continue;
+
+				auto& tile = this->m_vecTile[iIndex];
+				auto& fogData = this->m_vecFogData[iIndex];
+
+				if ( fogData->bNotFog )
+					continue;
+
+				D3DXMatrixTranslation(&matTrans
+									   , tile->vPos.x - m_vScroll.x	//0 : x
+									   , tile->vPos.y - m_vScroll.y	//1 : y
+									   , 0.f);
+
+				this->m_pTempSprite->SetTransform( &matTrans );
+
+				if ( fogData->bAlreadySeeTile )
+					color = D3DCOLOR_ARGB( 150, 255, 255, 255 );
+				else
+					color = D3DCOLOR_ARGB( 255, 255, 255, 255 );
+
+				this->m_pTempSprite->Draw(
+					pTileTex->pTexture, NULL, NULL, NULL, color
+				);
+			}
+		}
+	}
+
 	return;
+	int iStartX = m_vScroll.x / TILECX;
+	int iStartY = m_vScroll.y / TILECY;
+
+	int iEndX = WINCX / TILECX + iStartX;
+	int iEndY = WINCY / TILECY + iStartY;
 
 	for(int i = iStartY; i < iEndY + 1; ++i)
 	{
 		for(int j = iStartX; j < iEndX + 1; ++j)
 		{
 			int iIndex = i * TILEX + j;
-
+	
 			if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
 				continue;
-
+	
 			BYTE byDrawID = this->m_vecTile[iIndex]->byDrawID;
 			BYTE byEntityTIleData = this->CalcEntityTileData( iIndex, NULL );
-
+	
 			if ( this->m_vecTile[iIndex]->byDrawID == 0 )
 			{
 				switch ( byEntityTIleData )
@@ -683,19 +828,19 @@ void CBackground::Render(void)
 						break;
 				}
 			}
-
+	
 			const TEX_INFO* pTileTex = this->m_vecTileTexture[byDrawID];
-
+	
 			//if ( m_vecTile[iIndex]->byDrawID == 0 )
 			//	continue;
-
+	
 			D3DXMatrixTranslation(&matTrans
 								   , m_vecTile[iIndex]->vPos.x - m_vScroll.x	//0 : x
 								   , m_vecTile[iIndex]->vPos.y - m_vScroll.y	//1 : y
 								   , 0.f);
-
+	
 			CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
-
+	
 			CDevice::GetInstance()->GetSprite()->Draw(
 				pTileTex->pTexture,
 				NULL,
@@ -703,9 +848,15 @@ void CBackground::Render(void)
 				NULL,
 				D3DCOLOR_ARGB( 255, 255, 255, 255 )
 			);
-
+	
 			////##폰트 출력
 			//swprintf_s(szIndexText, L"%d", iIndex);
+			//
+			//D3DXMATRIX matScale, matWorld;
+			//D3DXMatrixScaling( &matScale, 0.5f, 1.f, 1.f );
+			//matWorld = matScale * matTrans;
+			//
+			//CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
 			//
 			//CDevice::GetInstance()->GetFont()->DrawTextW(
 			//	CDevice::GetInstance()->GetSprite(),
@@ -713,7 +864,7 @@ void CBackground::Render(void)
 			//	lstrlen(szIndexText),
 			//	NULL,
 			//	NULL,
-			//	D3DCOLOR_ARGB(255, 0, 0, 255)
+			//	D3DCOLOR_ARGB(255, 255, 255, 255)
 			//	);
 		}
 	}
@@ -726,6 +877,12 @@ void CBackground::Release(void)
 		safe_delete(m_vecTile[i]);
 	}
 	m_vecTile.clear();
+
+	for ( size_t i = 0; i < this->m_vecFogData.size(); ++i )
+	{
+		safe_delete( this->m_vecFogData[i] );
+	}
+	this->m_vecFogData.clear();
 }
 
 void CBackground::MiniMapRender(void)
@@ -799,4 +956,59 @@ void CBackground::LoadTileData()
 	}
 
 	CloseHandle(hFile);
+}
+
+bool CBackground::CheckRay( const D3DXVECTOR3 & _vStart, const D3DXVECTOR3 & _vEnd )
+{
+	D3DXVECTOR3 vDir = (_vEnd - _vStart);
+	vDir.z = 0.f;
+	float fDist = D3DXVec3Length( &vDir );
+	D3DXVec3Normalize( &vDir, &vDir );
+
+	float fXDir = 0.f;
+	float fYDir = 0.f;
+
+	if ( fabsf( vDir.x ) >= 0.00001f )
+		fXDir = vDir.x / fabsf( vDir.x );
+	if ( fabsf( vDir.y ) >= 0.000001f )
+		fYDir = vDir.y / fabsf( vDir.y );
+
+	int iCnt = 0;
+
+	D3DXVECTOR3 vTempStartPos = _vStart;
+
+	vDir *= 32.f;
+
+	while ( true )
+	{
+		vTempStartPos += vDir;
+
+		++iCnt;
+
+		int iIndex = this->GetTileIndex( vTempStartPos );
+
+		if ( m_vecTile[iIndex]->byOption == 1 )
+			return false;
+
+		if ( ((fXDir < 0.f && _vEnd.x - vTempStartPos.x >= fXDir) ||
+			(fXDir >= 0.f && _vEnd.x - vTempStartPos.x <= fXDir)) &&
+			 ((fYDir < 0.f && _vEnd.y - vTempStartPos.y >= fYDir) ||
+			 (fYDir >= 0.f && _vEnd.y - vTempStartPos.y <= fYDir)) )
+			break;
+
+		if ( iCnt >= 100 )
+			return false;
+
+		//if ( _vEnd.x - vTempStartPos.x <= fXDir && _vEnd.y - vTempStartPos.y <= fYDir )
+		//	break;
+
+	}
+
+	return true;
+}
+
+bool CBackground::CheckRay( const int & _iStartIndex, const int & _iEndIndex )
+{
+	D3DXVECTOR3 vCenter( TILECX * 0.5f, TILECY * 0.5, 0.f );
+	return this->CheckRay( this->m_vecTile[_iStartIndex]->vPos + vCenter, this->m_vecTile[_iEndIndex]->vPos + vCenter ); 
 }

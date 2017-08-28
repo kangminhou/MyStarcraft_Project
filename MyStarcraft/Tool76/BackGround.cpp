@@ -133,6 +133,9 @@ HRESULT CBackGround::Initialize(void)
 	//{
 	//}
 
+	this->m_pSprite = CDevice::GetInstance()->GetSprite();
+	this->m_pFont = CDevice::GetInstance()->GetFont();
+
 	for(int i = 0; i < TILEY; ++i)	
 	{
 		for(int j = 0; j < TILEX; ++j)
@@ -170,16 +173,18 @@ void CBackGround::Render(void)
 	TCHAR szIndexText[MIDDLE_STR] = L"";
 
 	D3DXMatrixTranslation( &matTrans, 0.f, 0.f, 0.f );
-	CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+	this->m_pSprite->SetTransform( &matTrans );
 
 	const TEX_INFO* pTexInfo = CTextureMgr::GetInstance()->GetTexture( L"BackGround" );
+
 	if ( !pTexInfo )
 		return;
+
 	RECT rc = { (m_pMainView->GetScrollPos( 0 )), (m_pMainView->GetScrollPos( 1 )), WINCX, WINCY };
 	rc.right += rc.left;
 	rc.bottom += rc.top;
 
-	CDevice::GetInstance()->GetSprite()->Draw( pTexInfo->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+	this->m_pSprite->Draw( pTexInfo->pTexture, &rc, NULL, NULL, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
 
 	int iStartY = (m_pMainView->GetScrollPos( 1 )) / TILECY;
 	int iEndY = ((m_pMainView->GetScrollPos( 1 )) + WINCY) / TILECY;
@@ -211,7 +216,7 @@ void CBackGround::Render(void)
 	
 			CDevice::GetInstance()->GetSprite()->SetTransform(&matTrans);
 	
-			CDevice::GetInstance()->GetSprite()->Draw(
+			this->m_pSprite->Draw(
 				pTileTex->pTexture,
 				NULL, 
 				&D3DXVECTOR3(0.f, 0.f, 0.f),

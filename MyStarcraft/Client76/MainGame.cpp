@@ -9,6 +9,7 @@
 #include "Mouse.h"
 #include "ObjMgr.h"
 #include "Random.h"
+#include "SoundMgr.h"
 
 void CMainGame::FPS_Render(void)
 {
@@ -43,26 +44,41 @@ void CMainGame::FPS_Render(void)
 
 HRESULT CMainGame::Initialize(void)
 {
-	CTimeMgr::GetInstance()->InitTime();
-	CKeyMgr::GetInstance()->Initialize();
-	
+	this->m_pMouse = CMouse::GetInstance();
+	this->m_pSceneMgr = CSceneMgr::GetInstance();
+	this->m_pKeyMgr = CKeyMgr::GetInstance();
+	this->m_pSoundMgr = CSoundMgr::GetInstance();
+	this->m_pTimeMgr = CTimeMgr::GetInstance();
+
+	this->m_pTimeMgr->InitTime();
+	this->m_pKeyMgr->Initialize();
+	this->m_pSoundMgr->Initialize();
+
 	if(FAILED(m_pDevice->Init3D()))
 	{
 		ERROR_MSG(L"장치 초기화 실패!");
 		return E_FAIL;
 	}
-	
+
+#ifndef _IMAGE_THREAD_LOADING
 	if ( !InitResource() )
 	{
 		ERROR_MSG( L"Image Load Failed" );
 		return E_FAIL;
 	}
-	
-	CMouse::GetInstance()->Initialize();
+#endif
+
+	if ( FAILED( this->InitSound() ) )
+	{
+		ERROR_MSG( L"Sound Load Failed" );
+		return E_FAIL;
+	}
+
+	this->m_pMouse->Initialize();
 	CRandom::GetInstance()->Initialize();
 
-	CSceneMgr::GetInstance()->Initialize();
-	CSceneMgr::GetInstance()->SetChangeScene(SCENE_STAGE);
+	this->m_pSceneMgr->Initialize();
+	this->m_pSceneMgr->SetChangeScene( SCENE_Loading );
 
 	//CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/a.png", L"Test", TEX_SINGLE );
 
@@ -71,10 +87,11 @@ HRESULT CMainGame::Initialize(void)
 
 int CMainGame::Update(void)
 {
-	CKeyMgr::GetInstance()->Update();
-	CTimeMgr::GetInstance()->SetTime();
-	CMouse::GetInstance()->Update();
-	CSceneMgr::GetInstance()->Update();
+	this->m_pSoundMgr->UpdateSound();
+	this->m_pKeyMgr->Update();
+	this->m_pTimeMgr->SetTime();
+	this->m_pMouse->Update();
+	this->m_pSceneMgr->Update();
 
 	return 0;
 }
@@ -83,43 +100,9 @@ void CMainGame::Render(void)
 {
 	m_pDevice->Render_Begin();
 
-	CSceneMgr::GetInstance()->Render();
+	this->m_pSceneMgr->Render();
 
-	CMouse::GetInstance()->Render();
-
-	//const TEX_INFO* pTex = CTextureMgr::GetInstance()->GetTexture( L"Test" );
-	//static float fY = 0.f;
-	//if ( GetAsyncKeyState( 'Z' ) )
-	//{
-	//	fY -= 0.01f;
-	//}
-	//else if ( GetAsyncKeyState( 'C' ) )
-	//{
-	//	fY += 0.01f;
-	//}
-	//RECT rc = { 0, fY, 56, 56 };
-
-	//D3DXMATRIX matWorld;
-	//D3DXMatrixTranslation( &matWorld, 100.f, 100.f + fY, 0.f );
-
-	//CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
-
-	//CDevice::GetInstance()->GetSprite()->Draw(
-	//	pTex->pTexture,
-	//	&rc,
-	//	&D3DXVECTOR3(pTex->ImageInfo.Width * 0.5f, pTex->ImageInfo.Height * 0.5f, 0.f),
-	//	//NULL,
-	//	NULL,
-	//	D3DCOLOR_ARGB(255,255,255,255)
-	//);
-
-	//const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"BuildingOrder" );
-	//
-	//D3DXMATRIX matTrans;
-	//D3DXMatrixTranslation( &matTrans, 300.f, 500.f, 0.f );
-	//
-	//CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
-	//CDevice::GetInstance()->GetSprite()->Draw( pTexture->pTexture, nullptr, nullptr, nullptr, D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
+	this->m_pMouse->Render();
 
 	FPS_Render();
 	
@@ -135,10 +118,12 @@ void CMainGame::Release(void)
 	CObjMgr::GetInstance()->DestroyInstance();
 	CTimeMgr::GetInstance()->DestroyInstance();
 	CRandom::GetInstance()->DestroyInstance();
+	CSoundMgr::GetInstance()->DestroyInstance();
 
 	m_pDevice->DestroyInstance();
 }
 
+#ifndef _IMAGE_THREAD_LOADING
 bool CMainGame::InitResource( void )
 {
 	/* UI Image.. */
@@ -173,6 +158,22 @@ bool CMainGame::InitResource( void )
 		return false;
 
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/ProgressGauge.png", L"ProgressGauge", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/AStarTest/TestTile5.png", L"BlackTile", TEX_SINGLE ) ) )
+		return false;
+
+	/* Start Scene Use Image.. */
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/MenuBack.png", L"StartBack", TEX_SINGLE ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/MainMenu/Button/editor_button%d.png", L"BUTTON", TEX_MULTI, L"EDIT", 2 ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/MainMenu/Button/exit_button%d.png", L"BUTTON", TEX_MULTI, L"EXIT", 2 ) ) )
+		return false;
+
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/MainMenu/Button/single_button%d.png", L"BUTTON", TEX_MULTI, L"SINGLE", 2 ) ) )
 		return false;
 
 	/* Player Resource Data Image.. */
@@ -226,37 +227,28 @@ bool CMainGame::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Build_NO.png", L"Build_OFF", TEX_SINGLE ) ) )
 		return false;
 
-	///* Marine Image.. */
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Idle/marine%d.png", L"Marine", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Work/marine%d.png", L"Marine", TEX_MULTI, L"Move", 153, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Attack/marine%d.png", L"Marine", TEX_MULTI, L"Attack", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Marine/Die/marine%d.png", L"Marine", TEX_MULTI, L"Die", 8, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	///* Medic Image.. */
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Idle/medic%d.png", L"Medic", TEX_MULTI, L"Idle", 17, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Work/medic%d.png", L"Medic", TEX_MULTI, L"Move", 119, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Attack/medic%d.png", L"Medic", TEX_MULTI, L"Attack", 34, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Magic/medic%d.png", L"Medic", TEX_MULTI, L"Magic", 51, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
-	//
-	//if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Unit/Medic/Die/medic%d.png", L"Medic", TEX_MULTI, L"Die", 9, true, D3DCOLOR_ARGB( 255, 0, 0, 0 ) ) ) )
-	//	return false;
+	CTextureMgr::GetInstance()->LoadingEnd();
 
 	return true;
 
+}
+#endif
+
+HRESULT CMainGame::InitSound( void )
+{
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/scv/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/marine/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/firebat/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/vulture/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/tank/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/medic/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/tank/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/goliath/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/ghost/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/advisor/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/BGM/" );
+
+	return S_OK;
 }
 
 CMainGame::CMainGame(void)

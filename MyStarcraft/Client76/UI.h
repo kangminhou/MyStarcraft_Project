@@ -34,8 +34,8 @@ public:
 
 public:
 	void AddFrame( const wstring& _wstrName, const FRAME& tFrame, const CAnimation::eAnim_Kind& eKind );
-	bool ChangeFrame( const wstring& _wstrName );
-	void DecideFrame( const wstring& _wstrName, const FRAME& tFrame, const CAnimation::eAnim_Kind& eKind );
+	bool ChangeFrame( const wstring& _wstrName, const FRAME& tFrame );
+	void DecideFrame( const wstring& _wstrName );
 	void SetUIKind( const eUI_Kind& _eKind );
 	void AddTexture( const wstring& _wstrTextureKey, const wstring& _wstrObjKey, const wstring& _wstrStateKey = L"", const int& _iCount = 1 );
 	bool DecideDrawTexture( const wstring& _wstrTextureKey );

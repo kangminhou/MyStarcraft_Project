@@ -7,6 +7,8 @@
 
 #include "Move.h"
 #include "Pattern_Building_Build.h"
+#include "Pattern_Die.h"
+#include "Pattern_MakeUnit.h"
 #include "UIMgr.h"
 #include "Player.h"
 #include "ObjMgr.h"
@@ -56,9 +58,7 @@ HRESULT CBarrack::Initialize( void )
 
 int CBarrack::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CBarrack::Render( void )
@@ -104,22 +104,64 @@ void CBarrack::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 
 		case CGameEntity::Pattern_Make_Unit:
 		{
-			//this->m_pPushData->iMessage
-			UNIT_GENERATE_DATA tUnitGenData = this->m_pEntityMgr->GetEntityGenData( CEntityMgr::eEntityType( this->m_pPushData->iMessage ) );
-			if ( !this->m_pPlayer->CheckCanBuyUnit( tUnitGenData ) )
+			if ( !this->GetIsFullOrderVector() )
 			{
-				this->SetPattern( CGameEntity::Pattern_Idle );
-				return;
+				//this->m_pPushData->iMessage
+				UNIT_GENERATE_DATA* pUnitGenData = new UNIT_GENERATE_DATA( this->m_pEntityMgr->GetEntityGenData( CEntityMgr::eEntityType( this->m_pPushData->iMessage ) ) );
+
+				if ( this->m_pPlayer->GetFullPopulation() )
+				{
+					this->SoundPlay( CGameEntity::Sound_ETC, 2 );
+					this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Population );
+
+					return;
+				}
+				else
+				{
+					int iCanBuyCheck = this->m_pPlayer->CheckCanBuyUnit( *pUnitGenData );
+					if ( iCanBuyCheck )
+					{
+						if ( iCanBuyCheck == 1 )
+						{
+							this->SoundPlay( CGameEntity::Sound_ETC, 0 );
+							this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Mineral );
+						}
+						else if ( iCanBuyCheck == 2 )
+						{
+							this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+							this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Gas );
+						}
+
+						return;
+					}
+					else
+					{
+						this->m_pPlayer->BuyUnit( *pUnitGenData );
+
+						this->AddOrderIcon( pUnitGenData->nIconFrame, this->m_pPushData->iMessage, pUnitGenData, CGameEntity::Pattern_Make_Unit );
+
+						this->ShowUpdateOrderData();
+					}
+				}
+
+
 			}
+
+			if ( this->m_curActPatternKind != CGameEntity::Pattern_Make_Unit )
+				this->m_pCurActPattern = this->m_mapPatterns.find( L"Make_Unit" )->second;
 			else
-				this->m_pPlayer->BuyUnit( tUnitGenData );
-
-			CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::eEntityType( this->m_pPushData->iMessage ), this->CalcNearEmptySpace(), this->GetObjectType() );
-
-			CObjMgr::GetInstance()->AddGameObject( pEntity, this->GetObjectType() );
-			pEntity->UpdatePosition( pEntity->GetPos() );
+				return;
 		}
 		break;
+
+		case CGameEntity::Pattern_Die:
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"Die" )->second;;
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Die" );
+			this->m_wstrStateKey = L"Die";
+
+			if ( this->m_pEntityBelongToCorps )
+				this->m_pEntityBelongToCorps->EraseUnit( this );
+			break;
 
 	}
 
@@ -155,6 +197,8 @@ void CBarrack::InitAnimation()
 void CBarrack::InitPattern()
 {
 	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Building_Build ) );
+	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
+	this->m_mapPatterns.insert( make_pair( L"Make_Unit", new CPattern_MakeUnit ) );
 }
 
 void CBarrack::InitTexture()

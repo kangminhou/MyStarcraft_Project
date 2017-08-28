@@ -22,6 +22,7 @@ CCommandCenter::CCommandCenter()
 
 CCommandCenter::~CCommandCenter()
 {
+	Release();
 }
 
 HRESULT CCommandCenter::Initialize( void )
@@ -29,7 +30,7 @@ HRESULT CCommandCenter::Initialize( void )
 	this->m_wstrStateKey = L"Control";
 
 	/* 유닛의 데이터 초기화.. */
-	this->m_tInfoData.fMaxHp = 100.f;
+	this->m_tInfoData.fMaxHp = 1500.f;
 	this->m_tInfoData.fCurHp = 0.f;
 	this->m_tInfoData.iDefense = 1;
 	this->m_tInfoData.fSpeed = Calc_Entity_Speed(1.5f);
@@ -55,9 +56,7 @@ HRESULT CCommandCenter::Initialize( void )
 
 int CCommandCenter::Update( void )
 {
-	CBuilding::Update();
-
-	return 0;
+	return CBuilding::Update();
 }
 
 void CCommandCenter::Render( void )
@@ -98,8 +97,6 @@ void CCommandCenter::SetPattern( const eGameEntityPattern & _ePatternKind, const
 			}
 			else
 				this->m_pCurActPattern = NULL;
-
-			this->m_bUseActiveTexture = false;
 		}
 		break;
 
@@ -110,19 +107,41 @@ void CCommandCenter::SetPattern( const eGameEntityPattern & _ePatternKind, const
 				//this->m_pPushData->iMessage
 				UNIT_GENERATE_DATA* pUnitGenData = new UNIT_GENERATE_DATA( this->m_pEntityMgr->GetEntityGenData( CEntityMgr::eEntityType( this->m_pPushData->iMessage ) ) );
 
-				if ( !this->m_pPlayer->CheckCanBuyUnit( *pUnitGenData ) )
+				if ( this->m_pPlayer->GetFullPopulation() )
 				{
+					this->SoundPlay( CGameEntity::Sound_ETC, 2 );
+					this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Population );
+
 					return;
 				}
 				else
 				{
-					this->m_pPlayer->BuyUnit( *pUnitGenData );
+					int iCanBuyCheck = this->m_pPlayer->CheckCanBuyUnit( *pUnitGenData );
+					if ( iCanBuyCheck )
+					{
+						if ( iCanBuyCheck == 1 )
+						{
+							this->SoundPlay( CGameEntity::Sound_ETC, 0 );
+							this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Mineral );
+						}
+						else if ( iCanBuyCheck == 2 )
+						{
+							this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+							this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Gas );
+						}
 
-					this->AddOrderIcon( pUnitGenData->nIconFrame, this->m_pPushData->iMessage, pUnitGenData );
+						return;
+					}
+					else
+					{
+						this->m_pPlayer->BuyUnit( *pUnitGenData );
 
-					this->m_bUseActiveTexture = true;
+						this->AddOrderIcon( pUnitGenData->nIconFrame, this->m_pPushData->iMessage, pUnitGenData, CGameEntity::Pattern_Make_Unit );
 
-					this->ShowUpdateOrderData();
+						this->m_bUseActiveTexture = true;
+
+						this->ShowUpdateOrderData();
+					}
 				}
 
 

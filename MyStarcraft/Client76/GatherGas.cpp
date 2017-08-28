@@ -12,6 +12,7 @@
 #include "Move.h"
 #include "Animation.h"
 #include "ResourceObj.h"
+#include "Player.h"
 
 
 CGatherGas::CGatherGas()
@@ -29,6 +30,7 @@ void CGatherGas::Initialize()
 	m_pSCV = dynamic_cast<CSCV*>(this->m_pGameEntity);
 	m_pMove = const_cast<CMove*>(m_pSCV->GetComponent<CMove>());
 	m_pAnimCom = const_cast<CAnimation*>(this->m_pSCV->GetComponent<CAnimation>());
+	m_pPlayer = CObjMgr::GetInstance()->FindGameObject<CPlayer>();
 
 	if ( !m_pSCV )
 	{
@@ -139,6 +141,8 @@ int CGatherGas::Update()
 			{
 				this->m_iEntityActLevel = 3;
 				this->m_fStopTime = 0.f;
+
+				this->m_pPlayer->GahterGas( 8 );
 			}
 		}
 		break;

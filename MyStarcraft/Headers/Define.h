@@ -1,5 +1,9 @@
 #pragma once
 
+#define _DIV_SPACE_LIST
+#define _IMAGE_THREAD_LOADING
+#define _AStar_Debug_Log
+
 #define SAFE_DELETE(p) ( if(p){ delete p; p = NULL; } )
 #define SAFE_DELETE_ARRAY(p) if(p){ delete[] p; p = NULL; }
 
@@ -46,4 +50,4 @@ private:								\
 /* 움직일 수 있는 오브젝트의 스피드에 곱함.. */
 #define Calc_Entity_Speed(speed) (speed * 50.f)
 #define Object_Scope_Mul TILECX * 1.4f
-#define Calc_Weapon_Interval(fInverval) (fInverval / (35.f * 1.4f))
+#define Calc_Weapon_Interval(fInverval) (fInverval / (35.f * 1.f))

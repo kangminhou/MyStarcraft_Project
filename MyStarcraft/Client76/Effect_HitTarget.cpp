@@ -72,7 +72,7 @@ int CEffect_HitTarget::Update()
 		return CEffectBridge::Event_DestroyObject;
 	}
 
-	cout << "Effect Pos : " << this->m_pEffect->GetPos().x << ", " << this->m_pEffect->GetPos().y << ", 0.f" << endl;
+	//cout << "Effect Pos : " << this->m_pEffect->GetPos().x << ", " << this->m_pEffect->GetPos().y << ", 0.f" << endl;
 
 	return CEffectBridge::Event_None;
 }

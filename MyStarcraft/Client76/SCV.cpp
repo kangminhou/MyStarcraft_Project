@@ -64,6 +64,28 @@ bool CSCV::GetIsUnderConstruction() const
 
 HRESULT CSCV::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"tscrdy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tscyes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tscyes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tscyes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tscyes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tscwht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"tscwht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"tscwht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"tscwht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"tscdth00.wav", CUnit::Sound_Death );
+
+	this->AddSound( L"tscupd00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"taderr00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"taderr01.wav", CUnit::Sound_ETC );
+	this->AddSound( L"tscerr00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"tscerr01.wav", CUnit::Sound_ETC );
+
+
 	this->SetObjKey( L"Scv" );
 	this->m_wstrStateKey = L"Idle";
 
@@ -81,12 +103,17 @@ HRESULT CSCV::Initialize( void )
 	this->m_tInfoData.iScope = 1;
 	this->m_tInfoData.nDefenceIconFrame = 292;
 
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Bionic );
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Mechanic );
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_CanDigResource );
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_ProduceUnit );
+
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FusionCutter );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 1.f;
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -8, -8, 8, 8 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -96,7 +123,7 @@ HRESULT CSCV::Initialize( void )
 	this->m_pSelectTexture[0] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Player", 0 );
 	this->m_pSelectTexture[1] = CTextureMgr::GetInstance()->GetTexture( L"SelectArea", L"Enemy", 0 );
 
-	m_pPlayer = (CPlayer*)CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front();
+	m_pPlayer = (CPlayer*)this->m_pObjMgr->GetList( OBJ_TYPE_USER )->front();
 
 	return S_OK;
 }
@@ -215,12 +242,25 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 		{
 			if ( !this->m_bRenderBuildingArea )
 			{
-				D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
+				D3DXVECTOR3 vMousePos = this->m_pMouse->GetPos() + m_vScroll;
 				UNIT_GENERATE_DATA tUnitGenData = this->m_pEntityMgr->GetEntityGenData( (CEntityMgr::eEntityType)this->m_pPushData->iMessage );
 
-				if ( !this->m_pPlayer->CheckCanBuyUnit( tUnitGenData ) )
+				int iCanBuyCheck = this->m_pPlayer->CheckCanBuyUnit( tUnitGenData );
+				if ( iCanBuyCheck )
 				{
+					if ( iCanBuyCheck == 1 )
+					{
+						this->SoundPlay( CGameEntity::Sound_ETC, 1 );
+						this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Mineral );
+					}
+					else if ( iCanBuyCheck == 2 )
+					{
+						this->SoundPlay( CGameEntity::Sound_ETC, 2 );
+						this->m_pUIMgr->ShowFont( CUIMgr::Font_No_Gas );
+					}
+
 					this->SetPattern( CGameEntity::Pattern_Idle );
+
 					return;
 				}
 
@@ -270,14 +310,14 @@ void CSCV::SetPattern( const eGameEntityPattern & _ePatternKind, const bool & _b
 					vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 					this->m_pVecActButton = this->m_pVecAdvancedStructureButton;
 					this->m_pVecAdvancedStructureButton = pTemp;
-					dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+					this->m_pPlayer->DecideShowButton();
 				}
 				else
 				{
 					vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 					this->m_pVecActButton = this->m_pVecStructureButton;
 					this->m_pVecStructureButton = pTemp;
-					dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+					this->m_pPlayer->DecideShowButton();
 				}
 
 				CUIMgr::GetInstance()->HideFrameBuilding();
@@ -338,7 +378,7 @@ bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTar
 				vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 				this->m_pVecActButton = this->m_pVecStructureButton;
 				this->m_pVecStructureButton = pTemp;
-				dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+				this->m_pPlayer->DecideShowButton();
 			}
 
 			break;
@@ -352,7 +392,7 @@ bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTar
 				vector<BUTTON_DATA*>* pTemp = this->m_pVecActButton;
 				this->m_pVecActButton = this->m_pVecAdvancedStructureButton;
 				this->m_pVecAdvancedStructureButton = pTemp;
-				dynamic_cast<CPlayer*>(CObjMgr::GetInstance()->GetList( OBJ_TYPE_USER )->front())->DecideShowButton();
+				this->m_pPlayer->DecideShowButton();
 			}
 			break;
 
@@ -363,17 +403,49 @@ bool CSCV::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pTar
 
 void CSCV::MouseEvent()
 {
-	if ( this->m_bRenderBuildingArea && this->m_pDrawBuilding->GetIsCanBuild() )
+	if ( this->m_bRenderBuildingArea )
 	{
+		if ( !this->m_pDrawBuilding->GetIsCanBuild() )
+		{
+			this->SoundPlay( CGameEntity::Sound_ETC, 3, 2 );
+			return;
+		}
 		//D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
 		//vMousePos -= D3DXVECTOR3( float(int(vMousePos.x) % TILECX), float(int(vMousePos.y) % TILECY), 0.f ) - D3DXVECTOR3( TILECX * 0.5f, TILECY * 0.5f, 0.f );
 
-		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
+		D3DXVECTOR3 vScrollPos = CGameObject::GetScroll();
+		D3DXVECTOR3 vMousePos = this->m_pMouse->GetPos();
 		RECT rcCol = m_pDrawBuilding->GetColRect();
-		vMousePos -= D3DXVECTOR3( float( int( vMousePos.x ) % TILECX ), float( int( vMousePos.y ) % TILECY ), 0.f ) -
-			D3DXVECTOR3( float( rcCol.right % TILECX ), float( rcCol.bottom % TILECX ), 0.f );
 
-		this->BuildBuilding( this->m_pDrawBuilding, vMousePos );
+		vScrollPos.x = int( vScrollPos.x ) % TILECX;
+		vScrollPos.y = int( vScrollPos.y ) % TILECY;
+
+		D3DXVECTOR3 vPos = vMousePos + D3DXVECTOR3( (float)(rcCol.left % TILECX), (float)(rcCol.top % TILECY), 0.f );
+		vPos.x = (int)(vPos.x - int( vPos.x ) % TILECX);
+		vPos.y = (int)(vPos.y - int( vPos.y ) % TILECY);
+
+		if ( !m_pBackground )
+			m_pBackground = this->m_pObjMgr->FindGameObject<CBackground>();
+
+		int iStartIndex = this->m_pBackground->GetTileIndex( vPos );
+
+		int iXDist = (rcCol.right - rcCol.left) / TILECX;
+		int iYDist = (rcCol.bottom - rcCol.top) / TILECY;
+
+		int iMiddleIndex = iStartIndex + int(iXDist * 0.5) + (int(iYDist * 0.5) * TILEX);
+
+		D3DXVECTOR3 vMiddlePos( float( (iMiddleIndex % TILEX) * TILECX ), float( (iMiddleIndex / TILEX) * TILECY ), 0.f );
+
+		vMiddlePos -= vScrollPos;
+
+		if ( iXDist % 2 )
+			vMiddlePos.x += TILECX * 0.5f;
+		if ( iYDist % 2 )
+			vMiddlePos.y += TILECY * 0.5f;
+
+		vMiddlePos += m_vScroll;
+
+		this->BuildBuilding( this->m_pDrawBuilding, vMiddlePos );
 
 		if ( this->m_bBuildAdvancedStructure )
 		{
@@ -423,10 +495,11 @@ void CSCV::BuildBuilding( CGameEntity * pEntity, const D3DXVECTOR3 & _vPos )
 void CSCV::BuildStart()
 {
 	dynamic_cast<CBuilding*>(m_pBuildEntity)->SetApplyCol( true );
+	m_pBuildEntity->UpdateMatrix();
 
 	this->m_bUnder_Construction = true;
 	//CObjMgr::GetInstance()->AddGameObject( m_pBuildEntity, this->GetObjectType() );
-	CObjMgr::GetInstance()->GetList( this->GetObjectType() )->push_back( m_pBuildEntity );
+	this->m_pObjMgr->GetList( this->GetObjectType() )->push_back( m_pBuildEntity );
 	this->m_pAnimCom->ChangeAnimation( L"Attack" );
 	this->m_wstrStateKey = L"Attack";
 	this->ChangeLookAnimTexture();
@@ -437,6 +510,8 @@ void CSCV::BuildStart()
 void CSCV::SuccessBuild()
 {
 	this->m_bUnder_Construction = false;
+
+	this->SoundPlay( CGameEntity::Sound_ETC, 0 );
 }
 
 void CSCV::GatherResource( const bool & _bMineral, CGameObject * _pObject )

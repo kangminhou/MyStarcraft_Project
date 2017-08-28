@@ -169,6 +169,9 @@ void CGameObject::DrawTexture( const TEX_INFO * _pDrawTexture, const D3DXMATRIX 
 
 void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 {
+	if ( !this->m_pTempSprite )
+		return;
+
 	D3DXMATRIX matTrans, matScale, matWorld;
 
 	D3DXVECTOR3 vPoint[4];
@@ -187,8 +190,8 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 			D3DXMatrixScaling( &matScale, FLOAT( _rc.right - _rc.left), 1.f, 1.f );
 
 		matWorld = matScale * matTrans;
-		CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
-		CDevice::GetInstance()->GetSprite()->Draw(
+		this->m_pTempSprite->SetTransform( &matWorld );
+		this->m_pTempSprite->Draw(
 			m_pDragTexture->pTexture,
 			NULL,
 			NULL,
@@ -200,9 +203,9 @@ void CGameObject::DrawRect( const RECT & _rc, const D3DCOLOR _color )
 
 void CGameObject::DrawFont( const D3DXMATRIX & _matWorld, const wstring & wstrShow, const D3DCOLOR & _color )
 {
-	CDevice::GetInstance()->GetSprite()->SetTransform( &_matWorld );
+	this->m_pTempSprite->SetTransform( &_matWorld );
 
-	CDevice::GetInstance()->GetFont()->DrawTextW(
+	m_pFont->DrawTextW(
 		CDevice::GetInstance()->GetSprite(),
 		wstrShow.c_str(),
 		lstrlen( wstrShow.c_str() ),
@@ -219,6 +222,8 @@ CGameObject::CGameObject(void)
 	m_pTransform = new CTransform;
 	m_vecComponent.push_back( m_pTransform );
 	D3DXMatrixIdentity( &m_matWorld );
+
+	m_pFont = CDevice::GetInstance()->GetFont();
 }
 
 CGameObject::~CGameObject(void)

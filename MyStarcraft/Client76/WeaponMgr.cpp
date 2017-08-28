@@ -50,6 +50,9 @@ void CWeaponMgr::Initialize()
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].nIconFrame = 326;
 
+	this->m_tWeaponDataArr[Weapon_C10_ConcussionRifle].bImagePathInfluenceEntityDir = false;
+	this->m_tWeaponDataArr[Weapon_C10_ConcussionRifle].nIconFrame = 324;
+
 	for ( int i = 0; i < Weapon_End; ++i )
 	{
 		m_tWeaponDataArr2[i] = m_tWeaponDataArr[i];

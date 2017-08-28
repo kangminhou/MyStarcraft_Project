@@ -53,6 +53,7 @@ HRESULT CDevice::Init3D(void)
 	else
 		vp = D3DCREATE_SOFTWARE_VERTEXPROCESSING;		//그래픽 카드를 지원X -> CPU
 
+	vp |= D3DCREATE_MULTITHREADED;
 	
 	//장치를 생성할때 개발자가 설정해줘야하는 구조체.
 	D3DPRESENT_PARAMETERS d3dpp;
@@ -96,7 +97,7 @@ HRESULT CDevice::Init3D(void)
 	FontInfo.Weight = FW_BOLD;
 	FontInfo.CharSet = HANGEUL_CHARSET;
 	
-	lstrcpy(FontInfo.FaceName, L"바탕체");
+	lstrcpy(FontInfo.FaceName, L"Kostar");
 
 	
 	if(FAILED( D3DXCreateFontIndirect(m_pD3dDevice, &FontInfo, &m_pFont) ))

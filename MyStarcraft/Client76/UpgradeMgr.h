@@ -3,6 +3,7 @@
 
 class CGameEntity;
 class CWeaponMgr;
+class CSoundMgr;
 
 class CUpgradeMgr
 {
@@ -10,7 +11,9 @@ class CUpgradeMgr
 
 private:
 	pair<list<CGameEntity*>, BYTE> m_ArmorUpgradeDataArr[2][Upgrade_Armor_End];
+
 	CWeaponMgr*	m_pWeaponMgr;
+	CSoundMgr*	m_pSoundMgr;
 
 public:
 	CUpgradeMgr();

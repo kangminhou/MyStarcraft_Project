@@ -33,6 +33,22 @@ CVulture::~CVulture()
 
 HRESULT CVulture::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"tvurdy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tvuyes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tvuyes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tvuyes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tvuyes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tvuwht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"tvuwht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"tvuwht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"tvuwht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"tvudth00.wav", CUnit::Sound_Death );
+
+
 	this->SetObjKey( L"Vulture" );
 	this->m_wstrStateKey = L"All"; 
 
@@ -49,12 +65,14 @@ HRESULT CVulture::Initialize( void )
 	this->m_tInfoData.iScope = 8;
 	this->m_tInfoData.nDefenceIconFrame = 293;
 
+	this->m_vecEntityInformation.push_back( CGameEntity::Entity_Mechanic );
+	
 	/* 유닛 무기 초기화.. */
 	this->m_tGroundAttWeapon.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_FragmentationGrenade );
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 	this->m_tGroundAttWeapon.fAttRange = 5.f;
 
-	RECT tRect = { -8, -9, 8, 10 };
+	RECT tRect = { -16, -16, 16, 16 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -153,6 +171,7 @@ void CVulture::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& 
 
 		case CGameEntity::Pattern_Attack:
 			this->m_pCurActPattern = this->m_mapPatterns.find( L"Attack" )->second;
+			//this->m_pCurActPattern = nullptr;
 			break;
 
 		case CGameEntity::Pattern_ChaseTarget:

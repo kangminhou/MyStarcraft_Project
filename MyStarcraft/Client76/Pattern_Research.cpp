@@ -36,40 +36,50 @@ void CPattern_Research::OnEnable()
 {
 	eResearchKind eKind = m_pBuilding->GetResearchKind();
 
-	if ( eKind < 0 || eKind >= Research_End )
-	{
-		ERROR_MSG( L"CPattern_Research OnEnable Failed ( eKind Out Range )" );
-		return;
-	}
-
-	RESEARCH_DATA tResearchData = this->m_pResearchMgr->GetResearchData( eKind );
-	
-	if ( !this->m_pPlayer->BuyUnit( 
-		tagUnitGenerateData( tResearchData.fResearchTime, tResearchData.iRequireMineral, tResearchData.iRequireGas, 0, 0 ) ) )
+	if ( !this->Setting() )
 	{
 		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
 		return;
 	}
 
-	this->m_fRestTime = tResearchData.fResearchTime;
+	//if ( eKind < 0 || eKind >= Research_End )
+	//{
+	//	ERROR_MSG( L"CPattern_Research OnEnable Failed ( eKind Out Range )" );
+	//	return;
+	//}
+	//
+	//RESEARCH_DATA tResearchData = this->m_pResearchMgr->GetResearchData( eKind );
+	//
+	//if ( !this->m_pPlayer->BuyUnit( 
+	//	tagUnitGenerateData( tResearchData.fResearchTime, tResearchData.iRequireMineral, tResearchData.iRequireGas, 0, 0 ) ) )
+	//{
+	//	this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
+	//	return;
+	//}
+	//
+	//this->m_fRestTime = tResearchData.fResearchTime;
 }
 
 int CPattern_Research::Update()
 {
-	CBuilding::ORDER_DATA tOrderData = this->m_pBuilding->GetOrderData( 0 );
-
-	this->m_fRestTime = ((RESEARCH_DATA*)(tOrderData.pData))->fResearchTime;
 	this->m_fRestTime -= GET_TIME;
 
 	if ( this->m_fRestTime <= 0.f )
 	{
-		this->m_pBuilding->SuccessResearch();
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
-		return CEntityPattern::Event_Pattern_Change;
+		//this->m_pBuilding->SuccessOrder( CGameEntity::Pattern_Make_Unit );
+		this->m_pBuilding->SuccessOrder( CGameEntity::Pattern_Research );
+
+		if ( !this->Setting() )
+		{
+			this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
+			return CEntityPattern::Event_Pattern_Change;
+		}
+
 	}
 	else
 	{
-
+		BYTE byRatio = (BYTE)((this->m_fRestTime / this->m_fMaxTime) * 100.f);
+		this->m_pBuilding->SetProgressRatio( byRatio );
 	}
 
 	return CEntityPattern::Event_None;
@@ -77,4 +87,17 @@ int CPattern_Research::Update()
 
 void CPattern_Research::Release()
 {
+}
+
+bool CPattern_Research::Setting()
+{
+	if ( this->m_pBuilding->GetOrderVectorSize() <= 0 )
+		return false;
+
+	m_tCurOrderData = this->m_pBuilding->GetOrderData( 0 );
+	RESEARCH_DATA* pGenData = (RESEARCH_DATA                                                                                                                                                                   *   )this->m_tCurOrderData.pData;
+
+	this->m_fMaxTime = this->m_fRestTime = pGenData->fResearchTime;
+
+	return true;
 }

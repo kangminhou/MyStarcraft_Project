@@ -27,6 +27,21 @@ CMedic::~CMedic()
 
 HRESULT CMedic::Initialize( void )
 {
+	/* Add Sound To SoundVector.. */
+	this->AddSound( L"TMdRdy00.wav", CUnit::Sound_Born );
+
+	this->AddSound( L"tmdyes00.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"TMdYes01.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"TMdYes02.wav", CUnit::Sound_ActPattern );
+	this->AddSound( L"tmdyes03.wav", CUnit::Sound_ActPattern );
+
+	this->AddSound( L"tmdwht00.wav", CUnit::Sound_Click );
+	this->AddSound( L"TMdWht01.wav", CUnit::Sound_Click );
+	this->AddSound( L"TMdWht02.wav", CUnit::Sound_Click );
+	this->AddSound( L"TMdWht03.wav", CUnit::Sound_Click );
+
+	this->AddSound( L"TMdDth00.wav", CUnit::Sound_Death );
+
 	this->SetObjKey( L"Medic" );
 	this->m_wstrStateKey = L"Idle";
 
@@ -47,7 +62,7 @@ HRESULT CMedic::Initialize( void )
 	this->m_tGroundAttWeapon.fAttRange = 1.5f;
 	this->m_tGroundAttWeapon.byAttackNum = 1;
 
-	RECT tRect = { -8, -11, 8, 11 };
+	RECT tRect = { -8, -8, 8, 8 };
 	this->m_tOriginColRect = tRect;
 
 	this->AddComponent( new CMove );
@@ -171,7 +186,7 @@ bool CMedic::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _
 	{
 		case CGameEntity::Skill_Heal:
 		{
-			_pTarget->SetCurHp( _pTarget->GetCurHp() + 10.f * CTimeMgr::GetInstance()->GetTime() );
+			_pTarget->SetCurHp( _pTarget->GetCurHp() + 10.f * CTimeMgr::GetInstance()->GetTime() ); 
 		}
 		break;
 

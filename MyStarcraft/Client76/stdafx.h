@@ -38,11 +38,23 @@
 #include <algorithm>
 #include <string>
 #include <iostream>		//PathRelativePathTo()를 사용하기 위해서는 헤더필요.
+#include <io.h>
 ////##[17.07.18_01]
 
 #include <fstream>
 
 #import <msxml4.dll>
+
+// fmod 활용위한 헤더와 라이브러리 추가.
+#include "fmod.h"
+#include "fmod.hpp"
+#pragma comment(lib, "fmodex_vc.lib")
+
+// 동영상 재생을 하기 위한 헤더와 라이브러리 포함.
+#include <Vfw.h>
+#pragma comment(lib, "vfw32.lib")
+
+#include <process.h>
 
 //#ifdef _DEBUG
 //#include <vld.h>

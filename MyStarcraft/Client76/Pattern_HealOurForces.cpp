@@ -42,11 +42,11 @@ int CPattern_HealOurForces::Update()
 {
 	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
-	if ( D3DXVec3Length( &(this->m_pGameEntity->GetPos() - this->m_pTarget->GetPos()) ) <= this->m_pGameEntity->GetScope() * Object_Scope_Mul )
-	{
-		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
-		return Event_Pattern_Change;
-	}
+	//if ( D3DXVec3Length( &(this->m_pGameEntity->GetPos() - this->m_pTarget->GetPos()) ) <= this->m_pGameEntity->GetScope() * Object_Scope_Mul )
+	//{
+	//	this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
+	//	return Event_Pattern_Change;
+	//}
 
 	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp() <= EPSILON) )
 	{

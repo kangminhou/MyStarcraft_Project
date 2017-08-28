@@ -16,6 +16,8 @@ public:
 		Effect_Kind_Basic,
 		Effect_Kind_HitTarget,
 		Effect_Kind_ChaseTarget,
+		Effect_Kind_LockDown,
+		Effect_Kind_Nuclear,
 		Effect_Kind_End
 	};
 
@@ -36,6 +38,10 @@ public:
 	void ShowEffect( const wstring& _wstrObjKey, const wstring& _wstrStateKey, const int& _iStart, const int& _iEnd,
 					 const D3DXVECTOR3& _vPos, const D3DXVECTOR3& _vSize );
 	void PushEffect( CEffect* _pPushEffect, const eEffectKind& _eKind );
+
+	void ShowLockDown( const CGameEntity* _pFireEntity, CGameEntity* _pHitEntity );
+
+	void ShowNuclear( CGameEntity* _pFireEntity, const D3DXVECTOR3& _vPos );
 
 private:
 	CEffect* PopEffect( const eEffectKind& _eKind );

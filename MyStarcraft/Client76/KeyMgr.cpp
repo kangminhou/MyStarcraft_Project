@@ -1,9 +1,14 @@
 #include "StdAfx.h"
 #include "KeyMgr.h"
 
+#include "TimeMgr.h"
+
 IMPLEMENT_SINGLETON(CKeyMgr)
 
-CKeyMgr::CKeyMgr(void)
+CKeyMgr::CKeyMgr( void )
+	: m_bDoubleClick( false )
+	, m_bClick( false )
+	, m_fIntervalClickTime( 0.5f )
 {
 	for ( BYTE i = 0; i < MAX_KEY_NUM; ++i )
 	{
@@ -13,6 +18,26 @@ CKeyMgr::CKeyMgr(void)
 
 CKeyMgr::~CKeyMgr(void)
 {
+}
+
+bool CKeyMgr::GetKeyStayDown( const int & _vKey ) const
+{
+	return this->m_bStayDownKey[_vKey];
+}
+
+bool CKeyMgr::GetKeyOnceDown( const int & _vKey ) const
+{
+	return this->m_bOnceDownKey[_vKey];
+}
+
+bool CKeyMgr::GetKeyUp( const int & _vKey ) const
+{
+	return this->m_bUpKey[_vKey];
+}
+
+bool CKeyMgr::GetDoubleClick() const
+{
+	return this->m_bDoubleClick;
 }
 
 void CKeyMgr::Initialize()
@@ -29,8 +54,6 @@ void CKeyMgr::Initialize()
 		this->m_vecCheckKey.push_back( i );
 
 	//this->m_vecCheckKey.push_back( 'S' );
-
-	int a = 10;
 }
 
 void CKeyMgr::Update()
@@ -39,13 +62,11 @@ void CKeyMgr::Update()
 	while ( !m_queueUpKeyDownIndex.empty() )
 	{
 		int iUpKeyDownIndex = m_queueUpKeyDownIndex.back();
-
-		if ( iUpKeyDownIndex == VK_LBUTTON )
-			int a = 10;
+	
 		this->m_bUpKey[iUpKeyDownIndex] = false;
-
+	
 		m_queueUpKeyDownIndex.pop();
-
+	
 	}
 
 	/* Ű üũ */
@@ -55,6 +76,40 @@ void CKeyMgr::Update()
 	{
 		this->KeyCheck( i );
 	}
+
+	if ( !this->m_bDoubleClick )
+	{
+		if ( !this->m_bClick )
+		{
+			if ( this->GetKeyOnceDown( VK_LBUTTON ) )
+			{
+				this->m_bClick = true;
+				this->m_fClickTime = CTimeMgr::GetInstance()->GetGlobalTime();
+			}
+		}
+		else
+		{
+			float fCurTime = CTimeMgr::GetInstance()->GetGlobalTime();
+			bool bClick = false;
+			if ( this->GetKeyOnceDown( VK_LBUTTON ) )
+			{
+				bClick = true;
+			}
+
+			if ( fCurTime - this->m_fIntervalClickTime <= m_fClickTime )
+			{
+				if ( bClick )
+				{
+					this->m_bDoubleClick = true;
+					this->m_bClick = false;
+				}
+			}
+			else
+				this->m_bClick = false;
+		}
+	}
+	else
+		this->m_bDoubleClick = false;
 
 }
 

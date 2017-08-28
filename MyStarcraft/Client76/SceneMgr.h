@@ -12,11 +12,15 @@ private:
 
 private:
 	eSceneType  m_eType;
+	eSceneType  m_eCurType;
 	bool		m_bChangeScene;
 
 public:
 	void SetScene(eSceneType eType);
 	void SetChangeScene(eSceneType eType);
+
+public:
+	eSceneType GetSceneType() const;
 
 public:
 	HRESULT	Initialize(void);

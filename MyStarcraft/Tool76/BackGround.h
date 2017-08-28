@@ -10,6 +10,9 @@ private:
 
 	CTool76View*		m_pMainView;			//뷰창에 있는 스크롤 정보를 얻어오기 위해서.
 
+	LPD3DXSPRITE		m_pSprite;
+	LPD3DXFONT			m_pFont;
+
 public:
 	void SetMainView(CTool76View* pView)
 	{

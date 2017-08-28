@@ -74,6 +74,9 @@ void CCorps::Render()
 
 void CCorps::SetUnitPattern( const CGameEntity::eGameEntityPattern & _ePatternKind )
 {
+	if ( this->m_byCurUnitNum <= 0 )
+		return;
+
 	for ( int i = 0; i < this->m_byCurUnitNum; ++i )
 	{
 		if ( !this->m_pEntityArr[i] )
@@ -91,8 +94,9 @@ void CCorps::SetUnitPattern( const CGameEntity::eGameEntityPattern & _ePatternKi
 			this->m_pEntityArr[i]->PushMessage( this->m_pPushData );
 
 		this->m_pEntityArr[i]->SetPattern( _ePatternKind );
-
 	}
+
+	this->m_pEntityArr[0]->SoundPlay( CGameEntity::Sound_ActPattern );
 
 	if ( this->m_pPushData )
 		this->m_pPushData = NULL;

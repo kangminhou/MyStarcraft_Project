@@ -10,6 +10,8 @@
 #include "GameEntity.h"
 #include "Effect_HitTarget.h"
 #include "Effect_ChaseTarget.h"
+#include "Effect_LockDown.h"
+#include "Effect_Nuclear.h"
 
 
 IMPLEMENT_SINGLETON( CEffectMgr )
@@ -38,6 +40,17 @@ void CEffectMgr::Initialize( void )
 	{
 		this->AddEffect( CEffectMgr::Effect_Kind_HitTarget );
 	}
+
+	for ( int i = 0; i < 10; ++i )
+	{
+		this->AddEffect( CEffectMgr::Effect_Kind_LockDown );
+	}
+
+	for ( int i = 0; i < 2; ++i )
+	{
+		this->AddEffect( CEffectMgr::Effect_Kind_Nuclear );
+	}
+
 }
 
 void CEffectMgr::Release( void )
@@ -85,9 +98,11 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 		switch ( pWeaponData->eEffectShowKind )
 		{
 			case Effect_Show_Owner_Position:
+				pShowEffect->Initialize();
 				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				break;
 			case Effect_Show_Target_Position:
+				pShowEffect->Initialize();
 				pShowEffect->SetPos( _pEntity->GetHitShowPos() );
 				break;
 			case Effect_Show_Target_AND_Owner_Position:
@@ -111,10 +126,11 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 
 				pEffect->SetStateKey( pWeaponData->pImagePath2->wstrStateKey );
 
-				pEffect->SetPos( _pEntity->GetHitShowPos() );
 				pEffect->Initialize();
+				pEffect->SetPos( _pEntity->GetHitShowPos() );
 				m_pEffectList->push_back( pEffect );
 
+				pShowEffect->Initialize();
 				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
 
@@ -135,6 +151,7 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 				pEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				m_pEffectList->push_back( pEffect );
 
+				pShowEffect->Initialize();
 				pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
 				break;
@@ -157,6 +174,7 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 				pEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 				m_pEffectList->push_back( pEffect );
 
+				pShowEffect->Initialize();
 				if ( pShowEffect )
 					pShowEffect->SetPos( _pWeapon->GetEntity()->GetEffectShowPos() );
 			}
@@ -165,7 +183,6 @@ void CEffectMgr::ShowEffect( CWeapon* _pWeapon, const CGameEntity* _pEntity )
 		}
 	}
 
-	pShowEffect->Initialize();
 	m_pEffectList->push_back( pShowEffect );
 }
 
@@ -181,16 +198,60 @@ void CEffectMgr::ShowEffect( const wstring & _wstrObjKey, const wstring & _wstrS
 
 	pShowEffect->SetStateKey( _wstrStateKey );
 
+	pShowEffect->Initialize();
+
 	pShowEffect->SetPos( _vPos );
 	pShowEffect->SetSize( _vSize );
 
-	pShowEffect->Initialize();
 	m_pEffectList->push_back( pShowEffect );
 }
 
 void CEffectMgr::PushEffect( CEffect *_pPushEffect, const eEffectKind & _eKind )
 {
 	this->m_queueEffectArr[_eKind].push( _pPushEffect );
+}
+
+void CEffectMgr::ShowLockDown( const CGameEntity * _pFireEntity, CGameEntity * _pHitEntity )
+{
+	CEffect* pEffect = this->PopEffect( Effect_Kind_LockDown );
+
+	CEffect_LockDown* pLockDown = dynamic_cast<CEffect_LockDown*>(const_cast<CEffectBridge*>(pEffect->GetEffectBridge()));
+
+	if ( pLockDown )
+	{
+		pEffect->SetPos( _pFireEntity->GetPos() );
+		pLockDown->SetTarget( _pHitEntity );
+		pEffect->Initialize();
+		this->m_pEffectList->push_back( pEffect );
+	}
+	else
+	{
+		this->PushEffect( pEffect, Effect_Kind_LockDown );
+		ERROR_MSG( L"LockDown Effect is NULL" );
+		return;
+	}
+
+}
+
+void CEffectMgr::ShowNuclear( CGameEntity* _pFireEntity, const D3DXVECTOR3 & _vPos )
+{
+	CEffect* pEffect = this->PopEffect( Effect_Kind_Nuclear );
+
+	CEffect_Nuclear* pNuclear = dynamic_cast<CEffect_Nuclear*>(const_cast<CEffectBridge*>(pEffect->GetEffectBridge()));
+
+	if ( pNuclear )
+	{
+		pNuclear->SetFireEntity( _pFireEntity );
+		pEffect->Initialize();
+		pEffect->SetPos( _vPos );
+		this->m_pEffectList->push_back( pEffect );
+	}
+	else
+	{
+		this->PushEffect( pEffect, Effect_Kind_Nuclear );
+		ERROR_MSG( L"Nuclear Effect is NULL" );
+		return;
+	}
 }
 
 CEffect * CEffectMgr::PopEffect( const eEffectKind & _eKind )
@@ -219,6 +280,14 @@ void CEffectMgr::AddEffect( const CEffectMgr::eEffectKind & _eEffectKind )
 
 		case Effect_Kind_HitTarget:
 			pEffect = CEffectFactory<CEffect_HitTarget>::CreateEffect();
+			break;
+
+		case Effect_Kind_LockDown:
+			pEffect = CEffectFactory<CEffect_LockDown>::CreateEffect();
+			break;
+
+		case Effect_Kind_Nuclear:
+			pEffect = CEffectFactory<CEffect_Nuclear>::CreateEffect();
 			break;
 
 		default:

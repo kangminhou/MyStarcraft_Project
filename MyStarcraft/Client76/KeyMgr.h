@@ -8,6 +8,11 @@ private:
 	bool	m_bOnceDownKey[MAX_KEY_NUM];
 	bool	m_bUpKey[MAX_KEY_NUM];
 
+	bool	m_bDoubleClick;
+	bool	m_bClick;
+	float	m_fIntervalClickTime;
+	float	m_fClickTime;
+
 	queue<BYTE> m_queueUpKeyDownIndex;
 	vector<BYTE> m_vecCheckKey;
 
@@ -17,9 +22,11 @@ public:
 	~CKeyMgr(void);
 
 public:
-	DWORD GetKeyStayDown( int vKey ) { return m_bStayDownKey[vKey]; }
-	DWORD GetKeyOnceDown( int vKey ) { return m_bOnceDownKey[vKey]; }
-	DWORD GetKeyUp( int vKey ) { return m_bUpKey[vKey]; }
+	bool GetKeyStayDown( const int& _vKey ) const;
+	bool GetKeyOnceDown( const int& _vKey ) const;
+	bool GetKeyUp( const int& _vKey ) const;
+
+	bool GetDoubleClick() const;
 
 public:
 	void Initialize();

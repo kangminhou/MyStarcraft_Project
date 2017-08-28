@@ -19,8 +19,11 @@ private:
 
 	D3DXMATRIX	m_matWorld;
 
-	LPD3DXSPRITE			m_pTempSprite;		// 속도를 위해 가져온 포인터 (건들지 않기)...
 	const TEX_INFO*			m_pDragTexture;
+
+protected:
+	LPD3DXSPRITE			m_pTempSprite;		// 속도를 위해 가져온 포인터 (건들지 않기)...
+	LPD3DXFONT				m_pFont;
 
 public:
 	void SetPos( const D3DXVECTOR3& _vPos );

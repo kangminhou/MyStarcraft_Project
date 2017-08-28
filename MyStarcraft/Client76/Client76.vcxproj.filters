@@ -271,6 +271,39 @@
     <Filter Include="03. Component\03. EntityPattern\00. Unit\09. Make_Unit">
       <UniqueIdentifier>{7e296c98-f3c1-4413-b32d-c69abab50511}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\00. Unit\07. Ghost">
+      <UniqueIdentifier>{b4606223-817e-41f9-a928-8fcd0a1e8f79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\08. Starport">
+      <UniqueIdentifier>{6b7c6ebc-f72a-4a25-8249-f01c7add1072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. GameObject\00. GameEntity\01. Building\09. Science_Facility">
+      <UniqueIdentifier>{ef74dc93-f5e6-4a53-b351-f1926dfae56e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\05. Fog_OF_War_Test">
+      <UniqueIdentifier>{c0512b7a-f0df-410a-bb5d-8b8955289ea3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\05. Fog_OF_War_Test\00. Scene">
+      <UniqueIdentifier>{c1fb4dab-19e7-41bc-ae9b-04b9864363f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\05. Fog_OF_War_Test\01. Unit">
+      <UniqueIdentifier>{4e20c9e4-20a9-4b58-8ff9-aeb84d959098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\05. Fog_OF_War_Test\02. Background">
+      <UniqueIdentifier>{be1b12a8-95b8-4178-8638-69835f54d0dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\00. Logo\00. Study">
+      <UniqueIdentifier>{21e9ec90-25f5-4b24-a8bb-71c02f3bdc97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\06. Start">
+      <UniqueIdentifier>{39faa749-1338-4e15-b1e7-34e1870a0e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Manager\18. SoundMgr">
+      <UniqueIdentifier>{f1dd2b26-b04a-49bc-9fa0-82fe9ee128b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Scene\07. Loading">
+      <UniqueIdentifier>{feb7550c-db44-480f-bc1d-de2eac03cefc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainGame.cpp">
@@ -281,9 +314,6 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>02. Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Logo.cpp">
-      <Filter>02. Scene\00. Logo</Filter>
     </ClCompile>
     <ClCompile Include="Stage.cpp">
       <Filter>02. Scene\01. Stage</Filter>
@@ -552,6 +582,48 @@
     <ClCompile Include="Pattern_MakeUnit.cpp">
       <Filter>03. Component\03. EntityPattern\00. Unit\09. Make_Unit</Filter>
     </ClCompile>
+    <ClCompile Include="Ghost.cpp">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\07. Ghost</Filter>
+    </ClCompile>
+    <ClCompile Include="Starport.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\08. Starport</Filter>
+    </ClCompile>
+    <ClCompile Include="ScienceFacility.cpp">
+      <Filter>01. GameObject\00. GameEntity\01. Building\09. Science_Facility</Filter>
+    </ClCompile>
+    <ClCompile Include="FogOfWar_Test.cpp">
+      <Filter>02. Scene\05. Fog_OF_War_Test\00. Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="FogUnit.cpp">
+      <Filter>02. Scene\05. Fog_OF_War_Test\01. Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="FogBackground.cpp">
+      <Filter>02. Scene\05. Fog_OF_War_Test\02. Background</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern_Stop.cpp">
+      <Filter>03. Component\03. EntityPattern\00. Unit\04. Stop</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect_LockDown.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect_Nuclear.cpp">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="Logo.cpp">
+      <Filter>02. Scene\00. Logo\00. Study</Filter>
+    </ClCompile>
+    <ClCompile Include="StarcraftLogo.cpp">
+      <Filter>02. Scene\00. Logo</Filter>
+    </ClCompile>
+    <ClCompile Include="StarcraftStartScene.cpp">
+      <Filter>02. Scene\06. Start</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundMgr.cpp">
+      <Filter>98. Manager\18. SoundMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Starcraft_LoadingScene.cpp">
+      <Filter>02. Scene\07. Loading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -562,9 +634,6 @@
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>02. Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Logo.h">
-      <Filter>02. Scene\00. Logo</Filter>
     </ClInclude>
     <ClInclude Include="Stage.h">
       <Filter>02. Scene\01. Stage</Filter>
@@ -827,9 +896,6 @@
     <ClInclude Include="UpgradeMgr.h">
       <Filter>98. Manager\15. UpgradeMgr</Filter>
     </ClInclude>
-    <ClInclude Include="..\Headers\Enum.h">
-      <Filter>99. Default\헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="EnemyMgr.h">
       <Filter>98. Manager\16. EnemyMgr</Filter>
     </ClInclude>
@@ -841,6 +907,48 @@
     </ClInclude>
     <ClInclude Include="Pattern_MakeUnit.h">
       <Filter>03. Component\03. EntityPattern\00. Unit\09. Make_Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="Ghost.h">
+      <Filter>01. GameObject\00. GameEntity\00. Unit\07. Ghost</Filter>
+    </ClInclude>
+    <ClInclude Include="Starport.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\08. Starport</Filter>
+    </ClInclude>
+    <ClInclude Include="ScienceFacility.h">
+      <Filter>01. GameObject\00. GameEntity\01. Building\09. Science_Facility</Filter>
+    </ClInclude>
+    <ClInclude Include="FogOfWar_Test.h">
+      <Filter>02. Scene\05. Fog_OF_War_Test\00. Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="FogUnit.h">
+      <Filter>02. Scene\05. Fog_OF_War_Test\01. Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="FogBackground.h">
+      <Filter>02. Scene\05. Fog_OF_War_Test\02. Background</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern_Stop.h">
+      <Filter>03. Component\03. EntityPattern\00. Unit\04. Stop</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect_LockDown.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect_Nuclear.h">
+      <Filter>01. GameObject\03. Effect\00. EffectBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Logo.h">
+      <Filter>02. Scene\00. Logo\00. Study</Filter>
+    </ClInclude>
+    <ClInclude Include="StarcraftLogo.h">
+      <Filter>02. Scene\00. Logo</Filter>
+    </ClInclude>
+    <ClInclude Include="StarcraftStartScene.h">
+      <Filter>02. Scene\06. Start</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundMgr.h">
+      <Filter>98. Manager\18. SoundMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Starcraft_LoadingScene.h">
+      <Filter>02. Scene\07. Loading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
