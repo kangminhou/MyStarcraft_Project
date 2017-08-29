@@ -31,7 +31,7 @@ void CPattern_HealOurForces::OnEnable()
 
 	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
-	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp() <= EPSILON) )
+	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp()) <= EPSILON )
 	{
 		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
 		return;
@@ -48,7 +48,7 @@ int CPattern_HealOurForces::Update()
 	//	return Event_Pattern_Change;
 	//}
 
-	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp() <= EPSILON) )
+	if ( this->m_pTarget->GetIsDie() || (this->m_pTarget->GetMaxHp() - this->m_pTarget->GetCurHp()) <= EPSILON )
 	{
 		this->m_pGameEntity->SetPattern( CGameEntity::Pattern_Idle );
 		return Event_Pattern_Change;

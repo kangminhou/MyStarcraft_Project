@@ -84,6 +84,7 @@ HRESULT CSCV::Initialize( void )
 	this->AddSound( L"taderr01.wav", CUnit::Sound_ETC );
 	this->AddSound( L"tscerr00.wav", CUnit::Sound_ETC );
 	this->AddSound( L"tscerr01.wav", CUnit::Sound_ETC );
+	this->AddSound( L"edrrep03.wav", CUnit::Sound_ETC );
 
 
 	this->SetObjKey( L"Scv" );

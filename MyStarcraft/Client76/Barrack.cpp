@@ -151,6 +151,8 @@ void CBarrack::SetPattern( const eGameEntityPattern & _ePatternKind, const bool 
 				this->m_pCurActPattern = this->m_mapPatterns.find( L"Make_Unit" )->second;
 			else
 				return;
+
+			this->m_pAnimCom->ChangeAnimation( L"Act" );
 		}
 		break;
 
@@ -192,6 +194,7 @@ void CBarrack::DecideTexture()
 
 void CBarrack::InitAnimation()
 {
+	this->m_pAnimCom->AddAnimation( L"Act", FRAME( 0.f, 3.f, 3.f, 0.f ), CAnimation::Anim_Loop );
 }
 
 void CBarrack::InitPattern()
@@ -224,4 +227,10 @@ void CBarrack::InitTexture()
 		vecTexture.push_back( CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
 	}
 	m_mapAllTexture.insert( make_pair( L"Fly", vecTexture ) );
+
+	for ( int i = 6; i <= 8; ++i )
+	{
+		m_vecResearchShowTexture.push_back( CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
+	}
+
 }

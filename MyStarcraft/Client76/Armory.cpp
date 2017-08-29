@@ -25,6 +25,9 @@ CArmory::~CArmory()
 
 HRESULT CArmory::Initialize( void )
 {
+	this->AddSound( L"tclwht00.wav", CGameEntity::Sound_Click );
+
+
 	this->m_wstrStateKey = L"Chemlab";
 
 	/* 유닛의 데이터 초기화.. */

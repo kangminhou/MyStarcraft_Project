@@ -25,6 +25,7 @@ protected:
 	bool					m_bSuccessBuild;				// 다 지어진 건물인가??..
 	bool					m_bApplyCol;
 	bool					m_bCanBuild;
+	bool					m_bClick;
 	bool					m_bUseActiveTexture;
 
 	const TEX_INFO*			m_pBuildRectTexture[2];
@@ -38,7 +39,7 @@ public:
 
 public:
 	void SetApplyCol( const bool& _bApplyCol );
-	void SetUseActiveTexture( const bool& _bUseActiveTexture );
+	void SetClick( const bool& _bClick );
 
 public:
 	bool GetIsSuccessBuild() const;

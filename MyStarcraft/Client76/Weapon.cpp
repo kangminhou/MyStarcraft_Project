@@ -5,6 +5,7 @@
 #include "TimeMgr.h"
 #include "ObjMgr.h"
 #include "EffectMgr.h"
+#include "SoundMgr.h"
 
 
 CWeapon::CWeapon()
@@ -55,14 +56,14 @@ void CWeapon::Initialize()
 {
 	this->m_fRestInterval = 0.f;
 	this->m_fAttInterval = 1.f;
+
+	this->m_pSoundMgr = CSoundMgr::GetInstance();
 }
 
 void CWeapon::Release()
 {
 
 }
-
-#include "Marine.h"
 
 void CWeapon::Attack( CGameEntity * _pAttTarget )
 {
@@ -75,6 +76,9 @@ void CWeapon::Attack( CGameEntity * _pAttTarget )
 
 	/* ÀÌÆåÆ® ¹ß»ç.. */
 	CEffectMgr::GetInstance()->ShowEffect( this, _pAttTarget );
+
+	if ( this->m_pWeaonData )
+		this->m_pSoundMgr->PlaySoundW( this->m_pWeaonData->strImageName, CSoundMgr::Channel_Eff );
 
 }
 
@@ -127,17 +131,17 @@ void CWeapon::NormalSplashAttack()
 			continue;
 
 		vecNearEntity.clear();
-		CObjMgr::GetInstance()->CheckNearEntitys( &vecNearEntity, this->m_pTarget, (float)this->m_pWeaonData->iOutSide, (eObjectType)i );
+		CObjMgr::GetInstance()->CheckNearEntitys( &vecNearEntity, this->m_pTarget, (float)(this->m_pWeaonData->iOutSide) * 2.f, (eObjectType)i );
 
 		size_t iLength = vecNearEntity.size();
 		for ( size_t i = 0; i < iLength; ++i )
 		{
 			float fDistToTarget = D3DXVec3Length( &(vecNearEntity[i]->GetPos() - this->m_pTarget->GetPos()) );
-			if ( fDistToTarget <= this->m_pWeaonData->iInside )
+			if ( fDistToTarget <= this->m_pWeaonData->iInside * 2 )
 			{
 				vecNearEntity[i]->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage );
 			}
-			else if ( fDistToTarget <= this->m_pWeaonData->iMiddle )
+			else if ( fDistToTarget <= this->m_pWeaonData->iMiddle * 2 )
 			{
 				vecNearEntity[i]->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage * 0.5f );
 			}
@@ -152,4 +156,32 @@ void CWeapon::NormalSplashAttack()
 void CWeapon::CircleSplashAttack()
 {
 	this->m_pTarget->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage + this->m_pWeaonData->fUpgradeDamage );
+
+	vector<CGameEntity*> vecNearEntity;
+	for ( int i = OBJ_TYPE_USER; i <= OBJ_TYPE_USER2; ++i )
+	{
+		if ( i == this->m_pOwnerEntity->GetObjectType() )
+			continue;
+
+		vecNearEntity.clear();
+		CObjMgr::GetInstance()->CheckNearEntitys( &vecNearEntity, this->m_pTarget, (float)(this->m_pWeaonData->iOutSide) * 2.f, (eObjectType)i );
+
+		size_t iLength = vecNearEntity.size();
+		for ( size_t i = 0; i < iLength; ++i )
+		{
+			float fDistToTarget = D3DXVec3Length( &(vecNearEntity[i]->GetPos() - this->m_pTarget->GetPos()) );
+			if ( fDistToTarget <= this->m_pWeaonData->iInside * 2 )
+			{
+				vecNearEntity[i]->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage );
+			}
+			else if ( fDistToTarget <= this->m_pWeaonData->iMiddle * 2 )
+			{
+				vecNearEntity[i]->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage * 0.5f );
+			}
+			else
+			{
+				vecNearEntity[i]->HitEntity( this->m_pOwnerEntity, this->m_pWeaonData->fDamage * 0.25f );
+			}
+		}
+	}
 }

@@ -46,6 +46,7 @@ private:
 	bool					m_bOrderAct;
 	bool					m_bDoubleClick;
 	bool					m_bWaitAct;
+	bool					m_bDontCheck;
 
 	vector<CGameEntity*>	m_vecClickEventEntity;
 	vector<CMineral*>		m_vecMineral;

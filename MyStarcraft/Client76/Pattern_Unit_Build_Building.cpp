@@ -73,6 +73,7 @@ int CPattern_Unit_Build_Building::Update()
 			if ( this->m_pAnimCom->GetIsAnimEnd() )
 			{
 				this->m_pAnimCom->ResetFrame();
+				this->m_pSCV->SoundPlay( CGameEntity::Sound_ETC, 5 );
 				CEffectMgr::GetInstance()->ShowEffect( this->m_pSCV->GetGroundAttackData().pWeapon, this->m_pBuilding );
 			}
 

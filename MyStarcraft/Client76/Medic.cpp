@@ -186,7 +186,7 @@ bool CMedic::UseSkill( const eGameEntitySkillKind & _eSkillKind, CGameEntity * _
 	{
 		case CGameEntity::Skill_Heal:
 		{
-			_pTarget->SetCurHp( _pTarget->GetCurHp() + 10.f * CTimeMgr::GetInstance()->GetTime() ); 
+			_pTarget->SetCurHp( _pTarget->GetCurHp() + 30.f * CTimeMgr::GetInstance()->GetTime() ); 
 		}
 		break;
 

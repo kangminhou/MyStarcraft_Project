@@ -81,6 +81,10 @@ void CUIMgr::ShowFont( const eShowFontType & _eShowFontType )
 			m_wstrFont = L"Not enought supplies..build more Supply Depots";
 			break;
 
+		case CUIMgr::Font_Nuclear:
+			m_wstrFont = L"Nuclear Launch Detected";
+			break;
+
 	}
 
 	int iLength = lstrlen( m_wstrFont.c_str() );
@@ -100,11 +104,11 @@ void CUIMgr::ShowBuildingData( CBuilding * pBuilding )
 {
 	if ( m_pGetDataBuilding )
 	{
-		m_pGetDataBuilding->SetUseActiveTexture( false );
+		m_pGetDataBuilding->SetClick( false );
 	}
 
 	m_pGetDataBuilding = pBuilding;
-	m_pGetDataBuilding->SetUseActiveTexture( true );
+	m_pGetDataBuilding->SetClick( true );
 }
 
 void CUIMgr::Initialize()
@@ -312,7 +316,7 @@ void CUIMgr::Update()
 			int iEmptyHpBarNum = int(fHpRatio * jLength);
 			float fHpBarBackSize = (float)(jLength * 6 + 2);
 			D3DXVECTOR3 vEntityPos = pEntity->GetPos() - CGameObject::GetScroll();
-			D3DXVECTOR3 vHpBarBackStartPos( vEntityPos.x - fHpBarBackSize * 0.5f, vEntityPos.y + pEntity->GetImageSize().y * 0.3f, 0.f );
+  			D3DXVECTOR3 vHpBarBackStartPos( vEntityPos.x - fHpBarBackSize * 0.5f, vEntityPos.y + pEntity->GetImageSize().y * 0.3f, 0.f );
 
 			if ( iEmptyHpBarNum == 0 )
 				iEmptyHpBarNum = 1;
@@ -671,7 +675,7 @@ void CUIMgr::ShowEntityUI( CCorps* _pCorps )
 	{
 		CGameEntity* pEntity = _pCorps->GetEntity( (BYTE)i );
 
-		if ( !pEntity )
+		if ( !pEntity || pEntity->GetIsDie() )
 			continue;
 
 		float fHpBarSize = pEntity->GetImageSize().x / 10.f;

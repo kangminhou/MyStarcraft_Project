@@ -4,6 +4,7 @@
 #include "Animation.h"
 #include "Device.h"
 #include "TimeMgr.h"
+#include "SoundMgr.h"
 
 #include "Effect.h"
 #include "GameEntity.h"
@@ -69,6 +70,8 @@ int CEffect_HitTarget::Update()
 	if ( D3DXVec3Length( &(this->m_pEffect->GetPos() - this->m_vDestination) ) <= fSpeed )
 	{
 		this->m_pWeapon->HitTarget();
+		CSoundMgr::GetInstance()->PlaySoundW( this->m_pWeapon->GetWeaponData()->strBulletSoundName, CSoundMgr::Channel_Eff );
+		
 		return CEffectBridge::Event_DestroyObject;
 	}
 

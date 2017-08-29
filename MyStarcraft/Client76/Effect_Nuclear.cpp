@@ -5,10 +5,12 @@
 #include "TextureMgr.h"
 #include "ObjMgr.h"
 #include "SoundMgr.h"
+#include "UIMgr.h"
 
 #include "Effect.h"
 #include "Animation.h"
 #include "GameEntity.h"
+#include "Ghost.h"
 
 
 CEffect_Nuclear::CEffect_Nuclear()
@@ -45,7 +47,7 @@ void CEffect_Nuclear::Initialize()
 
 		for ( int i = 0; i < 26; ++i )
 		{
-			const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Effect", L"Nuke", i );
+			const TEX_INFO* pTexture = CTextureMgr::GetInstance()->GetTexture( L"Effect", L"Nuclear", i );
 			m_vecBombTexture.push_back( pTexture );
 		}
 
@@ -64,6 +66,10 @@ void CEffect_Nuclear::Initialize()
 		this->m_pFireEntity->SoundPlay( CGameEntity::Sound_ETC, 1 );
 		this->m_bNuclearLunchSoundPlay = false;
 		this->m_fNuclearLunchWaitTime = 1.3f;
+
+		this->m_vNuclearPos = this->m_pFireEntity->GetPos();
+
+		this->m_pNuclearTexture = this->m_vecNuclearTrunkTexture[0];
 	}
 
 	CEffectBridge::Initialize();
@@ -90,20 +96,29 @@ int CEffect_Nuclear::Update()
 				{
 					this->m_bNuclearLunchSoundPlay = true;
 					this->m_pFireEntity->SoundPlay( CGameEntity::Sound_ETC, 2 );
+					CUIMgr::GetInstance()->ShowFont( CUIMgr::Font_Nuclear );
 				}
 			}
 		
 			this->m_fWaitTime -= GET_TIME;
+			this->m_vNuclearPos.y -= GET_TIME * 150.f;
 
 			if ( this->m_fWaitTime <= 0.f )
 			{
 				this->m_iLevel = 1;
 
 				this->m_pAnimation->ChangeAnimation( L"Fire" );
-				this->m_vecDrawTexture = this->m_vecNuclearTrunkTexture;
+				this->m_vecDrawTexture.clear();
+				this->m_pNuclearTexture = this->m_vecNuclearTrunkTexture[this->m_vecNuclearTrunkTexture.size() - 1];
 
 				this->m_vNuclearPos = this->m_pEffect->GetPos();
-				this->m_vNuclearPos.y = 0.f;
+				this->m_vNuclearPos.y -= 800.f;
+
+				CGhost* pGhost = dynamic_cast<CGhost*>(this->m_pFireEntity);
+				if (NULL != pGhost)
+				{
+					pGhost->NuclearEnd();
+				}
 			}
 		}
 		break;
@@ -111,9 +126,8 @@ int CEffect_Nuclear::Update()
 		case 1:
 		{
 			D3DXVECTOR3 vPos = this->m_pEffect->GetPos();
-			vPos.y -= this->m_pEffect->GetScroll().y;
 
-			this->m_vNuclearPos.y += GET_TIME * 40.f;
+			this->m_vNuclearPos.y += GET_TIME * 120.f;
 			if ( this->m_vNuclearPos.y >= vPos.y )
 			{
 				this->m_vNuclearPos.y = vPos.y;
@@ -121,7 +135,9 @@ int CEffect_Nuclear::Update()
 				this->m_iLevel = 2;
 
 				this->m_pAnimation->ChangeAnimation( L"Bomb" );
-				this->m_vecDrawTexture = this->m_vecBombTexture;
+				this->m_vecDrawTexture = m_vecBombTexture;
+
+				this->m_pNuclearTexture = nullptr;
 
 				vector<CGameEntity*> vecEntity;
 
@@ -135,8 +151,6 @@ int CEffect_Nuclear::Update()
 					}
 				}
 			}
-
-			D3DXMatrixTranslation( &m_matNuclearWorld, this->m_vNuclearPos.x, this->m_vNuclearPos.y, 0.f );
 
 			//if ( this->m_vNuclearPos.z <= 0.f )
 			//{
@@ -171,25 +185,22 @@ int CEffect_Nuclear::Update()
 		break;
 	}
 
+	D3DXVECTOR3 vNuclearWorldPos = this->m_vNuclearPos - CGameObject::GetScroll();
+	D3DXMatrixTranslation( &m_matNuclearWorld, vNuclearWorldPos.x, vNuclearWorldPos.y, 0.f );
+
 	return Event_None;
 }
 
 void CEffect_Nuclear::Render()
 {
 	D3DXMATRIX matDraw;
-	if ( this->m_iLevel != 1 )
-	{
-		matDraw = this->m_pEffect->GetWorldMatrix();
-	}
-	else
-	{
-		matDraw = m_matNuclearWorld;
-	}
+	matDraw = this->m_pEffect->GetWorldMatrix();
+
+	const TEX_INFO*	pDrawTexture = NULL;
 
 	if ( this->m_pAnimation )
 	{
 		const FRAME* pCurFrame = this->m_pAnimation->GetCurAnimation();
-		const TEX_INFO*	pDrawTexture = NULL;
 
 		if(this->m_vecDrawTexture.size() > (unsigned int)pCurFrame->fIndex )
 			pDrawTexture = this->m_vecDrawTexture[pCurFrame->fIndex];
@@ -207,6 +218,23 @@ void CEffect_Nuclear::Render()
 			);
 		}
 	}
+
+	pDrawTexture = this->m_pNuclearTexture;
+	
+	if ( pDrawTexture )
+	{
+		this->m_pSprite->SetTransform( &m_matNuclearWorld );
+	
+		this->m_pSprite->Draw(
+			pDrawTexture->pTexture,
+			NULL,
+			&D3DXVECTOR3( pDrawTexture->ImageInfo.Width * 0.5f, pDrawTexture->ImageInfo.Height * 0.5f, 0.f ),
+			NULL,
+			D3DCOLOR_ARGB( 254, 255, 255, 255 )
+		);
+	}
+
+	
 }
 
 void CEffect_Nuclear::Release()

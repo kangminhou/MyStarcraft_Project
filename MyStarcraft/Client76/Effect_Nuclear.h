@@ -16,6 +16,8 @@ private:
 	vector<const TEX_INFO*>	m_vecReadyTexture;
 	vector<const TEX_INFO*>	m_vecBombTexture;
 
+	const TEX_INFO*	m_pNuclearTexture;
+
 	D3DXMATRIX		m_matNuclearWorld;
 	D3DXVECTOR3		m_vNuclearPos;
 

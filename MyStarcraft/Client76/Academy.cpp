@@ -27,6 +27,8 @@ CAcademy::~CAcademy()
 
 HRESULT CAcademy::Initialize( void )
 {
+	this->AddSound( L"tacwht00.wav", CGameEntity::Sound_Click );
+
 	this->m_wstrStateKey = L"Academy";
 
 	/* 유닛의 데이터 초기화.. */

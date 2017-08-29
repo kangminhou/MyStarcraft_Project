@@ -17,6 +17,7 @@
 #include "AStarManager.h"
 #include "ResearchMgr.h"
 #include "SoundMgr.h"
+#include "TestUnit.h"
 
 #include "Include.h"
 #include "Random.h"
@@ -78,25 +79,30 @@ HRESULT CStage::Initialize( void )
 	return S_OK;
 }
 
-//#include "Mouse.h"
-//#include "KeyMgr.h"
+#include "Mouse.h"
+#include "KeyMgr.h"
 int CStage::Update(void)
 {
-	//if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )
-	//{
-	//	if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'Q' ) )
-	//	{
-	//		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + CGameObject::GetScroll();
-	//		CResourceMgr::GetInstance()->MakeResource( vMousePos, CResourceMgr::Resource_Mineral, OBJ_TYPE_RESOURCE );
-	//		cout << "vMousePos.x : " << vMousePos.x << ", vMousePos.y : " << vMousePos.y << endl;
-	//	}
-	//	else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'G' ) )
-	//	{
-	//		D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + CGameObject::GetScroll();
-	//		CResourceMgr::GetInstance()->MakeResource( vMousePos, CResourceMgr::Resource_Gas, OBJ_TYPE_RESOURCE );
-	//		cout << "vMousePos.x : " << vMousePos.x << ", vMousePos.y : " << vMousePos.y << endl;
-	//	}
-	//}
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_LBUTTON ) )
+	{
+		if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'Q' ) )
+		{
+			D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + CGameObject::GetScroll();
+
+			CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( CEntityMgr::Entity_TestUnit, vMousePos, OBJ_TYPE_USER2, true );
+			this->m_pObjMgr->AddGameObject( pEntity, pEntity->GetObjectType() );
+			pEntity->UpdatePosition( pEntity->GetPos() );
+
+			//CResourceMgr::GetInstance()->MakeResource( vMousePos, CResourceMgr::Resource_Mineral, OBJ_TYPE_RESOURCE );
+			//cout << "vMousePos.x : " << vMousePos.x << ", vMousePos.y : " << vMousePos.y << endl;
+		}
+		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( 'G' ) )
+		{
+			D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + CGameObject::GetScroll();
+			CResourceMgr::GetInstance()->MakeResource( vMousePos, CResourceMgr::Resource_Gas, OBJ_TYPE_RESOURCE );
+			cout << "vMousePos.x : " << vMousePos.x << ", vMousePos.y : " << vMousePos.y << endl;
+		}
+	}
 
 	this->m_pAStarMgr->Update();
 	this->m_pEnemyMgr->Update();

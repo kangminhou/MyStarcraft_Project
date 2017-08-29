@@ -49,6 +49,7 @@ private:
 	vector<FOG_DATA*>	m_vecNotFog;
 
 	bool				m_bActiveFog;
+	bool				m_bActiveTile;
 
 public:
 	vector<TILE*>*	GetTile(void)

@@ -58,6 +58,7 @@ CGameEntity::CGameEntity()
 	this->m_tGroundAttWeapon.pAttackEntity = this->m_tAirAttWeapon.pAttackEntity = this;
 
 	this->m_pTimeMgr = CTimeMgr::GetInstance();
+	this->m_pRandom = CRandom::GetInstance();
 }
 
 
@@ -411,7 +412,7 @@ vector<BUTTON_DATA*>* CGameEntity::GetButtonData() const
 
 D3DXVECTOR3 CGameEntity::GetImageSize()
 {
-	if ( this->m_vecTexture.empty() )
+	if ( this->m_vecTexture.empty() || !this->m_vecTexture.front() )
 		return D3DXVECTOR3( 0.f, 0.f, 0.f );
 
 	return D3DXVECTOR3((float)this->m_vecTexture.front()->ImageInfo.Width, (float)this->m_vecTexture.front()->ImageInfo.Height, 0.f);
@@ -663,7 +664,23 @@ bool CGameEntity::CheckAlertEnemy( vector<CGameEntity*>* pVecEntitys, const int 
 			continue;
 
 		if ( !bOut && this->m_pObjMgr->CheckNearEntitys( pVecEntitys, this, (eObjectType)i, iVecLimitSize ) )
+		{
 			bOut = true;
+		}
+	}
+
+	if ( bOut && pVecEntitys )
+	{
+		for ( size_t i = 0; i < pVecEntitys->size(); ++i )
+		{
+			if ( (*pVecEntitys)[i]->GetIsClocking() )
+			{
+				pVecEntitys->erase( pVecEntitys->begin() + i );
+			}
+		}
+
+		if ( pVecEntitys->empty() )
+			bOut = false;
 	}
 
 	return bOut;
@@ -680,7 +697,23 @@ bool CGameEntity::CheckRangeAlertEnemy( const float & _fRange, vector<CGameEntit
 			continue;
 
 		if ( !bOut && this->m_pObjMgr->CheckNearEntitys( pVecEntitys, this, _fRange, (eObjectType)i, iVecLimitSize ) )
+		{
 			bOut = true;
+		}
+	}
+
+	if ( bOut && pVecEntitys )
+	{
+		for ( size_t i = 0; i < pVecEntitys->size(); ++i )
+		{
+			if ( (*pVecEntitys)[i]->GetIsClocking() )
+			{
+				pVecEntitys->erase( pVecEntitys->begin() + i );
+			}
+		}
+
+		if ( pVecEntitys->empty() )
+			bOut = false;
 	}
 
 	return bOut;
@@ -947,7 +980,7 @@ void CGameEntity::SoundPlay( const eUnit_Sound_Kind & _eSoundKind )
 
 void CGameEntity::SoundPlay( const eUnit_Sound_Kind & _eSoundKind, const int & _iIndex )
 {
-	if ( _eSoundKind != CGameEntity::Sound_Death )
+	if ( _eSoundKind == CGameEntity::Sound_Click || _eSoundKind == CGameEntity::Sound_ActPattern )
 	{
 		this->m_fCurTime = this->m_pTimeMgr->GetGlobalTime();
 

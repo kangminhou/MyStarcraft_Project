@@ -14,6 +14,7 @@
 #include "Tank.h"
 #include "Goliath.h"
 #include "Ghost.h"
+#include "TestUnit.h"
 
 #include "CommandCenter.h"
 #include "Barrack.h"
@@ -120,7 +121,7 @@ void CEntityMgr::Initialize()
 		make_pair( L"Restoration", new BUTTON_DATA( -1, 366, 'R', 2, Button_Act_Skill, true ) ) );
 
 	m_mapAllEntityActButton.insert( 
-		make_pair( L"Clocking", new BUTTON_DATA( CGameEntity::Skill_Clocking, 252, 'C', 2, Button_Act_Skill, false, -1, true ) ) );
+		make_pair( L"Clocking", new BUTTON_DATA( CGameEntity::Skill_Clocking, 252, 'C', 2, Button_Act_Skill, true, -1, true ) ) );
 
 	m_mapAllEntityActButton.insert( 
 		make_pair( L"Lookdown", new BUTTON_DATA( CGameEntity::SKill_LockDown, 240, 'L', 2, Button_Act_Skill, true ) ) );
@@ -246,10 +247,10 @@ void CEntityMgr::Initialize()
 	m_pEntityGenDataArr[Entity_Firebat].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Academy );
 	m_pEntityGenDataArr[Entity_Medic] = make_pair( m_mapAllEntityActButton.find( L"Train Medic" )->second, new UNIT_GENERATE_DATA( 3.f, 50, 25, 1, 34 ) );
 	m_pEntityGenDataArr[Entity_Medic].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Academy );
-	m_pEntityGenDataArr[Entity_Vulture] = make_pair( nullptr, new UNIT_GENERATE_DATA( 3.f, 75, 0, 1, 2 ) );
-	m_pEntityGenDataArr[Entity_Tank] = make_pair( m_mapAllEntityActButton.find( L"Train Tank" )->second, new UNIT_GENERATE_DATA( 3.f, 150, 100, 1, 5 ) );
+	m_pEntityGenDataArr[Entity_Vulture] = make_pair( nullptr, new UNIT_GENERATE_DATA( 3.f, 75, 0, 2, 2 ) );
+	m_pEntityGenDataArr[Entity_Tank] = make_pair( m_mapAllEntityActButton.find( L"Train Tank" )->second, new UNIT_GENERATE_DATA( 3.f, 150, 100, 2, 5 ) );
 	m_pEntityGenDataArr[Entity_Tank].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Armory );
-	m_pEntityGenDataArr[Entity_Goliath] = make_pair( m_mapAllEntityActButton.find( L"Train Goliath" )->second, new UNIT_GENERATE_DATA( 3.f, 100, 50, 1, 3 ) );
+	m_pEntityGenDataArr[Entity_Goliath] = make_pair( m_mapAllEntityActButton.find( L"Train Goliath" )->second, new UNIT_GENERATE_DATA( 3.f, 100, 50, 2, 3 ) );
 	m_pEntityGenDataArr[Entity_Goliath].second->vecRequireBuilding.push_back( CEntityMgr::Entity_Armory );
 	m_pEntityGenDataArr[Entity_SCV] = make_pair( nullptr, new UNIT_GENERATE_DATA( 3.f, 50, 0, 1, 7 ) );
 	m_pEntityGenDataArr[Entity_Ghost] = make_pair( nullptr, new UNIT_GENERATE_DATA( 3.f, 25, 75, 1, 1 ) );
@@ -534,6 +535,19 @@ CGameEntity* CEntityMgr::MakeUnit( const eEntityType & _eEntityType, const D3DXV
 			pEntity = new CScienceFacility;
 			break;
 
+		case CEntityMgr::Entity_TestUnit:
+			pEntity = new CTestUnit;
+			pEntity->SetGenerateData( this->m_pEntityGenDataArr[Entity_Marine].second );
+			pEntity->SetSelectShowData( this->m_pEntitySelectShowDataArr[Entity_Marine] );
+			pEntity->SetButtonData( this->m_pVecEntityActButton[Entity_Marine] );
+			pEntity->SetPlayer( m_pPlayer );
+			pEntity->SetObjectType( _eType );
+			pEntity->Initialize();
+			pEntity->SetPos( _vPos );
+			pEntity->SetEntityType( _eEntityType );
+			pEntity->CollisionCheck();
+			return pEntity;
+
 	}
 
 	m_entityListArr[_eType - OBJ_TYPE_USER][_eEntityType].push_back( pEntity );
@@ -565,8 +579,8 @@ CGameEntity* CEntityMgr::MakeUnit( const eEntityType & _eEntityType, const D3DXV
 			pBuilding->SetCurHp( pBuilding->GetMaxHp() );
 			pBuilding->UpdatePosition( pBuilding->GetPos() );
 
-			pBuilding->PushMessage( this->m_mapAllEntityActButton.find( L"Train Ghost" )->second );
-			pBuilding->SetPattern( CGameEntity::Pattern_Make_Unit );
+			//pBuilding->PushMessage( this->m_mapAllEntityActButton.find( L"Train Tank" )->second );
+			//pBuilding->SetPattern( CGameEntity::Pattern_Make_Unit );
 
 			//CGameEntity* pSCVEntity = nullptr;
 			//

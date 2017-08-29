@@ -25,6 +25,9 @@ CEngineering_Bay::~CEngineering_Bay()
 
 HRESULT CEngineering_Bay::Initialize( void )
 {
+	this->AddSound( L"trewht00.wav", CGameEntity::Sound_Click );
+
+
 	this->m_wstrStateKey = L"Weaponpl";
 
 	/* 유닛의 데이터 초기화.. */

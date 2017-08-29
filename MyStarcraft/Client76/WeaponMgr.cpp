@@ -21,37 +21,53 @@ void CWeaponMgr::Initialize()
 	/* 무기의 정보 초기화.. ( XML 데이터로 처리할 예정???? ) */
 	this->LoadWeaponData();
 
+	for ( int i = 0; i < Weapon_End; ++i )
+	{
+		this->m_tWeaponDataArr[i].strImageName = new TCHAR[MIN_STR];
+		this->m_tWeaponDataArr[i].strBulletSoundName = new TCHAR[MIN_STR];
+	}
+
 	this->m_tWeaponDataArr[Weapon_GaussRifle].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_GaussRifle].nIconFrame = 323;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_GaussRifle].strImageName, L"tmafir00.wav" );
 
 	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_FragmentationGrenade].nIconFrame = 325;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_FragmentationGrenade].strImageName, L"tvufir00.wav" );
+	lstrcpy( this->m_tWeaponDataArr[Weapon_FragmentationGrenade].strBulletSoundName, L"tvuhit01.wav" );
 
 	this->m_tWeaponDataArr[Weapon_FlameThrower].bImagePathInfluenceEntityDir = true;
 	this->m_tWeaponDataArr[Weapon_FlameThrower].nIconFrame = 335;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_FlameThrower].strImageName, L"tfbfir00.wav" );
 
 	this->m_tWeaponDataArr[Weapon_FusionCutter].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_FusionCutter].nIconFrame = 329;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_FusionCutter].strImageName, L"edrrep01.wav" );
 
 	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePathInfluenceEntityDir = true;
 	this->m_tWeaponDataArr[Weapon_ArcliteCannon].bImagePath2InfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_ArcliteCannon].nIconFrame = 328;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_ArcliteCannon].strImageName, L"ttafir00.wav" );
 
 	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePathInfluenceEntityDir = true;
 	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].bImagePath2InfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].nIconFrame = 336;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_ArcliteShockCannon].strImageName, L"ttafi200.wav" );
 
 	this->m_tWeaponDataArr[Weapon_HelfireMissilePack].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_HelfireMissilePack].nIconFrame = 327;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_HelfireMissilePack].strImageName, L"tgofir00.wav" );
 
 	if ( this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData )
 		this->m_tWeaponDataArr[Weapon_HelfireMissilePack].pBulletData->bUseFollowDustEffect = true;
 
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_TwinAutocannons].nIconFrame = 326;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_TwinAutocannons].strImageName, L"tmafir00.wav" );
 
 	this->m_tWeaponDataArr[Weapon_C10_ConcussionRifle].bImagePathInfluenceEntityDir = false;
 	this->m_tWeaponDataArr[Weapon_C10_ConcussionRifle].nIconFrame = 324;
+	lstrcpy( this->m_tWeaponDataArr[Weapon_C10_ConcussionRifle].strImageName, L"tghfir00.wav" );
 
 	for ( int i = 0; i < Weapon_End; ++i )
 	{
@@ -83,6 +99,12 @@ void CWeaponMgr::Release()
 
 		if ( this->m_tWeaponDataArr[i].pImagePath2 )
 			safe_delete( this->m_tWeaponDataArr[i].pImagePath2 );
+
+		delete[] this->m_tWeaponDataArr[i].strImageName;
+		this->m_tWeaponDataArr[i].strImageName = nullptr;
+
+		delete[] this->m_tWeaponDataArr[i].strBulletSoundName;
+		this->m_tWeaponDataArr[i].strBulletSoundName = nullptr;
 	}
 }
 

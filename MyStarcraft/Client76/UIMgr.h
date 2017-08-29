@@ -23,6 +23,7 @@ public:
 		Font_No_Mineral,
 		Font_No_Gas,
 		Font_No_Population,
+		Font_Nuclear,
 	};
 
 private:

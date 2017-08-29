@@ -247,6 +247,8 @@ HRESULT CMainGame::InitSound( void )
 	this->m_pSoundMgr->LoadSoundFile( "../Sound/ghost/" );
 	this->m_pSoundMgr->LoadSoundFile( "../Sound/advisor/" );
 	this->m_pSoundMgr->LoadSoundFile( "../Sound/BGM/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/Weapon/" );
+	this->m_pSoundMgr->LoadSoundFile( "../Sound/bldg/" );
 
 	return S_OK;
 }

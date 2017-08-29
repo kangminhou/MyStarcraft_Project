@@ -50,7 +50,49 @@ void CPattern_ChaseTarget::OnEnable()
 		};
 
 		std::sort( vecEnemy.begin(), vecEnemy.end(), SortEnemyPos );
-		this->m_pGameEntity->SetTarget( vecEnemy.front() );
+		CGameEntity* pTarget = nullptr;
+
+		for ( size_t i = 0; i < vecEnemy.size(); ++i )
+		{
+			if ( this->m_bChaseEnemy )
+			{
+				bool bAirUnit = vecEnemy[i]->GetCheckUnitInformation( CGameEntity::Entity_AirUnit );
+
+				if ( bAirUnit )
+				{
+					if ( this->m_pGameEntity->GetAirAttackData().pWeapon )
+					{
+						pTarget = vecEnemy[i];
+						break;
+					}
+				}
+				else
+				{
+					if ( this->m_pGameEntity->GetGroundAttackData().pWeapon )
+					{
+						pTarget = vecEnemy[i];
+						break;
+					}
+				}
+			}
+			else
+			{
+				if ( !vecEnemy[i]->GetCheckUnitInformation( CGameEntity::Entity_AirUnit ) &&
+					 vecEnemy[i]->GetCheckUnitInformation( CGameEntity::Entity_Bionic ) )
+				{
+					pTarget = vecEnemy[i];
+					break;
+				}
+			}
+		}
+
+		if ( !pTarget )
+		{
+			this->m_pGameEntity->SetPrevPattern();
+			return;
+		}
+
+		this->m_pGameEntity->SetTarget( pTarget );
 
 		vecEnemy.clear();
 	}

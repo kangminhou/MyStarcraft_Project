@@ -148,7 +148,7 @@ void CGoliath::Render( void )
 	if ( this->m_pCannonAnim )
 	{
 		pCurAnimation = this->m_pCannonAnim->GetCurAnimation();
-		if ( pCurAnimation )
+		if ( pCurAnimation && this->m_vecTrunkTexture.size() > (unsigned int)pCurAnimation->fIndex )
 			pDrawTexture = this->m_vecTrunkTexture[(unsigned int)pCurAnimation->fIndex];
 
 		/* 그림이 중앙이 객체의 좌표가 되도록 설정.. */

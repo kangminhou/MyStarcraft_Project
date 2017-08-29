@@ -2,7 +2,7 @@
 
 #define _DIV_SPACE_LIST
 #define _IMAGE_THREAD_LOADING
-#define _AStar_Debug_Log
+//#define _AStar_Debug_Log
 
 #define SAFE_DELETE(p) ( if(p){ delete p; p = NULL; } )
 #define SAFE_DELETE_ARRAY(p) if(p){ delete[] p; p = NULL; }

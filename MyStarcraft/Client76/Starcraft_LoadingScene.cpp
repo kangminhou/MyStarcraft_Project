@@ -126,6 +126,9 @@ bool CStarcraft_LoadingScene::InitResource( void )
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Single/Player_Info_Human.png", L"Info_Human", TEX_SINGLE ) ) )
 		return false;
 
+	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Effect/Nuclear/Nuclear_%d.png", L"Effect", TEX_MULTI, L"Nuclear", 26, true, D3DCOLOR_ARGB( 255, 0, 255, 0 ) ) ) )
+		return false;
+
 	/* Map Image.. */
 	if ( FAILED( CTextureMgr::GetInstance()->InsertTexture( L"../Texture/Tile/DebugTile%d.png"
 		 , L"Back"

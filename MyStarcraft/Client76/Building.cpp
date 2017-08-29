@@ -39,9 +39,9 @@ void CBuilding::SetApplyCol( const bool & _bApplyCol )
 
 }
 
-void CBuilding::SetUseActiveTexture( const bool & _bUseActiveTexture )
+void CBuilding::SetClick( const bool & _bClick )
 {
-	this->m_bUseActiveTexture = _bUseActiveTexture;
+	m_bClick = _bClick;
 }
 
 bool CBuilding::GetIsSuccessBuild() const
@@ -61,6 +61,8 @@ eResearchKind CBuilding::GetResearchKind()
 
 HRESULT CBuilding::Initialize( void )
 {
+	this->AddSound( L"explo3.wav", CGameEntity::Sound_Death );
+
 	this->AddSound( L"taderr00.wav", CGameEntity::Sound_ETC );
 	this->AddSound( L"taderr01.wav", CGameEntity::Sound_ETC );
 	this->AddSound( L"taderr02.wav", CGameEntity::Sound_ETC );
@@ -100,7 +102,13 @@ HRESULT CBuilding::Initialize( void )
 
 int CBuilding::Update( void )
 {
-	if ( this->m_bUseActiveTexture )
+	if ( !this->m_bUseActiveTexture )
+	{
+		if ( !this->m_vecOrderData.empty() )
+			this->m_bUseActiveTexture = true;
+	}
+
+	if ( this->m_bClick )
 	{
 		this->m_pUIMgr->SetOrderRatio( this->m_byProgressRatio );
 	}
@@ -283,6 +291,9 @@ void CBuilding::SuccessOrder( const CGameEntity::eGameEntityPattern& _ePatternKi
 
 	this->m_vecOrderData.erase( this->m_vecOrderData.begin() );
 
+	if ( this->m_vecOrderData.empty() )
+		this->m_bUseActiveTexture = false;
+
 	CGameEntity::SuccessOrder( _ePatternKind );
 
 }
@@ -421,4 +432,5 @@ void CBuilding::InitBasicBuildTexture()
 		m_pBasicBuildTextureArr[1][i] = CTextureMgr::GetInstance()->GetTexture( L"Building", L"Tbldlrg(96,96)2", i );
 		m_pBasicBuildTextureArr[2][i] = CTextureMgr::GetInstance()->GetTexture( L"Building", L"Tbldlrg(160,128)", i );
 	}
+
 }

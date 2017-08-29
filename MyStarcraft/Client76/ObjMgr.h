@@ -19,6 +19,7 @@ private:
 #else
 	CGameEntity*		m_EntitySpaceArr[OBJ_TYPE_MAX][TOTAL_SPACE_NUM][EntitySpaceArrSize];
 #endif
+	vector<CGameObject*>	m_vecDeleteObj;
 	CBackground*	m_pBackground;
 
 public:

@@ -36,7 +36,8 @@ public:
 		Entity_Science_Facility,
 		Entity_Armory,
 		
-		Entity_End
+		Entity_End,
+		Entity_TestUnit,
 	};
 
 private:

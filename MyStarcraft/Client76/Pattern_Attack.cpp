@@ -36,11 +36,12 @@ void CPattern_Attack::OnEnable()
 	this->m_pGameEntity->LookPos( this->m_pTarget->GetPos(), false );
 
 	/* 타겟이 공중유닛이이라면.. */
-	if ( false )
+	this->m_pCurUseWeapon = nullptr;
+	if ( this->m_pTarget->GetCheckUnitInformation( CGameEntity::Entity_AirUnit ) && this->m_tEntityAirWeapon.pWeapon )
 	{
 		this->m_pCurUseWeapon = &this->m_tEntityAirWeapon;
 	}
-	else
+	else if ( !this->m_pTarget->GetCheckUnitInformation( CGameEntity::Entity_AirUnit ) && this->m_tEntityGroundWeapon.pWeapon )
 	{
 		this->m_pCurUseWeapon = &this->m_tEntityGroundWeapon;
 	}

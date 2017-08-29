@@ -343,8 +343,15 @@ typedef struct tagWeaponData
 
 	SHORT				nIconFrame;
 
+	TCHAR*				strImageName;
+	TCHAR*				strBulletSoundName;
+
 	bool				bImagePathInfluenceEntityDir;	// Entity 객체의 방향에 따라 텍스쳐 번호에 영향이 가는가??..
 	bool				bImagePath2InfluenceEntityDir;
+
+	tagWeaponData()
+		: wstrWeaponName(L"")
+	{}
 	
 
 } WEAPON_DATA;

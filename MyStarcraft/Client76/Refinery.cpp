@@ -27,6 +27,9 @@ CRefinery::~CRefinery()
 
 HRESULT CRefinery::Initialize( void )
 {
+	this->AddSound( L"trewht00.wav", CGameEntity::Sound_Click );
+
+
 	this->m_wstrStateKey = L"Refinery";
 
 	/* 유닛의 데이터 초기화.. */

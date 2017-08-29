@@ -3,11 +3,15 @@
 #include "Include.h"
 
 class CGameEntity;
+class CSoundMgr;
+
 class CWeapon :
 	public CComponent
 {
 protected:
 	WEAPON_DATA*			m_pWeaonData;			// 웨폰 매니저에서 받아올 것 ( 메모리 절약을 위해?? )..
+	CSoundMgr*				m_pSoundMgr;
+
 	CGameEntity*			m_pOwnerEntity;
 	CGameEntity*			m_pTarget;
 

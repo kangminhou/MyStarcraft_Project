@@ -12,6 +12,7 @@
 
 CBackground::CBackground()
 	: m_bActiveFog( FOG )
+	, m_bActiveTile( false )
 {
 }
 
@@ -612,9 +613,12 @@ HRESULT CBackground::Initialize(void)
 
 int CBackground::Update(void)
 {
-	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SHIFT ) && CKeyMgr::GetInstance()->GetKeyStayDown( VK_CONTROL ) )
+	if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_SHIFT ) )
 	{
-		this->m_bActiveFog = ((this->m_bActiveFog) ? false : true);
+		if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_CONTROL ) )
+			this->m_bActiveFog = ((this->m_bActiveFog) ? false : true);
+		else if ( CKeyMgr::GetInstance()->GetKeyStayDown( VK_MENU ) )
+			this->m_bActiveTile = ((this->m_bActiveTile) ? false : true);
 	}
 
 	int iScope = 0;
@@ -747,9 +751,9 @@ void CBackground::Render(void)
 				this->m_pTempSprite->SetTransform( &matTrans );
 
 				if ( fogData->bAlreadySeeTile )
-					color = D3DCOLOR_ARGB( 150, 255, 255, 255 );
+					color = D3DCOLOR_ARGB( 100, 255, 255, 255 );
 				else
-					color = D3DCOLOR_ARGB( 255, 255, 255, 255 );
+					color = D3DCOLOR_ARGB( 200, 255, 255, 255 );
 
 				this->m_pTempSprite->Draw(
 					pTileTex->pTexture, NULL, NULL, NULL, color
@@ -758,114 +762,95 @@ void CBackground::Render(void)
 		}
 	}
 
-	return;
-	int iStartX = m_vScroll.x / TILECX;
-	int iStartY = m_vScroll.y / TILECY;
-
-	int iEndX = WINCX / TILECX + iStartX;
-	int iEndY = WINCY / TILECY + iStartY;
-
-	for(int i = iStartY; i < iEndY + 1; ++i)
+	if ( this->m_bActiveTile )
 	{
-		for(int j = iStartX; j < iEndX + 1; ++j)
+		int iStartX = m_vScroll.x / TILECX;
+		int iStartY = m_vScroll.y / TILECY;
+
+		int iEndX = WINCX / TILECX + iStartX;
+		int iEndY = WINCY / TILECY + iStartY;
+
+		for ( int i = iStartY; i < iEndY + 1; ++i )
 		{
-			int iIndex = i * TILEX + j;
-	
-			if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
-				continue;
-	
-			BYTE byDrawID = this->m_vecTile[iIndex]->byDrawID;
-			BYTE byEntityTIleData = this->CalcEntityTileData( iIndex, NULL );
-	
-			if ( this->m_vecTile[iIndex]->byDrawID == 0 )
+			for ( int j = iStartX; j < iEndX + 1; ++j )
 			{
-				switch ( byEntityTIleData )
+				int iIndex = i * TILEX + j;
+
+				if ( i < 0 || i >= TILEY || j < 0 || j >= TILEX )
+					continue;
+
+				BYTE byDrawID = this->m_vecTile[iIndex]->byDrawID;
+				BYTE byEntityTIleData = this->CalcEntityTileData( iIndex, NULL );
+
+				if ( this->m_vecTile[iIndex]->byDrawID == 0 )
 				{
-					case 1:
-						byDrawID = 15;
-						break;
-					case 2:
-						byDrawID = 14;
-						break;
-					case 3:
-						byDrawID = 8;
-						break;
-					case 4:
-						byDrawID = 13;
-						break;
-					case 5:
-						byDrawID = 9;
-						break;
-					case 6:
-						byDrawID = 10;
-						break;
-					case 7:
-						byDrawID = 5;
-						break;
-					case 8:
-						byDrawID = 12;
-						break;
-					case 9:
-						byDrawID = 11;
-						break;
-					case 10:
-						byDrawID = 7;
-						break;
-					case 11:
-						byDrawID = 4;
-						break;
-					case 12:
-						byDrawID = 6;
-						break;
-					case 13:
-						byDrawID = 3;
-						break;
-					case 14:
-						byDrawID = 2;
-						break;
-					case 15:
-						byDrawID = 1;
-						break;
+					switch ( byEntityTIleData )
+					{
+						case 1:
+							byDrawID = 15;
+							break;
+						case 2:
+							byDrawID = 14;
+							break;
+						case 3:
+							byDrawID = 8;
+							break;
+						case 4:
+							byDrawID = 13;
+							break;
+						case 5:
+							byDrawID = 9;
+							break;
+						case 6:
+							byDrawID = 10;
+							break;
+						case 7:
+							byDrawID = 5;
+							break;
+						case 8:
+							byDrawID = 12;
+							break;
+						case 9:
+							byDrawID = 11;
+							break;
+						case 10:
+							byDrawID = 7;
+							break;
+						case 11:
+							byDrawID = 4;
+							break;
+						case 12:
+							byDrawID = 6;
+							break;
+						case 13:
+							byDrawID = 3;
+							break;
+						case 14:
+							byDrawID = 2;
+							break;
+						case 15:
+							byDrawID = 1;
+							break;
+					}
 				}
+
+				const TEX_INFO* pTileTex = this->m_vecTileTexture[byDrawID];
+
+				D3DXMatrixTranslation( &matTrans
+									   , m_vecTile[iIndex]->vPos.x - m_vScroll.x	//0 : x
+									   , m_vecTile[iIndex]->vPos.y - m_vScroll.y	//1 : y
+									   , 0.f );
+
+				CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
+
+				CDevice::GetInstance()->GetSprite()->Draw(
+					pTileTex->pTexture,
+					NULL,
+					NULL,
+					NULL,
+					D3DCOLOR_ARGB( 255, 255, 255, 255 )
+				);
 			}
-	
-			const TEX_INFO* pTileTex = this->m_vecTileTexture[byDrawID];
-	
-			//if ( m_vecTile[iIndex]->byDrawID == 0 )
-			//	continue;
-	
-			D3DXMatrixTranslation(&matTrans
-								   , m_vecTile[iIndex]->vPos.x - m_vScroll.x	//0 : x
-								   , m_vecTile[iIndex]->vPos.y - m_vScroll.y	//1 : y
-								   , 0.f);
-	
-			CDevice::GetInstance()->GetSprite()->SetTransform( &matTrans );
-	
-			CDevice::GetInstance()->GetSprite()->Draw(
-				pTileTex->pTexture,
-				NULL,
-				NULL,
-				NULL,
-				D3DCOLOR_ARGB( 255, 255, 255, 255 )
-			);
-	
-			////##폰트 출력
-			//swprintf_s(szIndexText, L"%d", iIndex);
-			//
-			//D3DXMATRIX matScale, matWorld;
-			//D3DXMatrixScaling( &matScale, 0.5f, 1.f, 1.f );
-			//matWorld = matScale * matTrans;
-			//
-			//CDevice::GetInstance()->GetSprite()->SetTransform( &matWorld );
-			//
-			//CDevice::GetInstance()->GetFont()->DrawTextW(
-			//	CDevice::GetInstance()->GetSprite(),
-			//	szIndexText,
-			//	lstrlen(szIndexText),
-			//	NULL,
-			//	NULL,
-			//	D3DCOLOR_ARGB(255, 255, 255, 255)
-			//	);
 		}
 	}
 }

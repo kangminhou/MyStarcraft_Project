@@ -196,7 +196,9 @@ void CMove::PathFind()
 			//this->m_fRestReFindPath = RANDOM_FLOAT( 0.0f, 0.3f );
 			//cout << "도착 타일을 못찾음" << endl;
 			this->m_bCanMove = false;
+#ifdef _AStar_Debug_Log
 			cout << "Can't Find NearIndex" << endl;
+#endif
 			//cout << "fDist : " << D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) << endl;
 			if ( D3DXVec3Length( &(m_vDestination - this->m_pGameEntity->GetPos()) ) <= TILECX * 4 )
 			{
@@ -206,19 +208,25 @@ void CMove::PathFind()
 
 		case CAStar::Event_Index_OutRange_TileSize:
 			this->m_bCanMove = false;
+#ifdef _AStar_Debug_Log
 			system( "cls" );
 			cout << "Event_Index_OutRange_TileSize" << endl;
+#endif
 			//ERROR_MSG( L"Event_Index_OutRange_TileSize" );
 			return;
 
 		case CAStar::Event_Success_PathFind:
 			this->GetAStarResult( this->m_pAStar->GetDestination(), iEvent );
+#ifdef _AStar_Debug_Log
 			cout << "Event_Success_PathFind" << endl;
+#endif
 			break;
 
 		case CAStar::Event_Can_PathFind:
 			this->m_bWaitAStarResult = true;
+#ifdef _AStar_Debug_Log
 			cout << "Event_Can_PathFind" << endl;
+#endif
 			break;
 
 	}
@@ -256,7 +264,9 @@ void CMove::GetAStarResult( const D3DXVECTOR3 & _vDestination, const int & _iRet
 	this->m_bCanMove = true;
 	this->m_bMoveStop = false;
 
+#ifdef _AStar_Debug_Log
 	cout << "GetResult, size : " << m_vecMovePath.size() << ", Destination : " << m_vDestination.x << ", " << m_vDestination.y << endl;
+#endif
 
 	this->m_fRestReFindPath = RANDOM_RANGE_FLOAT( 5.f, 10.f );
 

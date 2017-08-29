@@ -23,6 +23,7 @@ CPlayer::CPlayer()
 	, m_bOrderAct( false )
 	, m_bWaitAct( false )
 	, m_bDoubleClick( false )
+	, m_bDontCheck( false )
 {
 	ZeroMemory( &this->m_tResourceData, sizeof( RESOURCE_DATA ) );
 }
@@ -411,6 +412,7 @@ void CPlayer::KeyCheck( void )
 
 		if ( m_pKeyMgr->GetKeyOnceDown( VK_LBUTTON ) )
 		{
+			this->m_bDontCheck = true;
 			this->m_bWaitAct = false;
 			this->ActCommand();
 			this->DecideShowButton();
@@ -432,7 +434,10 @@ void CPlayer::KeyCheck( void )
 			this->m_vecClickEventEntity[i]->MouseEvent();
 		}
 
-		this->MakeDragUnitCorps();
+		if ( !this->m_bDontCheck )
+			this->MakeDragUnitCorps();
+		else
+			this->m_bDontCheck = false;
 	}
 
 	//if ( m_pKeyMgr->GetKeyOnceDown( 'A' ) )
@@ -779,3 +784,5 @@ void CPlayer::ActCommand()
 
 	this->m_bOrderAct = false;
 }
+
+

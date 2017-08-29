@@ -34,6 +34,11 @@ CGhost::~CGhost()
 {
 }
 
+void CGhost::NuclearEnd()
+{
+	m_bUseNuclear = false;
+}
+
 HRESULT CGhost::Initialize( void )
 {
 	/* Add Sound To SoundVector.. */
@@ -144,6 +149,9 @@ void CGhost::Release( void )
 void CGhost::SetPattern( const eGameEntityPattern& _ePatternKind, const bool& _bPrevPattern /*= FALSE*/ )
 {
 	if ( m_curActPatternKind == CGameEntity::Pattern_Die )
+		return;
+
+	if ( _ePatternKind != CGameEntity::Pattern_Die && m_bUseNuclear )
 		return;
 
 	if ( _ePatternKind == CGameEntity::Pattern_Idle ||
@@ -296,8 +304,13 @@ bool CGhost::UseSkill( const eGameEntitySkillKind& _eSkillKind, CGameEntity* _pT
 		{
 			m_bUseNuclear = true;
 
+			this->SetPattern( CGameEntity::Pattern_Idle );
+
 			D3DXVECTOR3 vFirePos = this->m_pMouse->GetPos() + m_vScroll;
 			this->m_pEffectMgr->ShowNuclear( this, vFirePos );
+
+			this->LookPos( vFirePos );
+			this->ChangeAnimation( L"Attack" );
 		}
 			break;
 

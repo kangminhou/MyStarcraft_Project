@@ -198,10 +198,35 @@ bool CMiniMap::EraseEntity( const CGameEntity * _pEntity )
 	if ( iOut == -1 )
 		return false;
 
-	this->m_vecMiniEntityData[iVecIndex].first.erase( this->m_vecMiniEntityData[iVecIndex].first.begin() + iOut );
-	for ( size_t i = iOut; i < this->m_vecMiniEntityData[iVecIndex].first.size(); ++i )
+	auto& checkEntityData = this->m_vecMiniEntityData[iVecIndex];
+
+	if ( checkEntityData.first.size() <= iOut )
 	{
-		const_cast<CGameEntity*>(this->m_vecMiniEntityData[iVecIndex].first[i].pEntity)->SetMinimapSpaceDataKey( i );
+		bool bFindEntity = false;
+		for ( size_t i = 0; i < checkEntityData.first.size(); ++i )
+		{
+			if ( bFindEntity )
+			{
+				const_cast<CGameEntity*>(checkEntityData.first[i].pEntity)->SetMinimapSpaceDataKey( i - 1 );
+			}
+			else
+			{
+				if ( checkEntityData.first[i].pEntity->GetIsDie() || checkEntityData.first[i].pEntity == _pEntity )
+				{
+					checkEntityData.first.erase( checkEntityData.first.begin() + i );
+					bFindEntity = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		checkEntityData.first.erase( checkEntityData.first.begin() + iOut );
+
+		for ( size_t i = iOut; i < checkEntityData.first.size(); ++i )
+		{
+			const_cast<CGameEntity*>(checkEntityData.first[i].pEntity)->SetMinimapSpaceDataKey( i );
+		}
 	}
 
 	return true;

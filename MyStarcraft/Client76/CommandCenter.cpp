@@ -27,6 +27,9 @@ CCommandCenter::~CCommandCenter()
 
 HRESULT CCommandCenter::Initialize( void )
 {
+	this->AddSound( L"tcswht00.wav", CGameEntity::Sound_Click );
+
+
 	this->m_wstrStateKey = L"Control";
 
 	/* 유닛의 데이터 초기화.. */
@@ -152,11 +155,7 @@ void CCommandCenter::SetPattern( const eGameEntityPattern & _ePatternKind, const
 			else
 				return;
 
-			//D3DXVECTOR3 vMousePos = CMouse::GetInstance()->GetPos() + m_vScroll;
-			//CGameEntity* pEntity = CEntityMgr::GetInstance()->MakeUnit( 
-			//						(CEntityMgr::eEntityType)this->m_pPushData->iMessage, vMousePos, this->GetObjectType() );
-			//
-			//this->RenderBuildingArea( pEntity );
+			this->m_pAnimCom->ChangeAnimation( L"Act" );
 		}
 		break;
 
@@ -200,6 +199,7 @@ void CCommandCenter::InitAnimation()
 {
 	this->m_pAnimCom->AddAnimation( L"Fly", FRAME( 0.f, 3.f, 3.f, 2.f ), CAnimation::Anim_ClampForever );
 	this->m_pAnimCom->AddAnimation( L"Fly_Reverse", FRAME( 0.f, 3.f, 3.f, 2.f ), CAnimation::Anim_Reverse_ClampForever );
+	this->m_pAnimCom->AddAnimation( L"Act", FRAME( 0.f, 3.f, 2.f, 0.f ), CAnimation::Anim_Loop );
 }
 
 void CCommandCenter::InitPattern()
@@ -232,4 +232,7 @@ void CCommandCenter::InitTexture()
 		vecTexture.push_back( CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), i ) );
 	}
 	m_mapAllTexture.insert( make_pair( L"Fly", vecTexture ) );
+
+	m_vecResearchShowTexture.push_back( NULL );
+	m_vecResearchShowTexture.push_back(CTextureMgr::GetInstance()->GetTexture( this->GetObjKey().c_str(), this->m_wstrStateKey.c_str(), 5 ) );
 }

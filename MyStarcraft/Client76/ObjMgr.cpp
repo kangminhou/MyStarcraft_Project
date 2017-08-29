@@ -616,7 +616,8 @@ int CObjMgr::Update(void)
 			int iEvent = (*iter)->Update();
 			if ( iEvent == Event_DestoryObject )
 			{
-				vecDeleteObject.push_back( (*iter) );
+				//vecDeleteObject.push_back( (*iter) );
+				m_vecDeleteObj.push_back( (*iter) );
 				iter = m_ObjList[i].erase( iter );
 			}
 			else if ( iEvent == Event_EraseObjList )
@@ -628,16 +629,16 @@ int CObjMgr::Update(void)
 		}
 	}
 	
-	if ( !vecDeleteObject.empty() )
-	{
-		size_t iLength = vecDeleteObject.size();
-		for ( size_t i = 0; i < iLength; ++i )
-		{
-			safe_delete( vecDeleteObject[i] );
-		}
-
-		vecDeleteObject.clear();
-	}
+	//if ( !vecDeleteObject.empty() )
+	//{
+	//	size_t iLength = vecDeleteObject.size();
+	//	for ( size_t i = 0; i < iLength; ++i )
+	//	{
+	//		safe_delete( vecDeleteObject[i] );
+	//	}
+	//
+	//	vecDeleteObject.clear();
+	//}
 
 	return 0;
 }
@@ -668,6 +669,11 @@ void CObjMgr::Release(void)
 			safe_delete(*iter);
 		}
 		m_ObjList[i].clear();
+	}
+
+	for ( size_t i = 0; i < m_vecDeleteObj.size(); ++i )
+	{
+		safe_delete( m_vecDeleteObj[i] );
 	}
 }
 
