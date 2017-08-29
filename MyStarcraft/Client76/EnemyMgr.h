@@ -30,7 +30,12 @@ private:
 	float				m_fCurTime;
 	float				m_fStartTime;
 
+	float				m_fTime;
+
 	int					m_iLevel;
+	int					m_iCnt;
+
+	bool				m_bGo;
 
 	vector<ENEMY_RUSH_LEVEL_DATA>	m_vecRushData;
 	

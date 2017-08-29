@@ -5,6 +5,7 @@
 #include "Device.h"
 #include "TimeMgr.h"
 #include "SoundMgr.h"
+#include "EffectMgr.h"
 
 #include "Effect.h"
 #include "GameEntity.h"

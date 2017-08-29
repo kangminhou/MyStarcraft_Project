@@ -80,7 +80,7 @@ HRESULT CTank::Initialize( void )
 
 	this->m_tSiegeTankGroundAttData.pWeapon = m_pWeaponMgr->GetNewWeapon( this->GetObjectType(), CWeaponMgr::Weapon_ArcliteShockCannon );
 	this->m_tSiegeTankGroundAttData.byAttackNum = 1;
-	this->m_tSiegeTankGroundAttData.fAttRange = 12.f;
+	this->m_tSiegeTankGroundAttData.fAttRange = 15.f;
 	this->m_tSiegeTankGroundAttData.pWeapon->SetWeaponOwner( this );
 
 	this->m_tGroundAttWeapon = this->m_tNormalTankGroundAttData;
@@ -221,10 +221,10 @@ void CTank::Render( void )
 		this->DrawTexture( pDrawTexture, this->m_matCannonWorld, D3DXVECTOR3( fX, fY, 0.f ) );
 	}
 
-	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
-		(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
-
-	this->DrawRect( rcDraw );
+	//RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+	//	(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+	//
+	//this->DrawRect( rcDraw );
 }
 
 void CTank::Release( void )

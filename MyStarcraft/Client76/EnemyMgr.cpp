@@ -58,24 +58,55 @@ void CEnemyMgr::Initialize()
 		this->AddEntityToLevel( 1, pEntity );
 	}
 
-	vStart = D3DXVECTOR3( 2500.f, 2050.f, 0.f );
-	iLength = 25;
-	for ( int i = 0; i < iLength; ++i )
-	{
-		CGameEntity* pEntity = this->m_pEntityMgr->MakeUnit( CEntityMgr::Entity_Marine,
-															 vStart + D3DXVECTOR3( (i % 5) * 50.f, (i / 5) * 50.f, 0.f ), OBJ_TYPE_USER2 );
-
-		this->AddEntityToLevel( 2, pEntity );
-	}
+	//vStart = D3DXVECTOR3( 2500.f, 2050.f, 0.f );
+	//iLength = 25;
+	//for ( int i = 0; i < iLength; ++i )
+	//{
+	//	CGameEntity* pEntity = this->m_pEntityMgr->MakeUnit( CEntityMgr::Entity_Marine,
+	//														 vStart + D3DXVECTOR3( (i % 5) * 50.f, (i / 5) * 50.f, 0.f ), OBJ_TYPE_USER2 );
+	//
+	//	this->AddEntityToLevel( 2, pEntity );
+	//}
 
 	this->m_fStartTime = CTimeMgr::GetInstance()->GetGlobalTime();
 
 	this->m_iLevel = 0;
+
+	this->m_bGo = false;
+	this->m_fTime = 0.f;
+	this->m_iCnt = 5;
 }
 
 void CEnemyMgr::Update()
 {
 	this->m_fCurTime = CTimeMgr::GetInstance()->GetGlobalTime();
+
+	if ( this->m_bGo )
+	{
+		this->m_fTime -= GET_TIME;
+		if ( this->m_fTime <= 0.f )
+		{
+			--m_iCnt;
+			D3DXVECTOR3 vStart = D3DXVECTOR3( 2550.f, 2050.f, 0.f );
+			int iLength = 25;
+			for ( int i = 0; i < iLength; ++i )
+			{
+				CGameEntity* pEntity = this->m_pEntityMgr->MakeUnit( CEntityMgr::Entity_Marine,
+																	 vStart + D3DXVECTOR3( (i % 5) * 70.f, (i / 5) * 70.f, 0.f ), OBJ_TYPE_USER2 );
+
+				pEntity->SetDestination( D3DXVECTOR3( 700.f, 2500.f, 0.f ) );
+				pEntity->SetPattern( CGameEntity::Pattern_MoveAlert );
+				pEntity->UseSkill( CGameEntity::Skill_SteamPack, nullptr );
+
+				this->m_pObjMgr->AddGameObject( pEntity, OBJ_TYPE_USER2 );
+			}
+
+			m_fTime = 10.f;
+
+			if ( m_iCnt <= 0 )
+				this->m_bGo = false;
+		}
+	}
 
 	switch ( m_iLevel )
 	{
@@ -85,6 +116,8 @@ void CEnemyMgr::Update()
 			{
 				for ( BYTE i = VK_F1; i <= VK_F12; ++i )
 				{
+					if ( i == VK_F3 )
+						continue;
 					if ( CKeyMgr::GetInstance()->GetKeyOnceDown( i ) )
 					{
 						BYTE byIndex = i - VK_F1;
@@ -105,6 +138,11 @@ void CEnemyMgr::Update()
 						}
 
 					}
+				}
+
+				if ( CKeyMgr::GetInstance()->GetKeyOnceDown( VK_F3 ) )
+				{
+					m_bGo = true;
 				}
 			}
 		}

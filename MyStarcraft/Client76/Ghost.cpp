@@ -56,7 +56,7 @@ HRESULT CGhost::Initialize( void )
 
 	this->AddSound( L"tghdth00.wav", CUnit::Sound_Death );
 
-	this->AddSound( L"tghdth00.wav", CUnit::Sound_ETC );
+	this->AddSound( L"tghlkd00.wav", CUnit::Sound_ETC );
 	this->AddSound( L"tghlas00.wav", CUnit::Sound_ETC );
 	this->AddSound( L"tadupd04.wav", CUnit::Sound_ETC );
 
@@ -136,10 +136,10 @@ void CGhost::Render( void )
 		this->RenderHpUI();
 	}
 
-	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
-		(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
-
-	this->DrawRect( rcDraw );
+	//RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+	//	(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+	//
+	//this->DrawRect( rcDraw );
 }
 
 void CGhost::Release( void )

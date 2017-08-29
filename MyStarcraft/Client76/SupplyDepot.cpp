@@ -75,7 +75,7 @@ void CSupplyDepot::Render( void )
 		}
 	}
 
-	this->DrawRect( this->m_tColRect );
+	//this->DrawRect( this->m_tColRect );
 }
 
 void CSupplyDepot::Release( void )

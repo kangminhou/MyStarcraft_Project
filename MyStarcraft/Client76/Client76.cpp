@@ -37,11 +37,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccelTable;
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	// api 에서 콘솔창 띄우기..
 	if ( AllocConsole() )
 		freopen( "CONOUT$", "w", stdout );
-//#endif
+#endif
 
 	msg.message = WM_NULL;
 
@@ -100,10 +100,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	safe_release( pTimer_Manager );
 	safe_release( pFrame_Manager );
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	// 콘솔창 해제..
 	FreeConsole();
-//#endif
+#endif
 
 
 	// 기본 메시지 루프입니다.

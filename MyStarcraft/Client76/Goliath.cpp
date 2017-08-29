@@ -178,10 +178,10 @@ void CGoliath::Render( void )
 		}
 	}
 
-	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
-		(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
-
-	this->DrawRect( rcDraw );
+	//RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+	//	(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+	//
+	//this->DrawRect( rcDraw );
 }
 
 void CGoliath::Release( void )

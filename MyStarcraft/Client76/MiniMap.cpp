@@ -145,7 +145,7 @@ void CMiniMap::Render( void )
 
 	this->DrawTexture( this->m_pAreaTexture, this->m_matAreaWorld );
 
-	this->DrawRect( this->m_rcMouseCol );
+	//this->DrawRect( this->m_rcMouseCol );
 }
 
 void CMiniMap::Release( void )

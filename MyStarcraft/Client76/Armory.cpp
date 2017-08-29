@@ -7,6 +7,7 @@
 
 #include "Move.h"
 #include "Pattern_Building_Build.h"
+#include "Pattern_Die.h"
 #include "UIMgr.h"
 #include "Player.h"
 #include "ObjMgr.h"
@@ -100,6 +101,15 @@ void CArmory::SetPattern( const eGameEntityPattern & _ePatternKind, const bool &
 		}
 		break;
 
+		case CGameEntity::Pattern_Die:
+			this->m_pCurActPattern = this->m_mapPatterns.find( L"Die" )->second;;
+			bChangeAnimation = this->m_pAnimCom->ChangeAnimation( L"Die" );
+			this->m_wstrStateKey = L"Die";
+
+			if ( this->m_pEntityBelongToCorps )
+				this->m_pEntityBelongToCorps->EraseUnit( this );
+			break;
+
 	}
 
 	if ( this->m_pCurActPattern )
@@ -134,6 +144,7 @@ void CArmory::InitAnimation()
 void CArmory::InitPattern()
 {
 	this->m_mapPatterns.insert( make_pair( L"Build", new CPattern_Building_Build ) );
+	this->m_mapPatterns.insert( make_pair( L"Die", new CPattern_Die ) );
 }
 
 void CArmory::InitTexture()

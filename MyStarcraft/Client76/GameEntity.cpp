@@ -562,6 +562,11 @@ int CGameEntity::Update( void )
 
 void CGameEntity::Render( void )
 {
+	D3DXVECTOR3 vPos = this->GetPos();
+	if ( vPos.x - this->m_vScroll.x < -100.f || vPos.x - this->m_vScroll.x > WINCX + 100.f ||
+		 vPos.y - this->m_vScroll.y < -100.f || vPos.y - this->m_vScroll.y > WINCY + 100.f )
+		return;
+
 	/* 그릴 텍스쳐를 찾아냄.. */
 	const TEX_INFO* pDrawTexture = NULL;
 	const FRAME* pCurAnimation = this->m_pAnimCom->GetCurAnimation();
@@ -590,10 +595,10 @@ void CGameEntity::Render( void )
 	//swprintf_s( str, L"HP : %f", this->GetCurHp() );
 	//this->DrawFont( matFont, str );
 
-	RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
-					(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
-
-	this->DrawRect( rcDraw );
+	//RECT rcDraw = { (LONG)(this->m_tColRect.left - m_vScroll.x), (LONG)(this->m_tColRect.top - m_vScroll.y),
+	//				(LONG)(this->m_tColRect.right - m_vScroll.x), (LONG)(this->m_tColRect.bottom - m_vScroll.y) };
+	//
+	//this->DrawRect( rcDraw );
 
 }
 
